@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -11,134 +10,140 @@ export default function LoginPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    // Simulate login delay
     await new Promise(resolve => setTimeout(resolve, 800));
     router.push('/dashboard');
   };
 
   return (
-    <div className="min-h-screen bg-cream flex">
-      {/* Left side - Branding */}
-      <div className="hidden lg:flex lg:w-1/2 bg-primary relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary to-primary-dark" />
-        <div className="relative z-10 flex flex-col justify-center px-16">
+    <div style={{ minHeight: '100vh', display: 'flex', background: '#f9f7f4' }}>
+      {/* Left Panel */}
+      <div style={{ 
+        width: '50%', 
+        background: 'linear-gradient(135deg, #275380 0%, #1e3f61 100%)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        position: 'relative',
+        overflow: 'hidden'
+      }}>
+        <div style={{ position: 'relative', zIndex: 10, padding: '64px', maxWidth: '500px' }}>
           <img 
             src="https://www.optalishealthcare.com/wp-content/uploads/2023/03/optalis_logonav.webp" 
-            alt="Optalis Healthcare" 
-            className="h-16 w-auto mb-8 brightness-0 invert"
+            alt="Optalis" 
+            style={{ height: '56px', marginBottom: '32px', filter: 'brightness(0) invert(1)' }}
           />
-          <h1 className="text-4xl font-serif text-white mb-4">
+          <h1 style={{ 
+            fontFamily: 'Cormorant Garamond, serif', 
+            fontSize: '42px', 
+            color: 'white', 
+            marginBottom: '16px',
+            fontWeight: 600
+          }}>
             Admissions Portal
           </h1>
-          <p className="text-xl text-white/80">
+          <p style={{ fontSize: '18px', color: 'rgba(255,255,255,0.8)', lineHeight: 1.6 }}>
             Streamline patient admissions with intelligent document processing and workflow management.
           </p>
-          <div className="mt-12 space-y-4">
-            <div className="flex items-center gap-3 text-white/90">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-              <span>AI-powered document extraction</span>
-            </div>
-            <div className="flex items-center gap-3 text-white/90">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-              <span>Real-time application tracking</span>
-            </div>
-            <div className="flex items-center gap-3 text-white/90">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-              <span>Seamless CRM integration</span>
-            </div>
+          
+          <div style={{ marginTop: '48px' }}>
+            {['AI-powered document extraction', 'Real-time application tracking', 'Seamless CRM integration'].map((feature, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px', color: 'rgba(255,255,255,0.9)', marginBottom: '16px' }}>
+                <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                <span>{feature}</span>
+              </div>
+            ))}
           </div>
         </div>
+        
         {/* Decorative circles */}
-        <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-white/5 rounded-full" />
-        <div className="absolute -top-16 -right-16 w-64 h-64 bg-white/5 rounded-full" />
+        <div style={{ position: 'absolute', bottom: '-120px', right: '-120px', width: '400px', height: '400px', background: 'rgba(255,255,255,0.05)', borderRadius: '50%' }} />
+        <div style={{ position: 'absolute', top: '-80px', right: '-80px', width: '280px', height: '280px', background: 'rgba(255,255,255,0.05)', borderRadius: '50%' }} />
       </div>
 
-      {/* Right side - Login Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
-        <div className="w-full max-w-md">
-          {/* Mobile logo */}
-          <div className="lg:hidden mb-8 text-center">
-            <img 
-              src="https://www.optalishealthcare.com/wp-content/uploads/2023/03/optalis_logonav.webp" 
-              alt="Optalis Healthcare" 
-              className="h-12 mx-auto mb-4"
-            />
-            <h1 className="text-2xl font-serif text-primary">Admissions Portal</h1>
-          </div>
+      {/* Right Panel - Login Form */}
+      <div style={{ width: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '32px' }}>
+        <div style={{ width: '100%', maxWidth: '400px' }}>
+          <div style={{ background: 'white', borderRadius: '16px', padding: '40px', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
+            <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '28px', marginBottom: '8px' }}>Welcome back</h2>
+            <p style={{ color: '#666', marginBottom: '32px' }}>Sign in to access the admissions dashboard</p>
 
-          <div className="bg-white rounded-2xl shadow-soft-lg p-8">
-            <h2 className="text-2xl font-serif text-gray-900 mb-2">Welcome back</h2>
-            <p className="text-gray-500 mb-8">Sign in to access the admissions dashboard</p>
-
-            <form onSubmit={handleLogin} className="space-y-6">
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+            <form onSubmit={handleLogin}>
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '8px', color: '#333' }}>
                   Email Address
                 </label>
                 <input
-                  id="email"
                   type="email"
                   defaultValue="jennifer.walsh@optalis.com"
-                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
-                  placeholder="you@optalis.com"
+                  style={{
+                    width: '100%',
+                    padding: '12px 16px',
+                    border: '1px solid #e0e0e0',
+                    borderRadius: '8px',
+                    fontSize: '15px',
+                    outline: 'none',
+                    transition: 'border-color 0.2s',
+                    boxSizing: 'border-box'
+                  }}
                 />
               </div>
 
-              <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '8px', color: '#333' }}>
                   Password
                 </label>
                 <input
-                  id="password"
                   type="password"
                   defaultValue="demo123"
-                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
-                  placeholder="••••••••"
+                  style={{
+                    width: '100%',
+                    padding: '12px 16px',
+                    border: '1px solid #e0e0e0',
+                    borderRadius: '8px',
+                    fontSize: '15px',
+                    outline: 'none',
+                    boxSizing: 'border-box'
+                  }}
                 />
               </div>
 
-              <div className="flex items-center justify-between">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" defaultChecked className="w-4 h-4 text-primary rounded border-gray-300" />
-                  <span className="text-sm text-gray-600">Remember me</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '14px', color: '#666' }}>
+                  <input type="checkbox" defaultChecked style={{ width: '16px', height: '16px' }} />
+                  Remember me
                 </label>
-                <a href="#" className="text-sm text-primary hover:underline">Forgot password?</a>
+                <a href="#" style={{ fontSize: '14px', color: '#275380', textDecoration: 'none' }}>Forgot password?</a>
               </div>
 
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-3 px-4 bg-primary text-white rounded-lg font-medium hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{
+                  width: '100%',
+                  padding: '14px',
+                  background: '#275380',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '15px',
+                  fontWeight: 500,
+                  cursor: 'pointer',
+                  transition: 'background 0.2s',
+                  opacity: isLoading ? 0.7 : 1
+                }}
               >
-                {isLoading ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                    </svg>
-                    Signing in...
-                  </span>
-                ) : (
-                  'Sign In'
-                )}
+                {isLoading ? 'Signing in...' : 'Sign In'}
               </button>
             </form>
 
-            <p className="mt-6 text-center text-sm text-gray-500">
-              Need help? Contact{' '}
-              <a href="mailto:support@optalis.com" className="text-primary hover:underline">
-                IT Support
-              </a>
+            <p style={{ marginTop: '24px', textAlign: 'center', fontSize: '14px', color: '#888' }}>
+              Need help? Contact <a href="mailto:support@optalis.com" style={{ color: '#275380' }}>IT Support</a>
             </p>
           </div>
 
-          <p className="mt-8 text-center text-xs text-gray-400">
+          <p style={{ marginTop: '32px', textAlign: 'center', fontSize: '12px', color: '#aaa' }}>
             © 2026 Optalis Healthcare. All rights reserved.
           </p>
         </div>
