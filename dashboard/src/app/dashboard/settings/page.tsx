@@ -1,192 +1,279 @@
 'use client';
 
 import { useState } from 'react';
-import { 
-  UserIcon, 
-  BellIcon, 
-  ShieldCheckIcon,
-  BuildingOffice2Icon,
-  PaintBrushIcon
-} from '@heroicons/react/24/outline';
 
 export default function SettingsPage() {
   const [notifications, setNotifications] = useState({
-    newApplications: true,
-    decisions: true,
-    reviews: true,
-    email: false,
+    email: true,
+    push: true,
+    sms: false,
+    newApplication: true,
+    statusChange: true,
+    dailyDigest: false
   });
 
   return (
-    <div className="space-y-6">
+    <div className="main-content">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-serif text-gray-900">Settings</h1>
-        <p className="text-gray-500 mt-1">Manage your account and application preferences</p>
+      <div style={{ marginBottom: '32px' }}>
+        <h1 style={{ fontSize: '32px', marginBottom: '8px' }}>Settings</h1>
+        <p style={{ color: '#4a4a4a' }}>Manage your account and notification preferences</p>
       </div>
 
-      {/* Profile Section */}
-      <div className="bg-white rounded-xl shadow-soft-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-3">
-          <UserIcon className="w-5 h-5 text-primary" />
-          <h2 className="font-semibold text-gray-900">Profile</h2>
+      <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: '32px' }}>
+        {/* Settings Nav */}
+        <div className="card" style={{ padding: '16px', height: 'fit-content' }}>
+          <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            {['Profile', 'Notifications', 'Security', 'Integrations', 'Team'].map((item, i) => (
+              <a
+                key={item}
+                href="#"
+                style={{
+                  padding: '12px 16px',
+                  borderRadius: '8px',
+                  textDecoration: 'none',
+                  color: i === 1 ? 'white' : '#4a4a4a',
+                  background: i === 1 ? '#275380' : 'transparent',
+                  fontWeight: i === 1 ? 500 : 400
+                }}
+              >
+                {item}
+              </a>
+            ))}
+          </nav>
         </div>
-        <div className="p-6">
-          <div className="flex items-center gap-6">
-            <div className="w-20 h-20 rounded-full bg-primary flex items-center justify-center text-white text-2xl font-semibold">
-              JW
-            </div>
-            <div>
-              <h3 className="text-lg font-medium text-gray-900">Jennifer Walsh</h3>
-              <p className="text-gray-500">Admissions Director</p>
-              <p className="text-sm text-gray-400">jennifer.walsh@optalis.com</p>
-            </div>
-          </div>
-          <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
-              <input
-                type="text"
-                defaultValue="Jennifer Walsh"
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
-              <input
-                type="email"
-                defaultValue="jennifer.walsh@optalis.com"
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
-              <input
-                type="tel"
-                defaultValue="(248) 555-0100"
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Role</label>
-              <input
-                type="text"
-                defaultValue="Admissions Director"
-                disabled
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-500"
-              />
-            </div>
-          </div>
-          <button className="mt-6 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors">
-            Save Changes
-          </button>
-        </div>
-      </div>
 
-      {/* Notifications Section */}
-      <div className="bg-white rounded-xl shadow-soft-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-3">
-          <BellIcon className="w-5 h-5 text-primary" />
-          <h2 className="font-semibold text-gray-900">Notifications</h2>
-        </div>
-        <div className="p-6 space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-medium text-gray-900">New Applications</p>
-              <p className="text-sm text-gray-500">Get notified when new applications arrive</p>
+        {/* Settings Content */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          {/* Profile Section */}
+          <div className="card">
+            <h2 style={{ fontSize: '20px', marginBottom: '24px' }}>Profile Information</h2>
+            
+            <div style={{ display: 'flex', alignItems: 'center', gap: '24px', marginBottom: '32px' }}>
+              <div style={{
+                width: '80px',
+                height: '80px',
+                borderRadius: '50%',
+                background: '#275380',
+                color: 'white',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '28px',
+                fontWeight: 600
+              }}>
+                JW
+              </div>
+              <div>
+                <button style={{
+                  padding: '8px 16px',
+                  background: 'white',
+                  border: '1px solid #e0e0e0',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  marginRight: '8px'
+                }}>
+                  Upload Photo
+                </button>
+                <button style={{
+                  padding: '8px 16px',
+                  background: 'transparent',
+                  border: 'none',
+                  color: '#dc2626',
+                  cursor: 'pointer'
+                }}>
+                  Remove
+                </button>
+              </div>
             </div>
-            <button
-              onClick={() => setNotifications(n => ({ ...n, newApplications: !n.newApplications }))}
-              className={`relative w-12 h-6 rounded-full transition-colors ${
-                notifications.newApplications ? 'bg-primary' : 'bg-gray-200'
-              }`}
-            >
-              <span className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${
-                notifications.newApplications ? 'left-7' : 'left-1'
-              }`} />
-            </button>
-          </div>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-medium text-gray-900">Decision Updates</p>
-              <p className="text-sm text-gray-500">Notifications for application decisions</p>
-            </div>
-            <button
-              onClick={() => setNotifications(n => ({ ...n, decisions: !n.decisions }))}
-              className={`relative w-12 h-6 rounded-full transition-colors ${
-                notifications.decisions ? 'bg-primary' : 'bg-gray-200'
-              }`}
-            >
-              <span className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${
-                notifications.decisions ? 'left-7' : 'left-1'
-              }`} />
-            </button>
-          </div>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-medium text-gray-900">Review Reminders</p>
-              <p className="text-sm text-gray-500">Reminders for applications needing review</p>
-            </div>
-            <button
-              onClick={() => setNotifications(n => ({ ...n, reviews: !n.reviews }))}
-              className={`relative w-12 h-6 rounded-full transition-colors ${
-                notifications.reviews ? 'bg-primary' : 'bg-gray-200'
-              }`}
-            >
-              <span className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${
-                notifications.reviews ? 'left-7' : 'left-1'
-              }`} />
-            </button>
-          </div>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-medium text-gray-900">Email Notifications</p>
-              <p className="text-sm text-gray-500">Receive notifications via email</p>
-            </div>
-            <button
-              onClick={() => setNotifications(n => ({ ...n, email: !n.email }))}
-              className={`relative w-12 h-6 rounded-full transition-colors ${
-                notifications.email ? 'bg-primary' : 'bg-gray-200'
-              }`}
-            >
-              <span className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${
-                notifications.email ? 'left-7' : 'left-1'
-              }`} />
-            </button>
-          </div>
-        </div>
-      </div>
 
-      {/* Facility Preferences */}
-      <div className="bg-white rounded-xl shadow-soft-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-3">
-          <BuildingOffice2Icon className="w-5 h-5 text-primary" />
-          <h2 className="font-semibold text-gray-900">Facility Preferences</h2>
-        </div>
-        <div className="p-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Default Facility View</label>
-            <select className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
-              <option>All Facilities</option>
-              <option>Cranberry Park Locations</option>
-              <option>Optalis Locations</option>
-              <option>Michigan Only</option>
-              <option>Ohio Only</option>
-            </select>
-          </div>
-        </div>
-      </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '8px' }}>First Name</label>
+                <input
+                  type="text"
+                  defaultValue="Jennifer"
+                  style={{
+                    width: '100%',
+                    padding: '12px 16px',
+                    border: '1px solid #e0e0e0',
+                    borderRadius: '8px',
+                    fontSize: '15px',
+                    outline: 'none',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '8px' }}>Last Name</label>
+                <input
+                  type="text"
+                  defaultValue="Walsh"
+                  style={{
+                    width: '100%',
+                    padding: '12px 16px',
+                    border: '1px solid #e0e0e0',
+                    borderRadius: '8px',
+                    fontSize: '15px',
+                    outline: 'none',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '8px' }}>Email</label>
+                <input
+                  type="email"
+                  defaultValue="jennifer.walsh@optalis.com"
+                  style={{
+                    width: '100%',
+                    padding: '12px 16px',
+                    border: '1px solid #e0e0e0',
+                    borderRadius: '8px',
+                    fontSize: '15px',
+                    outline: 'none',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '8px' }}>Role</label>
+                <input
+                  type="text"
+                  defaultValue="Admissions Director"
+                  disabled
+                  style={{
+                    width: '100%',
+                    padding: '12px 16px',
+                    border: '1px solid #e0e0e0',
+                    borderRadius: '8px',
+                    fontSize: '15px',
+                    outline: 'none',
+                    background: '#f9f7f4',
+                    color: '#666',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+            </div>
 
-      {/* Security */}
-      <div className="bg-white rounded-xl shadow-soft-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-3">
-          <ShieldCheckIcon className="w-5 h-5 text-primary" />
-          <h2 className="font-semibold text-gray-900">Security</h2>
-        </div>
-        <div className="p-6 space-y-4">
-          <button className="text-primary hover:underline text-sm">Change Password</button>
-          <div className="pt-4 border-t border-gray-100">
-            <p className="text-sm text-gray-500">Last login: Today at 2:34 PM from 192.168.1.xxx</p>
+            <div style={{ marginTop: '24px', paddingTop: '24px', borderTop: '1px solid #f0f0f0' }}>
+              <button className="btn btn-primary">Save Changes</button>
+            </div>
+          </div>
+
+          {/* Notifications Section */}
+          <div className="card">
+            <h2 style={{ fontSize: '20px', marginBottom: '24px' }}>Notification Preferences</h2>
+            
+            <div style={{ marginBottom: '24px' }}>
+              <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#666', textTransform: 'uppercase', marginBottom: '16px' }}>Channels</h3>
+              {[
+                { key: 'email', label: 'Email Notifications', desc: 'Receive updates via email' },
+                { key: 'push', label: 'Push Notifications', desc: 'Browser and mobile push alerts' },
+                { key: 'sms', label: 'SMS Notifications', desc: 'Text message alerts for urgent items' },
+              ].map((item) => (
+                <div key={item.key} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 0', borderBottom: '1px solid #f0f0f0' }}>
+                  <div>
+                    <div style={{ fontWeight: 500 }}>{item.label}</div>
+                    <div style={{ fontSize: '13px', color: '#888' }}>{item.desc}</div>
+                  </div>
+                  <label style={{ position: 'relative', width: '48px', height: '28px' }}>
+                    <input
+                      type="checkbox"
+                      checked={notifications[item.key as keyof typeof notifications]}
+                      onChange={(e) => setNotifications({ ...notifications, [item.key]: e.target.checked })}
+                      style={{ opacity: 0, width: 0, height: 0 }}
+                    />
+                    <span style={{
+                      position: 'absolute',
+                      cursor: 'pointer',
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      background: notifications[item.key as keyof typeof notifications] ? '#275380' : '#e0e0e0',
+                      borderRadius: '28px',
+                      transition: '0.3s'
+                    }}>
+                      <span style={{
+                        position: 'absolute',
+                        height: '22px',
+                        width: '22px',
+                        left: notifications[item.key as keyof typeof notifications] ? '23px' : '3px',
+                        bottom: '3px',
+                        background: 'white',
+                        borderRadius: '50%',
+                        transition: '0.3s'
+                      }} />
+                    </span>
+                  </label>
+                </div>
+              ))}
+            </div>
+
+            <div>
+              <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#666', textTransform: 'uppercase', marginBottom: '16px' }}>Events</h3>
+              {[
+                { key: 'newApplication', label: 'New Applications', desc: 'When a new application is submitted' },
+                { key: 'statusChange', label: 'Status Changes', desc: 'When application status is updated' },
+                { key: 'dailyDigest', label: 'Daily Digest', desc: 'Summary of daily activity at 8am' },
+              ].map((item) => (
+                <div key={item.key} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 0', borderBottom: '1px solid #f0f0f0' }}>
+                  <div>
+                    <div style={{ fontWeight: 500 }}>{item.label}</div>
+                    <div style={{ fontSize: '13px', color: '#888' }}>{item.desc}</div>
+                  </div>
+                  <label style={{ position: 'relative', width: '48px', height: '28px' }}>
+                    <input
+                      type="checkbox"
+                      checked={notifications[item.key as keyof typeof notifications]}
+                      onChange={(e) => setNotifications({ ...notifications, [item.key]: e.target.checked })}
+                      style={{ opacity: 0, width: 0, height: 0 }}
+                    />
+                    <span style={{
+                      position: 'absolute',
+                      cursor: 'pointer',
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      background: notifications[item.key as keyof typeof notifications] ? '#275380' : '#e0e0e0',
+                      borderRadius: '28px',
+                      transition: '0.3s'
+                    }}>
+                      <span style={{
+                        position: 'absolute',
+                        height: '22px',
+                        width: '22px',
+                        left: notifications[item.key as keyof typeof notifications] ? '23px' : '3px',
+                        bottom: '3px',
+                        background: 'white',
+                        borderRadius: '50%',
+                        transition: '0.3s'
+                      }} />
+                    </span>
+                  </label>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Danger Zone */}
+          <div className="card" style={{ border: '1px solid #fecaca' }}>
+            <h2 style={{ fontSize: '20px', marginBottom: '8px', color: '#dc2626' }}>Danger Zone</h2>
+            <p style={{ color: '#666', marginBottom: '16px' }}>Irreversible actions for your account</p>
+            <button style={{
+              padding: '10px 20px',
+              background: 'white',
+              border: '1px solid #dc2626',
+              color: '#dc2626',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontWeight: 500
+            }}>
+              Delete Account
+            </button>
           </div>
         </div>
       </div>
