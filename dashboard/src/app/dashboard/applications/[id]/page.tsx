@@ -23,7 +23,7 @@ const mockApplications: Record<string, {
   allergies: string[];
   physician: string;
   services: string[];
-  documents: { name: string; type: string }[];
+  documents: { name: string; type: string; url: string }[];
   notes: string;
   confidence: number;
   aiSummary: string;
@@ -37,7 +37,11 @@ const mockApplications: Record<string, {
     medications: ['Metformin 500mg', 'Lisinopril 10mg', 'Donepezil 5mg'],
     allergies: ['Penicillin', 'Sulfa'],
     physician: 'Dr. Robert Chen, MD', services: ['Memory Care', 'Medication Management', 'Physical Therapy'],
-    documents: [{ name: 'Medical_Records.pdf', type: 'Medical' }, { name: 'Insurance_Card.pdf', type: 'Insurance' }, { name: 'Physician_Orders.pdf', type: 'Orders' }],
+    documents: [
+      { name: 'Intake_Form.pdf', type: 'Application', url: '/documents/intake-form-APP-2026-001.html' },
+      { name: 'Insurance_Verification.pdf', type: 'Insurance', url: '/documents/insurance-verification-APP-2026-001.html' },
+      { name: 'Medical_Records.pdf', type: 'Medical', url: '/documents/medical-records-APP-2026-001.html' }
+    ],
     notes: 'Patient being discharged from Beaumont Hospital. Family requesting urgent placement.',
     confidence: 94,
     aiSummary: '83-year-old female with progressive dementia, well-controlled hypertension, and Type 2 diabetes managed with oral medication. Currently hospitalized at Beaumont, medically stable and cleared for discharge. Family seeking memory care placement with 24/7 supervision. Patient requires assistance with ADLs and medication management. Cognitive assessment indicates moderate dementia with preserved mobility. Good candidate for memory care unit with structured activities program. No behavioral concerns noted. Insurance verified - Medicare coverage confirmed for skilled nursing level of care.'
@@ -51,7 +55,10 @@ const mockApplications: Record<string, {
     medications: ['Lasix 40mg', 'Metoprolol 25mg', 'Spiriva'],
     allergies: ['None known'],
     physician: 'Dr. Sarah Johnson, MD', services: ['Skilled Nursing', 'Respiratory Therapy', 'Cardiac Rehab'],
-    documents: [{ name: 'Intake_Form.pdf', type: 'Application' }, { name: 'Insurance_Verification.pdf', type: 'Insurance' }],
+    documents: [
+      { name: 'Intake_Form.pdf', type: 'Application', url: '/documents/intake-form-APP-2026-001.html' },
+      { name: 'Insurance_Verification.pdf', type: 'Insurance', url: '/documents/insurance-verification-APP-2026-001.html' }
+    ],
     notes: 'Insurance verification pending. Awaiting pre-authorization.',
     confidence: 87,
     aiSummary: '87-year-old male with chronic COPD and compensated CHF, recently hospitalized for acute exacerbation. Requires supplemental oxygen (2L NC) and nebulizer treatments. Cardiac function stable with current medication regimen. Needs skilled nursing for respiratory therapy and cardiac monitoring during recovery. Estimated rehab duration: 3-4 weeks. Insurance pre-authorization pending - BCBS requires additional documentation for skilled nursing level. Recommend follow-up with pulmonology within 2 weeks of admission.'
@@ -65,7 +72,11 @@ const mockApplications: Record<string, {
     medications: ['Celebrex 200mg', 'Aricept 10mg', 'Vitamin D 1000IU'],
     allergies: ['Aspirin'],
     physician: 'Dr. Michael Brown, DO', services: ['Assisted Living', 'Memory Support', 'Occupational Therapy'],
-    documents: [{ name: 'Complete_Application.pdf', type: 'Application' }, { name: 'Medical_History.pdf', type: 'Medical' }, { name: 'Insurance_Card.pdf', type: 'Insurance' }],
+    documents: [
+      { name: 'Complete_Application.pdf', type: 'Application', url: '/documents/intake-form-APP-2026-001.html' },
+      { name: 'Medical_History.pdf', type: 'Medical', url: '/documents/medical-records-APP-2026-001.html' },
+      { name: 'Insurance_Card.pdf', type: 'Insurance', url: '/documents/insurance-verification-APP-2026-001.html' }
+    ],
     notes: 'All documentation complete. Family tour completed 2/22. Move-in scheduled for 3/1.',
     confidence: 96,
     aiSummary: '80-year-old female with mild cognitive impairment (MCI) and moderate osteoarthritis affecting mobility. Lives alone, family concerned about safety and medication compliance. Cognitively appropriate for assisted living with memory support services. Independent with most ADLs but needs supervision for medication management and meal preparation. Would benefit from structured daily activities and social engagement. OT recommended for joint protection strategies. Excellent candidate for assisted living - all documentation complete, insurance verified, family engaged in care planning.'
@@ -667,7 +678,26 @@ export default function ApplicationDetailPage() {
             </h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {app.documents.map((doc, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px', background: '#f9f7f4', borderRadius: '8px' }}>
+                <a 
+                  key={i} 
+                  href={doc.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'space-between', 
+                    padding: '12px', 
+                    background: '#f9f7f4', 
+                    borderRadius: '8px',
+                    textDecoration: 'none',
+                    color: 'inherit',
+                    cursor: 'pointer',
+                    transition: 'background 0.2s'
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.background = '#f0ebe4'}
+                  onMouseOut={(e) => e.currentTarget.style.background = '#f9f7f4'}
+                >
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <svg width="20" height="20" fill="none" stroke="#666" strokeWidth="2" viewBox="0 0 24 24">
                       <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
@@ -677,10 +707,13 @@ export default function ApplicationDetailPage() {
                       <div style={{ fontSize: '12px', color: '#888' }}>{doc.type}</div>
                     </div>
                   </div>
-                  <svg width="18" height="18" fill="none" stroke="#275380" strokeWidth="2" viewBox="0 0 24 24">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
-                  </svg>
-                </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '12px', color: '#275380', fontWeight: 500 }}>View</span>
+                    <svg width="18" height="18" fill="none" stroke="#275380" strokeWidth="2" viewBox="0 0 24 24">
+                      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/>
+                    </svg>
+                  </div>
+                </a>
               ))}
             </div>
           </div>
