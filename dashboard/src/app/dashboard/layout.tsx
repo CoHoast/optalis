@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -17,13 +18,40 @@ const navigation = [
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const closeSidebar = () => setSidebarOpen(false);
 
   return (
     <div>
+      {/* Mobile Header */}
+      <div className="mobile-header">
+        <img src="https://www.optalishealthcare.com/wp-content/uploads/2023/03/optalis_logonav.webp" alt="Optalis" />
+        <button className="mobile-menu-btn" onClick={() => setSidebarOpen(true)}>
+          <svg width="24" height="24" fill="none" stroke="#275380" strokeWidth="2" viewBox="0 0 24 24">
+            <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      {/* Sidebar Overlay */}
+      <div className={`sidebar-overlay ${sidebarOpen ? 'active' : ''}`} onClick={closeSidebar} />
+
       {/* Sidebar */}
-      <div className="sidebar">
+      <div className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
         <div className="sidebar-logo">
-          <img src="https://www.optalishealthcare.com/wp-content/uploads/2023/03/optalis_logonav.webp" alt="Optalis" />
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <img src="https://www.optalishealthcare.com/wp-content/uploads/2023/03/optalis_logonav.webp" alt="Optalis" />
+            <button 
+              onClick={closeSidebar}
+              style={{ display: 'none', background: 'none', border: 'none', cursor: 'pointer', padding: '8px' }}
+              className="mobile-close-btn"
+            >
+              <svg width="24" height="24" fill="none" stroke="#666" strokeWidth="2" viewBox="0 0 24 24">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
           <p>Admissions Portal</p>
         </div>
         
@@ -31,7 +59,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           {navigation.map((item) => {
             const isActive = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href));
             return (
-              <Link key={item.name} href={item.href} className={isActive ? 'active' : ''}>
+              <Link 
+                key={item.name} 
+                href={item.href} 
+                className={isActive ? 'active' : ''}
+                onClick={closeSidebar}
+              >
                 <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
                   <path d={item.icon} />
                 </svg>
@@ -49,7 +82,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <div className="sidebar-user-role">Admin</div>
             </div>
           </div>
-          <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px', marginTop: '8px', color: '#666', textDecoration: 'none', fontSize: '14px' }}>
+          <Link href="/" onClick={closeSidebar} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px', marginTop: '8px', color: '#666', textDecoration: 'none', fontSize: '14px' }}>
             <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>
             </svg>
@@ -60,6 +93,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
       {/* Main Content */}
       {children}
+
+      <style jsx global>{`
+        @media (max-width: 1024px) {
+          .mobile-close-btn {
+            display: block !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }
