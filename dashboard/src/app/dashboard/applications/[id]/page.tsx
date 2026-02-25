@@ -23,7 +23,7 @@ const mockApplications: Record<string, {
   allergies: string[];
   physician: string;
   services: string[];
-  documents: { name: string; type: string; url: string }[];
+  documents: { name: string; type: string; rawUrl: string; extractedUrl: string }[];
   notes: string;
   confidence: number;
   aiSummary: string;
@@ -38,9 +38,9 @@ const mockApplications: Record<string, {
     allergies: ['Penicillin', 'Sulfa'],
     physician: 'Dr. Robert Chen, MD', services: ['Memory Care', 'Medication Management', 'Physical Therapy'],
     documents: [
-      { name: 'Intake_Form.pdf', type: 'Application', url: '/documents/intake-form-APP-2026-001.html' },
-      { name: 'Insurance_Verification.pdf', type: 'Insurance', url: '/documents/insurance-verification-APP-2026-001.html' },
-      { name: 'Medical_Records.pdf', type: 'Medical', url: '/documents/medical-records-APP-2026-001.html' }
+      { name: 'Intake_Form.pdf', type: 'Application', rawUrl: '/documents/raw-intake-scan.html', extractedUrl: '/documents/intake-form-APP-2026-001.html' },
+      { name: 'Insurance_Verification.pdf', type: 'Insurance', rawUrl: '/documents/raw-insurance-email.html', extractedUrl: '/documents/insurance-verification-APP-2026-001.html' },
+      { name: 'Medical_Records.pdf', type: 'Medical', rawUrl: '/documents/raw-medical-records.html', extractedUrl: '/documents/medical-records-APP-2026-001.html' }
     ],
     notes: 'Patient being discharged from Beaumont Hospital. Family requesting urgent placement.',
     confidence: 94,
@@ -56,8 +56,8 @@ const mockApplications: Record<string, {
     allergies: ['None known'],
     physician: 'Dr. Sarah Johnson, MD', services: ['Skilled Nursing', 'Respiratory Therapy', 'Cardiac Rehab'],
     documents: [
-      { name: 'Intake_Form.pdf', type: 'Application', url: '/documents/intake-form-APP-2026-001.html' },
-      { name: 'Insurance_Verification.pdf', type: 'Insurance', url: '/documents/insurance-verification-APP-2026-001.html' }
+      { name: 'Intake_Form.pdf', type: 'Application', rawUrl: '/documents/raw-intake-scan.html', extractedUrl: '/documents/intake-form-APP-2026-001.html' },
+      { name: 'Insurance_Verification.pdf', type: 'Insurance', rawUrl: '/documents/raw-insurance-email.html', extractedUrl: '/documents/insurance-verification-APP-2026-001.html' }
     ],
     notes: 'Insurance verification pending. Awaiting pre-authorization.',
     confidence: 87,
@@ -73,9 +73,9 @@ const mockApplications: Record<string, {
     allergies: ['Aspirin'],
     physician: 'Dr. Michael Brown, DO', services: ['Assisted Living', 'Memory Support', 'Occupational Therapy'],
     documents: [
-      { name: 'Complete_Application.pdf', type: 'Application', url: '/documents/intake-form-APP-2026-001.html' },
-      { name: 'Medical_History.pdf', type: 'Medical', url: '/documents/medical-records-APP-2026-001.html' },
-      { name: 'Insurance_Card.pdf', type: 'Insurance', url: '/documents/insurance-verification-APP-2026-001.html' }
+      { name: 'Complete_Application.pdf', type: 'Application', rawUrl: '/documents/raw-intake-scan.html', extractedUrl: '/documents/intake-form-APP-2026-001.html' },
+      { name: 'Medical_History.pdf', type: 'Medical', rawUrl: '/documents/raw-medical-records.html', extractedUrl: '/documents/medical-records-APP-2026-001.html' },
+      { name: 'Insurance_Card.pdf', type: 'Insurance', rawUrl: '/documents/raw-insurance-email.html', extractedUrl: '/documents/insurance-verification-APP-2026-001.html' }
     ],
     notes: 'All documentation complete. Family tour completed 2/22. Move-in scheduled for 3/1.',
     confidence: 96,
@@ -93,6 +93,9 @@ export default function ApplicationDetailPage() {
   const [showAddField, setShowAddField] = useState(false);
   const [newNote, setNewNote] = useState('');
   const [applicationNotes, setApplicationNotes] = useState<{text: string; author: string; time: string}[]>([]);
+  const [showDocViewer, setShowDocViewer] = useState(false);
+  const [selectedDoc, setSelectedDoc] = useState<{name: string; type: string; rawUrl: string; extractedUrl: string} | null>(null);
+  const [docViewTab, setDocViewTab] = useState<'original' | 'extracted'>('original');
 
   const app = mockApplications[params.id as string] || mockApplications['APP-2026-001'];
 
@@ -678,11 +681,13 @@ export default function ApplicationDetailPage() {
             </h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {app.documents.map((doc, i) => (
-                <a 
+                <button 
                   key={i} 
-                  href={doc.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  onClick={() => {
+                    setSelectedDoc(doc);
+                    setDocViewTab('original');
+                    setShowDocViewer(true);
+                  }}
                   style={{ 
                     display: 'flex', 
                     alignItems: 'center', 
@@ -693,7 +698,10 @@ export default function ApplicationDetailPage() {
                     textDecoration: 'none',
                     color: 'inherit',
                     cursor: 'pointer',
-                    transition: 'background 0.2s'
+                    transition: 'background 0.2s',
+                    border: 'none',
+                    width: '100%',
+                    textAlign: 'left'
                   }}
                   onMouseOver={(e) => e.currentTarget.style.background = '#f0ebe4'}
                   onMouseOut={(e) => e.currentTarget.style.background = '#f9f7f4'}
@@ -710,10 +718,10 @@ export default function ApplicationDetailPage() {
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <span style={{ fontSize: '12px', color: '#275380', fontWeight: 500 }}>View</span>
                     <svg width="18" height="18" fill="none" stroke="#275380" strokeWidth="2" viewBox="0 0 24 24">
-                      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/>
+                      <path d="M15 3h6v6M10 14L21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
                     </svg>
                   </div>
-                </a>
+                </button>
               ))}
             </div>
           </div>
@@ -858,6 +866,159 @@ export default function ApplicationDetailPage() {
               >
                 Add Field
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Document Viewer Modal */}
+      {showDocViewer && selectedDoc && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '16px' }}>
+          <div style={{ background: 'white', borderRadius: '16px', width: '100%', maxWidth: '1200px', height: '90vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+            {/* Modal Header */}
+            <div style={{ padding: '20px 24px', borderBottom: '1px solid #e0e0e0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
+              <div>
+                <h3 style={{ fontSize: '20px', marginBottom: '4px' }}>{selectedDoc.name}</h3>
+                <p style={{ fontSize: '14px', color: '#666' }}>{selectedDoc.type} Document</p>
+              </div>
+              <button 
+                onClick={() => setShowDocViewer(false)}
+                style={{ width: '40px', height: '40px', borderRadius: '8px', border: '1px solid #e0e0e0', background: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              >
+                <svg width="20" height="20" fill="none" stroke="#666" strokeWidth="2" viewBox="0 0 24 24">
+                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              </button>
+            </div>
+
+            {/* Tabs */}
+            <div style={{ padding: '0 24px', borderBottom: '1px solid #e0e0e0', display: 'flex', gap: '0', flexShrink: 0 }}>
+              <button
+                onClick={() => setDocViewTab('original')}
+                style={{
+                  padding: '16px 24px',
+                  background: 'none',
+                  border: 'none',
+                  borderBottom: docViewTab === 'original' ? '3px solid #275380' : '3px solid transparent',
+                  color: docViewTab === 'original' ? '#275380' : '#666',
+                  fontWeight: docViewTab === 'original' ? 600 : 400,
+                  cursor: 'pointer',
+                  fontSize: '15px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}
+              >
+                <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+                </svg>
+                Original Document
+              </button>
+              <button
+                onClick={() => setDocViewTab('extracted')}
+                style={{
+                  padding: '16px 24px',
+                  background: 'none',
+                  border: 'none',
+                  borderBottom: docViewTab === 'extracted' ? '3px solid #275380' : '3px solid transparent',
+                  color: docViewTab === 'extracted' ? '#275380' : '#666',
+                  fontWeight: docViewTab === 'extracted' ? 600 : 400,
+                  cursor: 'pointer',
+                  fontSize: '15px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}
+              >
+                <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                Extracted Data
+                <span style={{ 
+                  fontSize: '11px', 
+                  padding: '2px 8px', 
+                  background: docViewTab === 'extracted' ? '#275380' : '#e0e0e0', 
+                  color: docViewTab === 'extracted' ? 'white' : '#666',
+                  borderRadius: '10px' 
+                }}>
+                  AI
+                </span>
+              </button>
+            </div>
+
+            {/* Tab Description */}
+            <div style={{ padding: '12px 24px', background: docViewTab === 'original' ? '#f9f7f4' : '#f0f9ff', borderBottom: '1px solid #e0e0e0', flexShrink: 0 }}>
+              {docViewTab === 'original' ? (
+                <p style={{ fontSize: '13px', color: '#666', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <svg width="16" height="16" fill="none" stroke="#888" strokeWidth="2" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+                  </svg>
+                  This is the original document as received (scanned fax, email, or uploaded file)
+                </p>
+              ) : (
+                <p style={{ fontSize: '13px', color: '#0369a1', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <svg width="16" height="16" fill="none" stroke="#0369a1" strokeWidth="2" viewBox="0 0 24 24">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                  </svg>
+                  AI-extracted and structured data from the original document ({app.confidence}% confidence)
+                </p>
+              )}
+            </div>
+
+            {/* Document Frame */}
+            <div style={{ flex: 1, overflow: 'hidden' }}>
+              <iframe
+                src={docViewTab === 'original' ? selectedDoc.rawUrl : selectedDoc.extractedUrl}
+                style={{ width: '100%', height: '100%', border: 'none' }}
+                title={`${selectedDoc.name} - ${docViewTab}`}
+              />
+            </div>
+
+            {/* Modal Footer */}
+            <div style={{ padding: '16px 24px', borderTop: '1px solid #e0e0e0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
+              <div style={{ fontSize: '13px', color: '#888' }}>
+                Viewing: {docViewTab === 'original' ? 'Original submission' : 'AI-extracted data'}
+              </div>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <a
+                  href={docViewTab === 'original' ? selectedDoc.rawUrl : selectedDoc.extractedUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    padding: '10px 20px',
+                    background: 'white',
+                    border: '1px solid #e0e0e0',
+                    borderRadius: '8px',
+                    textDecoration: 'none',
+                    color: '#333',
+                    fontSize: '14px',
+                    fontWeight: 500,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}
+                >
+                  <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/>
+                  </svg>
+                  Open in New Tab
+                </a>
+                <button
+                  onClick={() => setShowDocViewer(false)}
+                  style={{
+                    padding: '10px 20px',
+                    background: '#275380',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    fontWeight: 500,
+                    cursor: 'pointer'
+                  }}
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
         </div>
