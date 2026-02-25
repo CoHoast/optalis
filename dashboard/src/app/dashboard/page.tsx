@@ -82,6 +82,96 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* Intake Email Card */}
+      <div style={{
+        background: 'linear-gradient(135deg, #275380 0%, #1e3f61 100%)',
+        borderRadius: '16px',
+        padding: '24px',
+        marginBottom: '24px',
+        color: 'white',
+        display: 'grid',
+        gridTemplateColumns: '1fr auto',
+        gap: '24px',
+        alignItems: 'center'
+      }}>
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+            <div style={{
+              width: '44px', height: '44px', borderRadius: '12px',
+              background: 'rgba(255,255,255,0.2)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center'
+            }}>
+              <svg width="24" height="24" fill="none" stroke="white" strokeWidth="2" viewBox="0 0 24 24">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                <polyline points="22,6 12,13 2,6"/>
+              </svg>
+            </div>
+            <div>
+              <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '2px' }}>Quick Intake Email</h3>
+              <p style={{ fontSize: '13px', opacity: 0.8 }}>Forward applications here for automatic AI processing</p>
+            </div>
+          </div>
+          
+          <div style={{
+            background: 'rgba(255,255,255,0.15)',
+            borderRadius: '12px',
+            padding: '16px 20px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            marginBottom: '16px'
+          }}>
+            <span style={{ fontSize: '20px', fontWeight: 600, fontFamily: 'monospace', letterSpacing: '0.5px' }}>
+              intake@optalis.dokit.ai
+            </span>
+            <button 
+              onClick={() => {
+                navigator.clipboard.writeText('intake@optalis.dokit.ai');
+                alert('Email copied to clipboard!');
+              }}
+              style={{
+                background: 'rgba(255,255,255,0.2)',
+                border: 'none',
+                borderRadius: '6px',
+                padding: '6px 12px',
+                color: 'white',
+                cursor: 'pointer',
+                fontSize: '13px',
+                fontWeight: 500
+              }}
+            >
+              Copy
+            </button>
+          </div>
+          
+          <div style={{ display: 'flex', gap: '24px', fontSize: '13px', opacity: 0.9 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              Auto-extracts patient info
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              Processes PDFs & images
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              Creates application in &lt;2 min
+            </div>
+          </div>
+        </div>
+        
+        <div style={{ textAlign: 'center', paddingLeft: '24px', borderLeft: '1px solid rgba(255,255,255,0.2)' }}>
+          <div style={{ fontSize: '42px', fontWeight: 700, lineHeight: 1 }}>47</div>
+          <div style={{ fontSize: '13px', opacity: 0.8, marginTop: '4px' }}>Applications received<br/>via email this month</div>
+        </div>
+      </div>
+
       {/* Quick Actions */}
       <div className="quick-actions">
         <Link href="/dashboard/applications?status=pending" className="quick-action pending">

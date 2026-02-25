@@ -9,7 +9,7 @@ const crmIntegrations = [
 ];
 
 const inputSources = [
-  { id: 'email', name: 'Admissions Email Inbox', type: 'EMAIL', address: 'admissions@optalis.com', status: 'active', lastPolled: '2 minutes ago', pending: 3 },
+  { id: 'email', name: 'Quick Intake Email', type: 'EMAIL', address: 'intake@optalis.dokit.ai', status: 'active', lastPolled: '30 seconds ago', pending: 3 },
   { id: 'fax', name: 'eFax Integration', type: 'FAX', address: '+1 (248) 555-0199', status: 'active', lastPolled: '15 minutes ago', pending: 1 },
   { id: 'webform', name: 'Website Contact Form', type: 'WEB_FORM', address: 'optalishealthcare.com/apply', status: 'active', lastPolled: 'Real-time', pending: 0 },
   { id: 'referral', name: 'Hospital Referral Portal', type: 'API', address: 'api.beaumont.org/referrals', status: 'active', lastPolled: '5 minutes ago', pending: 2 },
