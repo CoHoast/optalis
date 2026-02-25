@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cranberry Park - Assisted Living & Memory Care</title>
+    <meta name="description" content="Cranberry Park assisted living communities offer well-appointed senior apartments, housekeeping, meals, and personal care services in Ohio and Michigan.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Mobile Navigation Overlay -->
+    <div class="mobile-nav-overlay" onclick="closeMobileNav()"></div>
+    
+    <!-- Mobile Navigation -->
+    <nav class="mobile-nav">
+        <button class="mobile-nav-close" onclick="closeMobileNav()">&times;</button>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="services.html">Care Services</a></li>
+            <li><a href="locations.html">Find a Location</a></li>
+            <li><a href="resources.html">Resources</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="careers.html">Careers</a></li>
+            <li><a href="veterans.html">Veterans</a></li>
+            <li><a href="contact.html">Contact Us</a></li>
+        </ul>
+    </nav>
+
+    <!-- Header -->
+    <header>
+        <div class="header-top">
+            <div class="container">
+                <div class="header-contact">
+                    <span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        Serving Ohio & Michigan
+                    </span>
+                    <span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                        <a href="tel:+18005551234">1-800-555-1234</a>
+                    </span>
+                </div>
+                <a href="veterans.html" class="header-veterans">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    Preferred Provider for Veterans
+                </a>
+            </div>
+        </div>
+        <nav>
+            <div class="container">
+                <a href="index.html" class="logo">
+                    <img src="https://www.optalishealthcare.com/wp-content/uploads/2023/03/optalis_logonav.webp" alt="Optalis Health & Rehabilitation">
+                </a>
+                <ul class="nav-links">
+                    <li class="has-dropdown">
+                        <a href="services.html">Care Services <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></a>
+                        <div class="dropdown">
+                            <a href="rehab.html">Rehabilitation \&amp; Therapy</a>
+                            <a href="skilled-nursing.html">Skilled Nursing</a>
+                            <a href="assisted-living.html">Assisted Living</a>
+                            <a href="independent-living.html">Independent Living</a>
+                            <a href="memory-care.html">Memory Care</a>
+                            <a href="specialized-care.html">Specialized Care</a>
+                            <a href="respite-care.html">Respite Care</a>
+                            <a href="veterans.html">Veterans Care</a>
+                        </div>
+                    </li>
+                    <li class="has-dropdown">
+                        <a href="locations.html">Find a Location <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></a>
+                        <div class="dropdown dropdown-locations">
+                            <div class="dropdown-col">
+                                <span class="dropdown-header">Michigan</span>
+                                <a href="locations.html#ann-arbor">Ann Arbor</a>
+                                <a href="locations.html#canton">Canton</a>
+                                <a href="locations.html#grand-rapids">Grand Rapids</a>
+                                <a href="locations.html#troy">Troy</a>
+                            </div>
+                            <div class="dropdown-col">
+                                <span class="dropdown-header">Ohio</span>
+                                <a href="locations.html#dublin">Dublin</a>
+                                <a href="locations.html#akron">Akron</a>
+                            </div>
+                            <a href="locations.html" class="dropdown-view-all">View All 30+ Locations →</a>
+                        </div>
+                    </li>
+                    <li class="has-dropdown">
+                        <a href="resources.html">Resources <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></a>
+                        <div class="dropdown">
+                            <a href="what-to-expect.html">What to Expect</a>
+                            <a href="cost.html">Cost \&amp; Insurance</a>
+                            <a href="insurance.html">Managed Care Benefits</a>
+                            <a href="pre-surgery.html">Pre-Surgery Planning</a>
+                        </div>
+                    </li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="careers.html">Careers</a></li>
+                    <li><a href="contact.html" class="nav-cta">Contact Us</a></li>
+                </ul>
+                <button class="mobile-menu" aria-label="Menu" onclick="openMobileNav()">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Breadcrumb -->
+    <section class="breadcrumb">
+        <div class="container">
+            <a href="index.html">Home</a>
+            <span>/</span>
+            <a href="services.html">Care Services</a>
+            <span>/</span>
+            <span>Assisted Living</span>
+        </div>
+    </section>
+
+    <!-- Hero Section -->
+    <section class="hero simple">
+        <div class="container">
+            <div class="hero-content">
+                <span class="hero-label">Cranberry Park Communities</span>
+                <h1>A Helping Hand While Retaining Independence</h1>
+                <p>Assisted living is a residential option for seniors who need a little assistance with daily activities. Cranberry Park assisted living communities in Ohio and Michigan offer well-appointed senior apartments, housekeeping, meals, and personal care and support services as needed.</p>
+                <div class="hero-buttons">
+                    <a href="contact.html" class="btn btn-primary">
+                        Schedule a Tour
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                    </a>
+                    <a href="#quiz" class="btn btn-outline">Take Our Assessment Quiz</a>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-item text-center">
+                        <div class="stat-number">10+</div>
+                        <div class="stat-label">Cranberry Park Locations</div>
+                    </div>
+                    <div class="stat-item text-center">
+                        <div class="stat-number">24/7</div>
+                        <div class="stat-label">Professional Nursing Staff</div>
+                    </div>
+                    <div class="stat-item text-center">
+                        <div class="stat-number">100%</div>
+                        <div class="stat-label">Personalized Care Plans</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- What is Assisted Living -->
+    <section class="section bg-white">
+        <div class="container">
+            <div class="grid-2">
+                <div>
+                    <span class="section-label">Understanding Assisted Living</span>
+                    <h2>What Is Assisted Living?</h2>
+                    <p>An assisted living community is not a nursing home — it offers a different lifestyle. An assisted living community is for seniors who need some assistance but are, for the most part, independent, while a nursing home or skilled nursing facility is more appropriate for seniors who have ongoing medical needs.</p>
+                    <p>An assisted living community offers medical and living assistance, but they're also focused on providing a social environment with planned activities, physical wellness programs, and other convenient support services that help seniors continue to enjoy active, fulfilling lifestyles.</p>
+                    
+                    <div style="background: var(--accent); color: var(--primary-dark); padding: 32px; border-radius: var(--radius-md); margin: 32px 0;">
+                        <h3 style="margin-bottom: 16px;">Key Difference:</h3>
+                        <p style="margin: 0; font-weight: 600;">Assisted Living = Independence with Support<br>Skilled Nursing = Medical Care Focus</p>
+                    </div>
+                </div>
+                <div>
+                    <img src="https://www.optalishealthcare.com/wp-content/uploads/2023/04/OPH_AL_Resident.webp" alt="Assisted living resident" style="width: 100%; height: 500px; object-fit: cover; border-radius: var(--radius-md);">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Assisted Living vs Rehab -->
+    <section class="section bg-cream">
+        <div class="container">
+            <div class="section-header">
+                <h2>Assisted Living Rehab and Recovery Plan</h2>
+                <p>Select communities offer respite recovery suites, called Assisted Living Rehab & Recovery, to provide proactive care and rehabilitation for those transitioning from a hospital, same-day surgery center, or skilled center prior to returning home.</p>
+            </div>
+            
+            <div class="grid-2">
+                <div class="card" style="padding: 48px;">
+                    <h3 style="margin-bottom: 24px; color: var(--primary);">Program Includes:</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><check-circle/></svg>
+                            <span>Comfortable, fully-furnished apartment suite</span>
+                        </li>
+                        <li style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><check-circle/></svg>
+                            <span>24/7 nursing support and personal care assistance</span>
+                        </li>
+                        <li style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><check-circle/></svg>
+                            <span>Medication management</span>
+                        </li>
+                        <li style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><check-circle/></svg>
+                            <span>On-site physical, speech, and occupational therapy</span>
+                        </li>
+                        <li style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><check-circle/></svg>
+                            <span>Full dining menus with room service options</span>
+                        </li>
+                        <li style="display: flex; align-items: center; gap: 12px;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><check-circle/></svg>
+                            <span>Help with all activities of daily living</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="card" style="padding: 48px; background: var(--primary); color: white;">
+                    <h3 style="margin-bottom: 24px; color: white;">Perfect For:</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><check-circle/></svg>
+                            <span>Those denied skilled care through insurance</span>
+                        </li>
+                        <li style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><check-circle/></svg>
+                            <span>Exhausted health care benefits coverage</span>
+                        </li>
+                        <li style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><check-circle/></svg>
+                            <span>Still benefit from therapy and nursing services</span>
+                        </li>
+                        <li style="display: flex; align-items: center; gap: 12px;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><check-circle/></svg>
+                            <span>Considering permanent assisted living</span>
+                        </li>
+                    </ul>
+                    
+                    <a href="contact.html" class="btn btn-accent" style="margin-top: 24px; width: 100%; justify-content: center;">Contact Us Today</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Readiness Quiz -->
+    <section class="section bg-white" id="quiz">
+        <div class="container">
+            <div class="text-center">
+                <h2 style="font-size: 48px; margin-bottom: 24px;">How Can I Tell If My Loved One Is Ready For Assisted Living?</h2>
+                <p style="font-size: 19px; color: var(--text-secondary); margin-bottom: 44px; max-width: 700px; margin-left: auto; margin-right: auto;">Determining when someone, including your parent, partner, or other loved one, is ready for assisted living care can be challenging. Fortunately, knowing what signs to watch for can help you navigate the process more confidently.</p>
+                
+                <div class="card" style="max-width: 600px; margin: 0 auto 48px; padding: 48px; border: 2px solid var(--accent);">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" style="margin-bottom: 24px;"><help-circle/></svg>
+                    <h3 style="margin-bottom: 20px; color: var(--primary);">Take Our Quiz To Find Out</h3>
+                    <p style="margin-bottom: 32px; color: var(--text-secondary);">Take our quiz to assess whether your aging loved one might benefit from the services and support assisted living can provide.</p>
+                    <a href="#" class="btn btn-primary" onclick="alert('Quiz feature coming soon!')">Take the Assessment Quiz</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Life at Cranberry Park -->
+    <section class="section bg-cream">
+        <div class="container">
+            <div class="section-header">
+                <h2>Life in a Cranberry Park Assisted Living Community</h2>
+                <p>At a Cranberry Park assisted living community, residents live in apartments that they can decorate with their own furnishings. Each resident has a plan of care tailored to their needs and doctor's recommendations.</p>
+            </div>
+            
+            <div class="grid-4">
+                <div class="card" style="padding: 0; overflow: hidden;">
+                    <img src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400&h=180&fit=crop" alt="Fitness Classes" style="width: 100%; height: 140px; object-fit: cover;">
+                    <div style="padding: 24px; text-align: center;">
+                        <h3 style="margin-bottom: 12px;">Fitness Classes</h3>
+                        <p style="font-size: 14px; color: var(--text-secondary);">Stay active with our variety of fitness programs designed for seniors of all abilities.</p>
+                    </div>
+                </div>
+                
+                <div class="card" style="padding: 0; overflow: hidden;">
+                    <img src="https://images.unsplash.com/photo-1460518451285-97b6aa326961?w=400&h=180&fit=crop" alt="Enrichment Activities" style="width: 100%; height: 140px; object-fit: cover;">
+                    <div style="padding: 24px; text-align: center;">
+                        <h3 style="margin-bottom: 12px;">Enrichment Activities</h3>
+                        <p style="font-size: 14px; color: var(--text-secondary);">Engage in arts, crafts, educational programs, and social activities.</p>
+                    </div>
+                </div>
+                
+                <div class="card" style="padding: 0; overflow: hidden;">
+                    <img src="https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=400&h=180&fit=crop" alt="Entertainment" style="width: 100%; height: 140px; object-fit: cover;">
+                    <div style="padding: 24px; text-align: center;">
+                        <h3 style="margin-bottom: 12px;">Entertainment</h3>
+                        <p style="font-size: 14px; color: var(--text-secondary);">Enjoy live performances, movie nights, and special events throughout the year.</p>
+                    </div>
+                </div>
+                
+                <div class="card" style="padding: 0; overflow: hidden;">
+                    <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&h=180&fit=crop" alt="Nutritious Meals" style="width: 100%; height: 140px; object-fit: cover;">
+                    <div style="padding: 24px; text-align: center;">
+                        <h3 style="margin-bottom: 12px;">Nutritious Meals</h3>
+                        <p style="font-size: 14px; color: var(--text-secondary);">Restaurant-style dining with chef-prepared meals and flexible options.</p>
+                    </div>
+                </div>
+                
+                <div class="card" style="padding: 0; overflow: hidden;">
+                    <img src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&h=180&fit=crop" alt="Housekeeping Services" style="width: 100%; height: 140px; object-fit: cover;">
+                    <div style="padding: 24px; text-align: center;">
+                        <h3 style="margin-bottom: 12px;">Housekeeping</h3>
+                        <p style="font-size: 14px; color: var(--text-secondary);">Professional housekeeping and laundry services included.</p>
+                    </div>
+                </div>
+                
+                <div class="card" style="padding: 0; overflow: hidden;">
+                    <img src="https://images.unsplash.com/photo-1516733968668-dbdce39c4651?w=400&h=180&fit=crop" alt="Transportation" style="width: 100%; height: 140px; object-fit: cover;">
+                    <div style="padding: 24px; text-align: center;">
+                        <h3 style="margin-bottom: 12px;">Transportation</h3>
+                        <p style="font-size: 14px; color: var(--text-secondary);">Scheduled transportation for appointments, shopping, and outings.</p>
+                    </div>
+                </div>
+                
+                <div class="card" style="padding: 0; overflow: hidden;">
+                    <img src="https://images.unsplash.com/photo-1559526324-593bc073d938?w=400&h=180&fit=crop" alt="Social Events" style="width: 100%; height: 140px; object-fit: cover;">
+                    <div style="padding: 24px; text-align: center;">
+                        <h3 style="margin-bottom: 12px;">Social Events</h3>
+                        <p style="font-size: 14px; color: var(--text-secondary);">Regular social gatherings, clubs, and community events.</p>
+                    </div>
+                </div>
+                
+                <div class="card" style="padding: 0; overflow: hidden;">
+                    <img src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=400&h=180&fit=crop" alt="Wellness Programs" style="width: 100%; height: 140px; object-fit: cover;">
+                    <div style="padding: 24px; text-align: center;">
+                        <h3 style="margin-bottom: 12px;">Wellness Programs</h3>
+                        <p style="font-size: 14px; color: var(--text-secondary);">Health monitoring, medication management, and wellness checks.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- What's Included -->
+    <section class="section bg-white">
+        <div class="container">
+            <div class="section-header">
+                <h2>What's Included in Assisted Living?</h2>
+                <p>Our comprehensive approach ensures residents receive personalized care while maintaining their independence.</p>
+            </div>
+            
+            <div class="grid-3">
+                <div class="card" style="padding: 40px;">
+                    <h3 style="margin-bottom: 20px; color: var(--primary);">Living Spaces</h3>
+                    <ul style="list-style: none; padding: 0; font-size: 14px;">
+                        <li style="margin-bottom: 8px;">• Private apartments and suites</li>
+                        <li style="margin-bottom: 8px;">• Beautiful courtyards with walking paths</li>
+                        <li style="margin-bottom: 8px;">• Housekeeping and linen service</li>
+                        <li>• Emergency call system</li>
+                    </ul>
+                </div>
+                
+                <div class="card" style="padding: 40px;">
+                    <h3 style="margin-bottom: 20px; color: var(--primary);">Dining & Services</h3>
+                    <ul style="list-style: none; padding: 0; font-size: 14px;">
+                        <li style="margin-bottom: 8px;">• Restaurant-style meals in well-appointed dining room</li>
+                        <li style="margin-bottom: 8px;">• Transportation services</li>
+                        <li style="margin-bottom: 8px;">• Furnished respite suites for short-term stays</li>
+                        <li>• Full-service salon and barbershop</li>
+                    </ul>
+                </div>
+                
+                <div class="card" style="padding: 40px;">
+                    <h3 style="margin-bottom: 20px; color: var(--primary);">Healthcare Support</h3>
+                    <ul style="list-style: none; padding: 0; font-size: 14px;">
+                        <li style="margin-bottom: 8px;">• 24-hour professional nursing staff</li>
+                        <li style="margin-bottom: 8px;">• Health and wellness monitoring</li>
+                        <li style="margin-bottom: 8px;">• Medication management</li>
+                        <li style="margin-bottom: 8px;">• Assistance with bathing, dressing, and grooming</li>
+                        <li>• Physical, occupational, and speech therapy available</li>
+                    </ul>
+                </div>
+                
+                <div class="card" style="padding: 40px;">
+                    <h3 style="margin-bottom: 20px; color: var(--primary);">Specialized Services</h3>
+                    <ul style="list-style: none; padding: 0; font-size: 14px;">
+                        <li style="margin-bottom: 8px;">• Podiatry services</li>
+                        <li style="margin-bottom: 8px;">• Dental services</li>
+                        <li style="margin-bottom: 8px;">• Optometry services</li>
+                        <li>• Psychological services</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Memory Care -->
+    <section class="section bg-primary" style="color: white;">
+        <div class="container">
+            <div class="grid-2">
+                <div>
+                    <span class="section-label" style="color: var(--accent);">
+                        <span style="width: 32px; height: 1px; background: var(--accent);"></span>
+                        Memory Care at Cranberry Park
+                    </span>
+                    <h2 style="color: white; margin-bottom: 24px;">What Is Memory Care Like At Cranberry Park?</h2>
+                    <p style="opacity: 0.9; margin-bottom: 20px;">Our Michigan Cranberry Park communities offer memory care in a safe and supportive environment for residents living with cognitive decline, including Alzheimer's or other types of dementia.</p>
+                    <p style="opacity: 0.9; margin-bottom: 32px;">Memory care in our communities is designed to provide a personalized plan of care for each resident, recognizing their unique care needs, interests, dining preferences, special diets, and more. We facilitate a variety of structured programs throughout the day to help minimize anxiety and agitation.</p>
+                    <a href="memory-care.html" class="btn btn-accent">Learn More About Memory Care</a>
+                </div>
+                <div style="background: rgba(255,255,255,0.1); padding: 40px; border-radius: var(--radius-md);">
+                    <h3 style="color: white; margin-bottom: 24px;">Memory Care Features:</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; opacity: 0.9;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><check-circle/></svg>
+                            <span>Secure courtyard for safe outdoor enjoyment</span>
+                        </li>
+                        <li style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; opacity: 0.9;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><check-circle/></svg>
+                            <span>Music and Memory program</span>
+                        </li>
+                        <li style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; opacity: 0.9;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><check-circle/></svg>
+                            <span>Specially trained staff members</span>
+                        </li>
+                        <li style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; opacity: 0.9;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><check-circle/></svg>
+                            <span>Structured daily programs</span>
+                        </li>
+                        <li style="display: flex; align-items: center; gap: 12px; opacity: 0.9;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><check-circle/></svg>
+                            <span>Socially and emotionally engaging activities</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Experience Section -->
+    <section class="section bg-cream">
+        <div class="container">
+            <div class="section-header">
+                <h2>Experience a Step Above at Cranberry Park</h2>
+                <p>Our boutique-style living approach creates a more personalized, home-like environment.</p>
+            </div>
+            
+            <div class="grid-3">
+                <div class="card" style="padding: 0; overflow: hidden;">
+                    <img src="https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?w=400&h=200&fit=crop" alt="A Personal Touch" style="width: 100%; height: 180px; object-fit: cover;">
+                    <div style="padding: 32px; text-align: center;">
+                        <h3 style="margin-bottom: 20px;">A Personal Touch</h3>
+                        <ul style="list-style: none; padding: 0; font-size: 14px; color: var(--text-secondary); text-align: left;">
+                            <li style="margin-bottom: 8px;">• Small senior living neighborhood concept</li>
+                            <li style="margin-bottom: 8px;">• Boutique-style living</li>
+                            <li>• Individualized daily activities</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="card" style="padding: 0; overflow: hidden;">
+                    <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400&h=200&fit=crop" alt="Exceptional Staff" style="width: 100%; height: 180px; object-fit: cover;">
+                    <div style="padding: 32px; text-align: center;">
+                        <h3 style="margin-bottom: 20px;">Exceptional Staff</h3>
+                        <ul style="list-style: none; padding: 0; font-size: 14px; color: var(--text-secondary); text-align: left;">
+                            <li style="margin-bottom: 8px;">• Personal relationships with residents</li>
+                            <li style="margin-bottom: 8px;">• Well-trained and accommodating team</li>
+                            <li style="margin-bottom: 8px;">• Attentive and responsive</li>
+                            <li>• Higher staff-to-resident ratio</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="card" style="padding: 0; overflow: hidden;">
+                    <img src="https://images.unsplash.com/photo-1582719471384-894fbb16e074?w=400&h=200&fit=crop" alt="Safety and Security" style="width: 100%; height: 180px; object-fit: cover;">
+                    <div style="padding: 32px; text-align: center;">
+                        <h3 style="margin-bottom: 20px;">Safety, Security & Quality</h3>
+                        <ul style="list-style: none; padding: 0; font-size: 14px; color: var(--text-secondary); text-align: left;">
+                            <li style="margin-bottom: 8px;">• State-of-the-art emergency call system</li>
+                            <li style="margin-bottom: 8px;">• Video monitoring and door alarms</li>
+                            <li style="margin-bottom: 8px;">• Proximity to medical facilities</li>
+                            <li>• Fully-licensed community</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="section bg-primary text-center" style="color: white;">
+        <div class="container">
+            <h2 style="font-size: 48px; margin-bottom: 24px;">Ready to Experience Cranberry Park?</h2>
+            <p style="font-size: 19px; opacity: 0.9; margin-bottom: 44px; max-width: 600px; margin-left: auto; margin-right: auto;">Discover the perfect balance of independence and support in one of our beautiful Cranberry Park communities.</p>
+            <div class="hero-buttons" style="justify-content: center;">
+                <a href="contact.html" class="btn btn-accent">Schedule a Personal Tour</a>
+                <a href="locations.html" class="btn btn-outline" style="border-color: white; color: white;">Find a Cranberry Park Location</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-main">
+                <div class="footer-brand">
+                    <img src="https://www.optalishealthcare.com/wp-content/uploads/2023/03/optalis_logonav.webp" alt="Optalis Health & Rehabilitation">
+                    <p>Providing exceptional care with a sincere commitment to service and individualized attention across Ohio and Michigan.</p>
+                    <div class="footer-hq">
+                        <strong>Ohio Corporate Headquarters</strong>
+                        <p>715 Shawan Falls Drive, PO Box 68<br>Dublin, OH 43017</p>
+                    </div>
+                    <div class="footer-hq">
+                        <strong>Michigan Corporate Headquarters</strong>
+                        <p>25500 Meadowbrook Road, Suite 230<br>Novi, MI 48375</p>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4>Care Services</h4>
+                    <ul>
+                        <li><a href="rehab.html">Rehabilitation & Therapy</a></li>
+                        <li><a href="skilled-nursing.html">Skilled Nursing</a></li>
+                        <li><a href="assisted-living.html">Assisted Living</a></li>
+                        <li><a href="memory-care.html">Memory Care</a></li>
+                        <li><a href="specialized-care.html">Specialized Care</a></li>
+                        <li><a href="veterans.html">Veterans Care</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Locations</h4>
+                    <ul>
+                        <li><a href="locations.html">Find a Location</a></li>
+                        <li><a href="locations.html#michigan">Michigan Centers</a></li>
+                        <li><a href="locations.html#ohio">Ohio Centers</a></li>
+                        <li><a href="assisted-living.html">Cranberry Park</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="resources.html">Care Resources</a></li>
+                        <li><a href="what-to-expect.html">What to Expect</a></li>
+                        <li><a href="cost.html">Cost & Insurance</a></li>
+                        <li><a href="pre-surgery.html">Pre-Surgery Planning</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="careers.html">Careers</a></li>
+                        <li><a href="contact.html">Contact Us</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Optalis Healthcare. All rights reserved.</p>
+                <div class="footer-links">
+                    <a href="privacy.html">Privacy Policy</a>
+                    <a href="terms.html">Terms of Service</a>
+                    <a href="compliance.html">Compliance</a>
+                </div>
+                <div class="footer-social">
+                    <a href="#" aria-label="Facebook">
+                        <svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+                    </a>
+                    <a href="#" aria-label="LinkedIn">
+                        <svg viewBox="0 0 24 24"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile navigation
+        function openMobileNav() {
+            document.querySelector('.mobile-nav').classList.add('open');
+            document.querySelector('.mobile-nav-overlay').classList.add('open');
+        }
+
+        function closeMobileNav() {
+            document.querySelector('.mobile-nav').classList.remove('open');
+            document.querySelector('.mobile-nav-overlay').classList.remove('open');
+        }
+
+        // Header scroll effect
+        window.addEventListener('scroll', function() {
+            const header = document.querySelector('header');
+            if (window.scrollY > 100) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find a Location - Optalis Health & Rehabilitation</title>
+    <meta name="description" content="Find an Optalis Health & Rehabilitation Center near you. Over 30 locations across Ohio and Michigan offering comprehensive care services.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Mobile Navigation Overlay -->
+    <div class="mobile-nav-overlay" onclick="closeMobileNav()"></div>
+    
+    <!-- Mobile Navigation -->
+    <nav class="mobile-nav">
+        <button class="mobile-nav-close" onclick="closeMobileNav()">&times;</button>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="services.html">Care Services</a></li>
+            <li><a href="locations.html">Find a Location</a></li>
+            <li><a href="resources.html">Resources</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="careers.html">Careers</a></li>
+            <li><a href="veterans.html">Veterans</a></li>
+            <li><a href="contact.html">Contact Us</a></li>
+        </ul>
+    </nav>
+
+    <!-- Header -->
+    <header>
+        <div class="header-top">
+            <div class="container">
+                <div class="header-contact">
+                    <span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        Serving Ohio & Michigan
+                    </span>
+                    <span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                        <a href="tel:+18005551234">1-800-555-1234</a>
+                    </span>
+                </div>
+                <a href="veterans.html" class="header-veterans">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    Preferred Provider for Veterans
+                </a>
+            </div>
+        </div>
+        <nav>
+            <div class="container">
+                <a href="index.html" class="logo">
+                    <img src="https://www.optalishealthcare.com/wp-content/uploads/2023/03/optalis_logonav.webp" alt="Optalis Health & Rehabilitation">
+                </a>
+                <ul class="nav-links">
+                    <li class="has-dropdown">
+                        <a href="services.html">Care Services <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></a>
+                        <div class="dropdown">
+                            <a href="rehab.html">Rehabilitation \&amp; Therapy</a>
+                            <a href="skilled-nursing.html">Skilled Nursing</a>
+                            <a href="assisted-living.html">Assisted Living</a>
+                            <a href="independent-living.html">Independent Living</a>
+                            <a href="memory-care.html">Memory Care</a>
+                            <a href="specialized-care.html">Specialized Care</a>
+                            <a href="respite-care.html">Respite Care</a>
+                            <a href="veterans.html">Veterans Care</a>
+                        </div>
+                    </li>
+                    <li class="has-dropdown">
+                        <a href="locations.html">Find a Location <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></a>
+                        <div class="dropdown dropdown-locations">
+                            <div class="dropdown-col">
+                                <span class="dropdown-header">Michigan</span>
+                                <a href="locations.html#ann-arbor">Ann Arbor</a>
+                                <a href="locations.html#canton">Canton</a>
+                                <a href="locations.html#grand-rapids">Grand Rapids</a>
+                                <a href="locations.html#troy">Troy</a>
+                            </div>
+                            <div class="dropdown-col">
+                                <span class="dropdown-header">Ohio</span>
+                                <a href="locations.html#dublin">Dublin</a>
+                                <a href="locations.html#akron">Akron</a>
+                            </div>
+                            <a href="locations.html" class="dropdown-view-all">View All 30+ Locations →</a>
+                        </div>
+                    </li>
+                    <li class="has-dropdown">
+                        <a href="resources.html">Resources <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></a>
+                        <div class="dropdown">
+                            <a href="what-to-expect.html">What to Expect</a>
+                            <a href="cost.html">Cost \&amp; Insurance</a>
+                            <a href="insurance.html">Managed Care Benefits</a>
+                            <a href="pre-surgery.html">Pre-Surgery Planning</a>
+                        </div>
+                    </li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="careers.html">Careers</a></li>
+                    <li><a href="contact.html" class="nav-cta">Contact Us</a></li>
+                </ul>
+                <button class="mobile-menu" aria-label="Menu" onclick="openMobileNav()">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Breadcrumb -->
+    <section class="breadcrumb">
+        <div class="container">
+            <a href="index.html">Home</a>
+            <span>/</span>
+            <span>Find a Location</span>
+        </div>
+    </section>
+
+    <!-- Hero Section -->
+    <section class="hero simple">
+        <div class="container">
+            <div class="hero-content">
+                <span class="hero-label">Our Communities</span>
+                <h1>Find a Community Near You</h1>
+                <p>With over 30 locations across Ohio and Michigan, exceptional care is always within reach. Each community offers a welcoming environment with access to the services you need, delivered by compassionate professionals who truly care.</p>
+                <div class="stats-grid">
+                    <div class="stat-item text-center">
+                        <div class="stat-number">30+</div>
+                        <div class="stat-label">Care Communities</div>
+                    </div>
+                    <div class="stat-item text-center">
+                        <div class="stat-number">2</div>
+                        <div class="stat-label">States Served</div>
+                    </div>
+                    <div class="stat-item text-center">
+                        <div class="stat-number">100+</div>
+                        <div class="stat-label">Years Experience</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Location Tabs -->
+    <section class="section bg-white">
+        <div class="container">
+            <div class="tabs" style="justify-content: center; margin-bottom: 48px;">
+                <button class="tab active" onclick="showLocationCategory('michigan')">Michigan Locations</button>
+                <button class="tab" onclick="showLocationCategory('ohio')">Ohio Locations</button>
+                <button class="tab" onclick="showLocationCategory('cranberry')">Cranberry Park Communities</button>
+            </div>
+
+            <!-- Michigan Locations -->
+            <div id="michigan-locations" class="location-category">
+                <div class="section-header">
+                    <h2>Michigan Locations</h2>
+                    <p>Discover comprehensive care across beautiful Michigan communities.</p>
+                </div>
+                
+                <div class="grid-3">
+                    <div class="card" style="padding: 32px;">
+                        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px;">
+                            <div style="width: 48px; height: 48px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                            </div>
+                            <div>
+                                <h3 style="margin: 0; color: var(--primary);">Allen Park</h3>
+                                <p style="margin: 0; font-size: 13px; color: var(--text-muted);">Rehab & Long-term Care</p>
+                            </div>
+                        </div>
+                        <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-secondary);">Residents experience personalized care from highly qualified, professional, and compassionate staff.</p>
+                        <a href="tel:3133862150" style="color: var(--primary); text-decoration: none; font-weight: 600;">(313) 386-2150</a>
+                    </div>
+                    
+                    <div class="card" style="padding: 32px;">
+                        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px;">
+                            <div style="width: 48px; height: 48px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                            </div>
+                            <div>
+                                <h3 style="margin: 0; color: var(--primary);">Ann Arbor</h3>
+                                <p style="margin: 0; font-size: 13px; color: var(--text-muted);">Rehab & Long-term Care</p>
+                            </div>
+                        </div>
+                        <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-secondary);">Offers the best in quality care and rehabilitation by highly trained, professional staff.</p>
+                        <a href="tel:7349752600" style="color: var(--primary); text-decoration: none; font-weight: 600;">(734) 975-2600</a>
+                    </div>
+                    
+                    <div class="card" style="padding: 32px;">
+                        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px;">
+                            <div style="width: 48px; height: 48px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                            </div>
+                            <div>
+                                <h3 style="margin: 0; color: var(--primary);">Belle Fountain</h3>
+                                <p style="margin: 0; font-size: 13px; color: var(--text-muted);">Rehab & Long-term Care</p>
+                            </div>
+                        </div>
+                        <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-secondary);">Prides itself on offering a unique and personal experience to each resident while focusing on quality.</p>
+                        <a href="tel:7342822100" style="color: var(--primary); text-decoration: none; font-weight: 600;">(734) 282-2100</a>
+                    </div>
+                    
+                    <div class="card" style="padding: 32px;">
+                        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px;">
+                            <div style="width: 48px; height: 48px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                            </div>
+                            <div>
+                                <h3 style="margin: 0; color: var(--primary);">Bloomfield Hills</h3>
+                                <p style="margin: 0; font-size: 13px; color: var(--text-muted);">Rehab & Long-term Care</p>
+                            </div>
+                        </div>
+                        <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-secondary);">Serving the community with comprehensive care and rehabilitation services.</p>
+                        <a href="tel:2486456400" style="color: var(--primary); text-decoration: none; font-weight: 600;">(248) 645-6400</a>
+                    </div>
+                    
+                    <div class="card" style="padding: 32px;">
+                        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px;">
+                            <div style="width: 48px; height: 48px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                            </div>
+                            <div>
+                                <h3 style="margin: 0; color: var(--primary);">Canton</h3>
+                                <p style="margin: 0; font-size: 13px; color: var(--text-muted);">Rehab & Long-term Care</p>
+                            </div>
+                        </div>
+                        <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-secondary);">Serving the community since 2005, the premier choice for short-term rehabilitation and long-term care.</p>
+                        <a href="tel:7343943100" style="color: var(--primary); text-decoration: none; font-weight: 600;">(734) 394-3100</a>
+                    </div>
+                    
+                    <div class="card" style="padding: 32px;">
+                        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px;">
+                            <div style="width: 48px; height: 48px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                            </div>
+                            <div>
+                                <h3 style="margin: 0; color: var(--primary);">Grand Rapids</h3>
+                                <p style="margin: 0; font-size: 13px; color: var(--text-muted);">Full Continuum of Care</p>
+                            </div>
+                        </div>
+                        <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-secondary);">Comprehensive care services including rehabilitation, skilled nursing, and assisted living.</p>
+                        <a href="tel:6164529091" style="color: var(--primary); text-decoration: none; font-weight: 600;">(616) 452-9091</a>
+                    </div>
+                    
+                    <div class="card" style="padding: 32px;">
+                        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px;">
+                            <div style="width: 48px; height: 48px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                            </div>
+                            <div>
+                                <h3 style="margin: 0; color: var(--primary);">Grosse Pointe Woods</h3>
+                                <p style="margin: 0; font-size: 13px; color: var(--text-muted);">Rehab & Long-term Care</p>
+                            </div>
+                        </div>
+                        <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-secondary);">Serving the community for more than 50 years, a pillar for post-acute and long-term care.</p>
+                        <a href="tel:5867780800" style="color: var(--primary); text-decoration: none; font-weight: 600;">(586) 778-0800</a>
+                    </div>
+                    
+                    <div class="card" style="padding: 32px;">
+                        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px;">
+                            <div style="width: 48px; height: 48px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                            </div>
+                            <div>
+                                <h3 style="margin: 0; color: var(--primary);">Sterling Heights</h3>
+                                <p style="margin: 0; font-size: 13px; color: var(--text-muted);">Rehab & Long-term Care</p>
+                            </div>
+                        </div>
+                        <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-secondary);">As a leader of quality care and services, the team has proven outcomes to get you home sooner.</p>
+                        <a href="tel:5862749044" style="color: var(--primary); text-decoration: none; font-weight: 600;">(586) 274-9044</a>
+                    </div>
+                    
+                    <div class="card" style="padding: 32px;">
+                        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px;">
+                            <div style="width: 48px; height: 48px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                            </div>
+                            <div>
+                                <h3 style="margin: 0; color: var(--primary);">Troy</h3>
+                                <p style="margin: 0; font-size: 13px; color: var(--text-muted);">Rehab & Long-term Care</p>
+                            </div>
+                        </div>
+                        <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-secondary);">Providing quality rehabilitation and long-term care services in the Troy community.</p>
+                        <a href="tel:2485268700" style="color: var(--primary); text-decoration: none; font-weight: 600;">(248) 526-8700</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ohio Locations -->
+            <div id="ohio-locations" class="location-category hidden">
+                <div class="section-header">
+                    <h2>Ohio Locations</h2>
+                    <p>Serving communities throughout Ohio with exceptional healthcare services.</p>
+                </div>
+                
+                <div class="grid-3">
+                    <div class="card" style="padding: 32px;">
+                        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px;">
+                            <div style="width: 48px; height: 48px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                            </div>
+                            <div>
+                                <h3 style="margin: 0; color: var(--primary);">Abbyshire Place</h3>
+                                <p style="margin: 0; font-size: 13px; color: var(--text-muted);">Rehab & Long-term Care</p>
+                            </div>
+                        </div>
+                        <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-secondary);">Specializes in long-term care, rehabilitation and therapy, memory care, hospice, and respite care.</p>
+                        <a href="tel:7404467150" style="color: var(--primary); text-decoration: none; font-weight: 600;">(740) 446-7150</a>
+                    </div>
+                    
+                    <div class="card" style="padding: 32px;">
+                        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px;">
+                            <div style="width: 48px; height: 48px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                            </div>
+                            <div>
+                                <h3 style="margin: 0; color: var(--primary);">Canal Winchester</h3>
+                                <p style="margin: 0; font-size: 13px; color: var(--text-muted);">Rehab & Long-term Care</p>
+                            </div>
+                        </div>
+                        <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-secondary);">Leading provider of short-term rehabilitative care while offering a full continuum of services.</p>
+                        <a href="tel:6148346800" style="color: var(--primary); text-decoration: none; font-weight: 600;">(614) 834-6800</a>
+                    </div>
+                    
+                    <div class="card" style="padding: 32px;">
+                        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px;">
+                            <div style="width: 48px; height: 48px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                            </div>
+                            <div>
+                                <h3 style="margin: 0; color: var(--primary);">Mill Run</h3>
+                                <p style="margin: 0; font-size: 13px; color: var(--text-muted);">Rehab Care</p>
+                            </div>
+                        </div>
+                        <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-secondary);">Hilliard's most esteemed and established provider, offering the only full continuum of care in the Hilliard area.</p>
+                        <a href="tel:6145273000" style="color: var(--primary); text-decoration: none; font-weight: 600;">(614) 527-3000</a>
+                    </div>
+                    
+                    <div class="card" style="padding: 32px;">
+                        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px;">
+                            <div style="width: 48px; height: 48px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                            </div>
+                            <div>
+                                <h3 style="margin: 0; color: var(--primary);">New Albany</h3>
+                                <p style="margin: 0; font-size: 13px; color: var(--text-muted);">Rehab Care</p>
+                            </div>
+                        </div>
+                        <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-secondary);">Specializes in post-acute rehabilitation following a hospital stay and assisted living programs.</p>
+                        <a href="tel:6148558866" style="color: var(--primary); text-decoration: none; font-weight: 600;">(614) 855-8866</a>
+                    </div>
+                    
+                    <div class="card" style="padding: 32px;">
+                        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px;">
+                            <div style="width: 48px; height: 48px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                            </div>
+                            <div>
+                                <h3 style="margin: 0; color: var(--primary);">The Grand of Dublin</h3>
+                                <p style="margin: 0; font-size: 13px; color: var(--text-muted);">Rehab Care</p>
+                            </div>
+                        </div>
+                        <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-secondary);">Specializes in long-term care, rehabilitation and therapy, memory care, and more.</p>
+                        <a href="tel:6148898585" style="color: var(--primary); text-decoration: none; font-weight: 600;">(614) 889-8585</a>
+                    </div>
+                    
+                    <div class="card" style="padding: 32px;">
+                        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px;">
+                            <div style="width: 48px; height: 48px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                            </div>
+                            <div>
+                                <h3 style="margin: 0; color: var(--primary);">Riverview</h3>
+                                <p style="margin: 0; font-size: 13px; color: var(--text-muted);">Rehab & Long-term Care</p>
+                            </div>
+                        </div>
+                        <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-secondary);">Offers a full continuum of care including post-acute rehabilitation, skilled nursing, and assisted living.</p>
+                        <a href="tel:6144571100" style="color: var(--primary); text-decoration: none; font-weight: 600;">(614) 457-1100</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cranberry Park Locations -->
+            <div id="cranberry-locations" class="location-category hidden">
+                <div class="section-header">
+                    <h2>Cranberry Park Assisted Living Communities</h2>
+                    <p>Experience boutique-style assisted living and memory care in beautiful Cranberry Park communities.</p>
+                </div>
+                
+                <div class="grid-3">
+                    <div class="card" style="padding: 32px; border: 2px solid var(--accent);">
+                        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px;">
+                            <div style="width: 48px; height: 48px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary-dark)" stroke-width="2"><home/></svg>
+                            </div>
+                            <div>
+                                <h3 style="margin: 0; color: var(--primary);">Cranberry Park of Grand Rapids</h3>
+                                <p style="margin: 0; font-size: 13px; color: var(--text-muted);">Michigan - Assisted Living & Memory Care</p>
+                            </div>
+                        </div>
+                        <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-secondary);">Premier assisted living with memory care in a beautiful, secure environment.</p>
+                        <a href="tel:6164529091" style="color: var(--primary); text-decoration: none; font-weight: 600;">(616) 452-9091</a>
+                    </div>
+                    
+                    <div class="card" style="padding: 32px; border: 2px solid var(--accent);">
+                        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px;">
+                            <div style="width: 48px; height: 48px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary-dark)" stroke-width="2"><home/></svg>
+                            </div>
+                            <div>
+                                <h3 style="margin: 0; color: var(--primary);">Cranberry Park of Milford</h3>
+                                <p style="margin: 0; font-size: 13px; color: var(--text-muted);">Michigan - Assisted Living</p>
+                            </div>
+                        </div>
+                        <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-secondary);">Beautiful assisted living community in the heart of Milford.</p>
+                        <a href="tel:2486849600" style="color: var(--primary); text-decoration: none; font-weight: 600;">(248) 684-9600</a>
+                    </div>
+                    
+                    <div class="card" style="padding: 32px; border: 2px solid var(--accent);">
+                        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px;">
+                            <div style="width: 48px; height: 48px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary-dark)" stroke-width="2"><home/></svg>
+                            </div>
+                            <div>
+                                <h3 style="margin: 0; color: var(--primary);">Cranberry Park at ShorePointe</h3>
+                                <p style="margin: 0; font-size: 13px; color: var(--text-muted);">Michigan - Assisted Living</p>
+                            </div>
+                        </div>
+                        <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-secondary);">Waterfront-inspired assisted living with exceptional amenities.</p>
+                        <a href="tel:5867780800" style="color: var(--primary); text-decoration: none; font-weight: 600;">(586) 778-0800</a>
+                    </div>
+                    
+                    <div class="card" style="padding: 32px; border: 2px solid var(--accent);">
+                        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px;">
+                            <div style="width: 48px; height: 48px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary-dark)" stroke-width="2"><home/></svg>
+                            </div>
+                            <div>
+                                <h3 style="margin: 0; color: var(--primary);">Cranberry Park of West Bloomfield</h3>
+                                <p style="margin: 0; font-size: 13px; color: var(--text-muted);">Michigan - Assisted Living</p>
+                            </div>
+                        </div>
+                        <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-secondary);">Elegant assisted living in prestigious West Bloomfield.</p>
+                        <a href="tel:2486456400" style="color: var(--primary); text-decoration: none; font-weight: 600;">(248) 645-6400</a>
+                    </div>
+                    
+                    <div class="card" style="padding: 32px; border: 2px solid var(--accent);">
+                        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px;">
+                            <div style="width: 48px; height: 48px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary-dark)" stroke-width="2"><home/></svg>
+                            </div>
+                            <div>
+                                <h3 style="margin: 0; color: var(--primary);">Cranberry Park at Mill Run</h3>
+                                <p style="margin: 0; font-size: 13px; color: var(--text-muted);">Ohio - Assisted Living</p>
+                            </div>
+                        </div>
+                        <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-secondary);">Hilliard's premier assisted living community with full continuum of care.</p>
+                        <a href="tel:6145273000" style="color: var(--primary); text-decoration: none; font-weight: 600;">(614) 527-3000</a>
+                    </div>
+                    
+                    <div class="card" style="padding: 32px; border: 2px solid var(--accent);">
+                        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px;">
+                            <div style="width: 48px; height: 48px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary-dark)" stroke-width="2"><home/></svg>
+                            </div>
+                            <div>
+                                <h3 style="margin: 0; color: var(--primary);">Cranberry Park at New Albany</h3>
+                                <p style="margin: 0; font-size: 13px; color: var(--text-muted);">Ohio - Assisted Living</p>
+                            </div>
+                        </div>
+                        <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-secondary);">Upscale assisted living in the prestigious New Albany community.</p>
+                        <a href="tel:6148558866" style="color: var(--primary); text-decoration: none; font-weight: 600;">(614) 855-8866</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="section bg-primary text-center" style="color: white;">
+        <div class="container">
+            <h2 style="font-size: 48px; margin-bottom: 24px;">Ready to Visit?</h2>
+            <p style="font-size: 19px; opacity: 0.9; margin-bottom: 44px; max-width: 600px; margin-left: auto; margin-right: auto;">Contact us today to schedule a personal tour of any of our communities. Experience the difference that exceptional care makes.</p>
+            <div class="hero-buttons">
+                <a href="contact.html" class="btn btn-accent">Schedule a Tour</a>
+                <a href="tel:18005551234" class="btn btn-outline" style="border-color: white; color: white;">Call 1-800-555-1234</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-main">
+                <div class="footer-brand">
+                    <img src="https://www.optalishealthcare.com/wp-content/uploads/2023/03/optalis_logonav.webp" alt="Optalis Health & Rehabilitation">
+                    <p>Providing exceptional care with a sincere commitment to service and individualized attention across Ohio and Michigan.</p>
+                    <div class="footer-hq">
+                        <strong>Ohio Corporate Headquarters</strong>
+                        <p>715 Shawan Falls Drive, PO Box 68<br>Dublin, OH 43017</p>
+                    </div>
+                    <div class="footer-hq">
+                        <strong>Michigan Corporate Headquarters</strong>
+                        <p>25500 Meadowbrook Road, Suite 230<br>Novi, MI 48375</p>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4>Care Services</h4>
+                    <ul>
+                        <li><a href="rehab.html">Rehabilitation & Therapy</a></li>
+                        <li><a href="skilled-nursing.html">Skilled Nursing</a></li>
+                        <li><a href="assisted-living.html">Assisted Living</a></li>
+                        <li><a href="memory-care.html">Memory Care</a></li>
+                        <li><a href="specialized-care.html">Specialized Care</a></li>
+                        <li><a href="veterans.html">Veterans Care</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Locations</h4>
+                    <ul>
+                        <li><a href="locations.html">Find a Location</a></li>
+                        <li><a href="locations.html#michigan">Michigan Centers</a></li>
+                        <li><a href="locations.html#ohio">Ohio Centers</a></li>
+                        <li><a href="assisted-living.html">Cranberry Park</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="resources.html">Care Resources</a></li>
+                        <li><a href="what-to-expect.html">What to Expect</a></li>
+                        <li><a href="cost.html">Cost & Insurance</a></li>
+                        <li><a href="pre-surgery.html">Pre-Surgery Planning</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="careers.html">Careers</a></li>
+                        <li><a href="contact.html">Contact Us</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Optalis Healthcare. All rights reserved.</p>
+                <div class="footer-links">
+                    <a href="privacy.html">Privacy Policy</a>
+                    <a href="terms.html">Terms of Service</a>
+                    <a href="compliance.html">Compliance</a>
+                </div>
+                <div class="footer-social">
+                    <a href="#" aria-label="Facebook">
+                        <svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+                    </a>
+                    <a href="#" aria-label="LinkedIn">
+                        <svg viewBox="0 0 24 24"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile navigation
+        function openMobileNav() {
+            document.querySelector('.mobile-nav').classList.add('open');
+            document.querySelector('.mobile-nav-overlay').classList.add('open');
+        }
+
+        function closeMobileNav() {
+            document.querySelector('.mobile-nav').classList.remove('open');
+            document.querySelector('.mobile-nav-overlay').classList.remove('open');
+        }
+
+        // Header scroll effect
+        window.addEventListener('scroll', function() {
+            const header = document.querySelector('header');
+            if (window.scrollY > 100) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // Location category tabs
+        function showLocationCategory(category) {
+            // Update active tab
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Show/hide location sections
+            document.querySelectorAll('.location-category').forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            if (category === 'michigan') {
+                document.getElementById('michigan-locations').classList.remove('hidden');
+            } else if (category === 'ohio') {
+                document.getElementById('ohio-locations').classList.remove('hidden');
+            } else if (category === 'cranberry') {
+                document.getElementById('cranberry-locations').classList.remove('hidden');
+            }
+        }
+    </script>
+</body>
+</html>

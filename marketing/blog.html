@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog - Optalis Health & Rehabilitation</title>
+    <meta name="description" content="Expert insights, caregiving tips, and helpful resources for families navigating senior care decisions.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .blog-card { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: transform 0.3s, box-shadow 0.3s; }
+        .blog-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
+        .blog-card-image { width: 100%; height: 200px; object-fit: cover; }
+        .blog-card-content { padding: 1.5rem; }
+        .blog-card-date { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem; }
+        .blog-card h3 { font-size: 1.25rem; margin-bottom: 0.75rem; color: var(--text); }
+        .blog-card p { color: var(--text-secondary); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1rem; }
+        .blog-card a { color: var(--primary); font-weight: 500; text-decoration: none; }
+        .blog-card a:hover { text-decoration: underline; }
+        .blog-categories { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 2rem; justify-content: center; }
+        .blog-categories a { padding: 0.5rem 1rem; background: var(--cream); border-radius: 20px; color: var(--text); text-decoration: none; font-size: 0.9rem; transition: all 0.2s; }
+        .blog-categories a:hover, .blog-categories a.active { background: var(--primary); color: white; }
+    </style>
+</head>
+<body>
+    <div class="mobile-nav-overlay" onclick="closeMobileNav()"></div>
+    <nav class="mobile-nav"><button class="mobile-nav-close" onclick="closeMobileNav()">&times;</button><ul><li><a href="index.html">Home</a></li><li><a href="services.html">Care Services</a></li><li><a href="locations.html">Find a Location</a></li><li><a href="resources.html">Resources</a></li><li><a href="about.html">About</a></li><li><a href="careers.html">Careers</a></li><li><a href="veterans.html">Veterans</a></li><li><a href="contact.html">Contact Us</a></li></ul></nav>
+    <header>
+        <div class="header-top"><div class="container"><div class="header-contact"><span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> Serving Ohio & Michigan</span><span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg> <a href="tel:+18005551234">1-800-555-1234</a></span></div><a href="veterans.html" class="header-veterans"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> Preferred Provider for Veterans</a></div></div>
+        <nav><div class="container"><a href="index.html" class="logo"><img src="https://www.optalishealthcare.com/wp-content/uploads/2023/03/optalis_logonav.webp" alt="Optalis"></a><ul class="nav-links"><li class="has-dropdown"><a href="services.html">Care Services <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></a><div class="dropdown"><a href="rehab.html">Rehabilitation & Therapy</a><a href="skilled-nursing.html">Skilled Nursing</a><a href="assisted-living.html">Assisted Living</a><a href="independent-living.html">Independent Living</a><a href="memory-care.html">Memory Care</a><a href="specialized-care.html">Specialized Care</a><a href="respite-care.html">Respite Care</a><a href="veterans.html">Veterans Care</a></div></li><li class="has-dropdown"><a href="locations.html">Find a Location <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></a><div class="dropdown dropdown-locations"><div class="dropdown-col"><span class="dropdown-header">Michigan</span><a href="locations.html#ann-arbor">Ann Arbor</a><a href="locations.html#canton">Canton</a><a href="locations.html#grand-rapids">Grand Rapids</a><a href="locations.html#troy">Troy</a></div><div class="dropdown-col"><span class="dropdown-header">Ohio</span><a href="locations.html#dublin">Dublin</a><a href="locations.html#akron">Akron</a></div><a href="locations.html" class="dropdown-view-all">View All 30+ Locations →</a></div></li><li class="has-dropdown"><a href="resources.html">Resources <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></a><div class="dropdown"><a href="what-to-expect.html">What to Expect</a><a href="cost.html">Cost & Insurance</a><a href="insurance.html">Managed Care Benefits</a><a href="pre-surgery.html">Pre-Surgery Planning</a></div></li><li><a href="about.html">About</a></li><li><a href="careers.html">Careers</a></li><li><a href="contact.html" class="nav-cta">Contact Us</a></li></ul><button class="mobile-menu" aria-label="Menu" onclick="openMobileNav()"><span></span><span></span><span></span></button></div></nav>
+    </header>
+
+    <section class="hero simple">
+        <div class="container">
+            <div class="hero-content">
+                <span class="hero-label">Resources</span>
+                <h1>Optalis <em>Blog</em></h1>
+                <p>Expert insights, caregiving tips, and helpful resources for families navigating senior care decisions.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="section bg-white">
+        <div class="container">
+            <div class="blog-categories">
+                <a href="#" class="active">All Posts</a>
+                <a href="#">Rehabilitation</a>
+                <a href="#">Assisted Living</a>
+                <a href="#">Memory Care</a>
+                <a href="#">Caregiving Tips</a>
+                <a href="#">Medicare & Insurance</a>
+            </div>
+            
+            <div class="grid-3">
+                <!-- Post 1 -->
+                <div class="blog-card">
+                    <img src="https://www.optalishealthcare.com/wp-content/uploads/2022/10/OPH_memcaredifferent.webp" alt="Alzheimer's Care" class="blog-card-image">
+                    <div class="blog-card-content">
+                        <div class="blog-card-date">February 2026</div>
+                        <h3>Do's and Don'ts When Caring for Someone with Alzheimer's</h3>
+                        <p>Providing care and support to a loved one diagnosed with Alzheimer's disease comes with unique challenges. Here's our guide to navigating this journey.</p>
+                        <a href="https://www.optalishealthcare.com/blog/do-s-and-don-ts-when-caring-for-someone-with-alzheimer-s-disease/">Read More →</a>
+                    </div>
+                </div>
+                
+                <!-- Post 2 -->
+                <div class="blog-card">
+                    <img src="https://www.optalishealthcare.com/wp-content/uploads/2023/01/OPH_seniorhelp.webp" alt="Home Safety" class="blog-card-image">
+                    <div class="blog-card-content">
+                        <div class="blog-card-date">January 2026</div>
+                        <h3>Home Safety Checklist for Seniors</h3>
+                        <p>Visiting a senior loved one? Here's how to evaluate their home environment for safety concerns and potential hazards.</p>
+                        <a href="https://www.optalishealthcare.com/blog/home-safety-checklist-for-central-ohio-seniors-2/">Read More →</a>
+                    </div>
+                </div>
+                
+                <!-- Post 3 -->
+                <div class="blog-card">
+                    <img src="https://www.optalishealthcare.com/wp-content/uploads/2023/01/OPH_postsrugery.webp" alt="Insurance Questions" class="blog-card-image">
+                    <div class="blog-card-content">
+                        <div class="blog-card-date">January 2026</div>
+                        <h3>Post-Hospital Rehab Insurance Questions Answered</h3>
+                        <p>Navigating insurance coverage for post-hospital rehabilitation can be confusing. Our team breaks down the key aspects.</p>
+                        <a href="https://www.optalishealthcare.com/blog/ask-the-expert-post-hospital-rehab-insurance-questions/">Read More →</a>
+                    </div>
+                </div>
+                
+                <!-- Post 4 -->
+                <div class="blog-card">
+                    <img src="https://www.optalishealthcare.com/wp-content/uploads/2021/09/OPH_7tips.webp" alt="Staying Active" class="blog-card-image">
+                    <div class="blog-card-content">
+                        <div class="blog-card-date">December 2025</div>
+                        <h3>Staying Active Indoors This Winter</h3>
+                        <p>Safe and effective ways to stay physically and mentally engaged during the colder months, especially for seniors.</p>
+                        <a href="https://www.optalishealthcare.com/blog/stayingactiveindoorsthiswinter/">Read More →</a>
+                    </div>
+                </div>
+                
+                <!-- Post 5 -->
+                <div class="blog-card">
+                    <img src="https://www.optalishealthcare.com/wp-content/uploads/2022/11/OPH_vax.webp" alt="Flu Shot" class="blog-card-image">
+                    <div class="blog-card-content">
+                        <div class="blog-card-date">December 2025</div>
+                        <h3>Should My Aging Parent Get a Flu Shot Every Year?</h3>
+                        <p>Why annual flu vaccination is important for seniors and how to address common concerns about immunization.</p>
+                        <a href="https://www.optalishealthcare.com/blog/should-my-aging-parent-get-a-flu-shot-every-year/">Read More →</a>
+                    </div>
+                </div>
+                
+                <!-- Post 6 -->
+                <div class="blog-card">
+                    <img src="https://www.optalishealthcare.com/wp-content/uploads/2024/01/OPH_giftideas-2-imgblog.webp" alt="Hospital Gifts" class="blog-card-image">
+                    <div class="blog-card-content">
+                        <div class="blog-card-date">December 2025</div>
+                        <h3>9 Gift Ideas Perfect for Someone in the Hospital</h3>
+                        <p>Thoughtful gift ideas that are appropriate and appreciated when visiting a loved one in the hospital or rehab.</p>
+                        <a href="https://www.optalishealthcare.com/blog/9-gift-ideas-that-are-perfect-for-someone-in-the-hospital/">Read More →</a>
+                    </div>
+                </div>
+                
+                <!-- Post 7 -->
+                <div class="blog-card">
+                    <img src="https://www.optalishealthcare.com/wp-content/uploads/2021/10/OPH_visitfam.webp" alt="Holiday Gifts" class="blog-card-image">
+                    <div class="blog-card-content">
+                        <div class="blog-card-date">December 2025</div>
+                        <h3>Gift Ideas for Seniors This Holiday Season</h3>
+                        <p>Finding meaningful gifts for seniors in assisted living or long-term care doesn't have to be challenging.</p>
+                        <a href="https://www.optalishealthcare.com/blog/gifts-ideas-for-your-senior-this-holiday-season/">Read More →</a>
+                    </div>
+                </div>
+                
+                <!-- Post 8 -->
+                <div class="blog-card">
+                    <img src="https://www.optalishealthcare.com/wp-content/uploads/2022/11/OPH_thinfstodo.webp" alt="Voting" class="blog-card-image">
+                    <div class="blog-card-content">
+                        <div class="blog-card-date">September 2025</div>
+                        <h3>Voting for Older Adults: Know Your Rights</h3>
+                        <p>Federal laws ensure everyone has the right to vote regardless of where they live, including those in care facilities.</p>
+                        <a href="https://www.optalishealthcare.com/blog/voting-for-older-adults/">Read More →</a>
+                    </div>
+                </div>
+                
+                <!-- Post 9 -->
+                <div class="blog-card">
+                    <img src="https://www.optalishealthcare.com/wp-content/uploads/2021/08/OPH_helpdadmemory.webp" alt="Memory Care Move" class="blog-card-image">
+                    <div class="blog-card-content">
+                        <div class="blog-card-date">August 2025</div>
+                        <h3>How to Prepare for a Move to Memory Care</h3>
+                        <p>Moving a loved one to memory care is emotional. Here's how to prepare and make the transition smoother.</p>
+                        <a href="https://www.optalishealthcare.com/blog/how-to-prepare-for-a-move-to-memory-care/">Read More →</a>
+                    </div>
+                </div>
+                
+                <!-- Post 10 -->
+                <div class="blog-card">
+                    <img src="https://www.optalishealthcare.com/wp-content/uploads/2022/12/OPH_medicaid.webp" alt="Medication Management" class="blog-card-image">
+                    <div class="blog-card-content">
+                        <div class="blog-card-date">July 2025</div>
+                        <h3>Medication Management in Assisted Living</h3>
+                        <p>Most assisted living communities offer medication management services. Learn what to expect and why it matters.</p>
+                        <a href="https://www.optalishealthcare.com/blog/medication-management-in-assisted-living/">Read More →</a>
+                    </div>
+                </div>
+                
+                <!-- Post 11 -->
+                <div class="blog-card">
+                    <img src="https://www.optalishealthcare.com/wp-content/uploads/2022/12/OPH_blues.webp" alt="Winter Safety" class="blog-card-image">
+                    <div class="blog-card-content">
+                        <div class="blog-card-date">June 2025</div>
+                        <h3>Top 10 Winter Safety Tips for Seniors</h3>
+                        <p>From power outages to slip-and-fall accidents, being prepared for winter is key. Here are our top suggestions.</p>
+                        <a href="https://www.optalishealthcare.com/blog/top-10-winter-safety-tips-for-seniors/">Read More →</a>
+                    </div>
+                </div>
+                
+                <!-- Post 12 -->
+                <div class="blog-card">
+                    <img src="https://www.optalishealthcare.com/wp-content/uploads/2023/01/OPH_hospitalhome.webp" alt="Rehab to Home" class="blog-card-image">
+                    <div class="blog-card-content">
+                        <div class="blog-card-date">May 2025</div>
+                        <h3>Hospital to Home: Preventing Rehospitalization</h3>
+                        <p>Tips for making a smooth transition from rehabilitation back home and reducing the risk of readmission.</p>
+                        <a href="https://www.optalishealthcare.com/blog/hospital-to-home-how-to-prevent-rehospitalization-2/">Read More →</a>
+                    </div>
+                </div>
+                
+                <!-- Post 13 -->
+                <div class="blog-card">
+                    <img src="https://www.optalishealthcare.com/wp-content/uploads/2022/10/OPH_skilledrehab.webp" alt="Skilled Rehab" class="blog-card-image">
+                    <div class="blog-card-content">
+                        <div class="blog-card-date">April 2025</div>
+                        <h3>Is a Skilled Rehab Center the Right Option?</h3>
+                        <p>How to determine if skilled nursing rehabilitation is the right choice for your loved one's recovery needs.</p>
+                        <a href="https://www.optalishealthcare.com/blog/how-do-i-know-if-a-skilled-rehab-center-is-the-right-option/">Read More →</a>
+                    </div>
+                </div>
+                
+                <!-- Post 14 -->
+                <div class="blog-card">
+                    <img src="https://www.optalishealthcare.com/wp-content/uploads/2022/12/OPH_lifeinal.webp" alt="Assisted Living Life" class="blog-card-image">
+                    <div class="blog-card-content">
+                        <div class="blog-card-date">March 2025</div>
+                        <h3>What's Life Like in an Assisted Living Community?</h3>
+                        <p>A look at daily life in assisted living – from activities and dining to social connections and care.</p>
+                        <a href="https://www.optalishealthcare.com/blog/what-s-life-like-in-an-assisted-living-community-2/">Read More →</a>
+                    </div>
+                </div>
+                
+                <!-- Post 15 -->
+                <div class="blog-card">
+                    <img src="https://www.optalishealthcare.com/wp-content/uploads/2023/01/OPH_comparingcosts.webp" alt="Cost Comparison" class="blog-card-image">
+                    <div class="blog-card-content">
+                        <div class="blog-card-date">February 2025</div>
+                        <h3>Cost Comparison: Assisted Living vs. Staying at Home</h3>
+                        <p>A detailed worksheet to help you compare the true costs of assisted living versus aging in place.</p>
+                        <a href="https://www.optalishealthcare.com/blog/cost-comparison-worksheet-assisted-living-vs-staying-at-home-2/">Read More →</a>
+                    </div>
+                </div>
+                
+                <!-- Post 16 -->
+                <div class="blog-card">
+                    <img src="https://www.optalishealthcare.com/wp-content/uploads/2022/10/OPH_motivated.webp" alt="Staying Motivated" class="blog-card-image">
+                    <div class="blog-card-content">
+                        <div class="blog-card-date">January 2025</div>
+                        <h3>Staying Motivated for Physical Therapy</h3>
+                        <p>Tips for keeping spirits high and maintaining motivation throughout the rehabilitation process.</p>
+                        <a href="https://www.optalishealthcare.com/blog/staying-motivated-for-physical-therapy-and-rehabilitation-2/">Read More →</a>
+                    </div>
+                </div>
+                
+                <!-- Post 17 -->
+                <div class="blog-card">
+                    <img src="https://www.optalishealthcare.com/wp-content/uploads/2023/01/OPH_longdistance.webp" alt="Long Distance Care" class="blog-card-image">
+                    <div class="blog-card-content">
+                        <div class="blog-card-date">December 2024</div>
+                        <h3>Long-Distance Caregiving for Aging Parents</h3>
+                        <p>Strategies for providing care and support to elderly parents when you live far away.</p>
+                        <a href="https://www.optalishealthcare.com/blog/how-do-i-provide-long-distance-care-for-my-aging-parent-2/">Read More →</a>
+                    </div>
+                </div>
+                
+                <!-- Post 18 -->
+                <div class="blog-card">
+                    <img src="https://www.optalishealthcare.com/wp-content/uploads/2022/12/OPH_inpatout.webp" alt="Inpatient vs Outpatient" class="blog-card-image">
+                    <div class="blog-card-content">
+                        <div class="blog-card-date">November 2024</div>
+                        <h3>Inpatient vs. Outpatient Rehab: What's the Difference?</h3>
+                        <p>Understanding the differences between inpatient and outpatient rehabilitation to make the best choice.</p>
+                        <a href="https://www.optalishealthcare.com/blog/ask-the-expert-inpatient-vs-outpatient-rehab-2/">Read More →</a>
+                    </div>
+                </div>
+                
+                <!-- Post 19 -->
+                <div class="blog-card">
+                    <img src="https://www.optalishealthcare.com/wp-content/uploads/2022/11/OPH_albenefits.webp" alt="AL Benefits" class="blog-card-image">
+                    <div class="blog-card-content">
+                        <div class="blog-card-date">October 2024</div>
+                        <h3>Benefits of Assisted Living Communities</h3>
+                        <p>Exploring the many benefits of assisted living for seniors who need a little help with daily activities.</p>
+                        <a href="https://www.optalishealthcare.com/blog/ask-the-expert-benefits-of-a-central-ohio-assisted-living-community/">Read More →</a>
+                    </div>
+                </div>
+                
+                <!-- Post 20 -->
+                <div class="blog-card">
+                    <img src="https://www.optalishealthcare.com/wp-content/uploads/2021/08/OPH_independentvsal.webp" alt="Mom in AL" class="blog-card-image">
+                    <div class="blog-card-content">
+                        <div class="blog-card-date">September 2024</div>
+                        <h3>Could Mom Benefit from Assisted Living?</h3>
+                        <p>Signs that your parent might benefit from the support and community of an assisted living environment.</p>
+                        <a href="https://www.optalishealthcare.com/blog/could-mom-benefit-from-an-assisted-living-community/">Read More →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section bg-primary">
+        <div class="container">
+            <div class="cta-center">
+                <h2>Have Questions About Senior Care?</h2>
+                <p>Our team is here to help you navigate care decisions for yourself or a loved one.</p>
+                <div class="cta-buttons"><a href="contact.html" class="btn btn-white">Contact Us</a><a href="tel:+18005551234" class="btn btn-outline-white">Call 1-800-555-1234</a></div>
+            </div>
+        </div>
+    </section>
+
+    <footer><div class="container"><div class="footer-main"><div class="footer-brand"><a href="index.html" class="footer-logo"><img src="https://www.optalishealthcare.com/wp-content/uploads/2023/03/optalis_logonav.webp" alt="Optalis"></a><p>Providing exceptional care across Ohio and Michigan.</p></div><div class="footer-links"><h4>Care Services</h4><ul><li><a href="rehab.html">Rehabilitation</a></li><li><a href="skilled-nursing.html">Skilled Nursing</a></li><li><a href="assisted-living.html">Assisted Living</a></li><li><a href="memory-care.html">Memory Care</a></li></ul></div><div class="footer-links"><h4>Resources</h4><ul><li><a href="what-to-expect.html">What to Expect</a></li><li><a href="cost.html">Cost & Insurance</a></li><li><a href="pre-surgery.html">Pre-Surgery Planning</a></li></ul></div><div class="footer-links"><h4>Company</h4><ul><li><a href="about.html">About Us</a></li><li><a href="careers.html">Careers</a></li><li><a href="contact.html">Contact Us</a></li></ul></div></div><div class="footer-bottom"><p>&copy; 2026 Optalis Healthcare. All rights reserved.</p><div class="footer-legal"><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a><a href="compliance.html">Compliance</a></div></div></div></footer>
+    <script>function openMobileNav(){document.querySelector('.mobile-nav').classList.add('active');document.querySelector('.mobile-nav-overlay').classList.add('active');document.body.style.overflow='hidden'}function closeMobileNav(){document.querySelector('.mobile-nav').classList.remove('active');document.querySelector('.mobile-nav-overlay').classList.remove('active');document.body.style.overflow=''}window.addEventListener('scroll',function(){const header=document.querySelector('header');if(window.scrollY>50){header.classList.add('scrolled')}else{header.classList.remove('scrolled')}})</script>
+</body>
+</html>

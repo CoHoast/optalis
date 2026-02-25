@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find a Location - Optalis Health & Rehabilitation</title>
+    <meta name="description" content="Find an Optalis Health & Rehabilitation Center near you. Over 30 locations across Ohio and Michigan offering comprehensive care services.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Mobile Navigation Overlay -->
+    <div class="mobile-nav-overlay" onclick="closeMobileNav()"></div>
+    
+    <!-- Mobile Navigation -->
+    <nav class="mobile-nav">
+        <button class="mobile-nav-close" onclick="closeMobileNav()">&times;</button>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="services.html">Care Services</a></li>
+            <li><a href="locations.html">Find a Location</a></li>
+            <li><a href="resources.html">Resources</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="careers.html">Careers</a></li>
+            <li><a href="veterans.html">Veterans</a></li>
+            <li><a href="contact.html">Contact Us</a></li>
+        </ul>
+    </nav>
+
+    <!-- Header -->
+    <header>
+        <div class="header-top">
+            <div class="container">
+                <div class="header-contact">
+                    <span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        Serving Ohio & Michigan
+                    </span>
+                    <span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                        <a href="tel:+18005551234">1-800-555-1234</a>
+                    </span>
+                </div>
+                <a href="veterans.html" class="header-veterans">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    Preferred Provider for Veterans
+                </a>
+            </div>
+        </div>
+        <nav>
+            <div class="container">
+                <a href="index.html" class="logo">
+                    <img src="https://www.optalishealthcare.com/wp-content/uploads/2023/03/optalis_logonav.webp" alt="Optalis Health & Rehabilitation">
+                </a>
+                <ul class="nav-links">
+                    <li class="has-dropdown">
+                        <a href="services.html">Care Services <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></a>
+                        <div class="dropdown">
+                            <a href="rehab.html">Rehabilitation &amp; Therapy</a>
+                            <a href="skilled-nursing.html">Skilled Nursing</a>
+                            <a href="assisted-living.html">Assisted Living</a>
+                            <a href="independent-living.html">Independent Living</a>
+                            <a href="memory-care.html">Memory Care</a>
+                            <a href="specialized-care.html">Specialized Care</a>
+                            <a href="respite-care.html">Respite Care</a>
+                            <a href="veterans.html">Veterans Care</a>
+                        </div>
+                    </li>
+                    <li class="has-dropdown">
+                        <a href="locations.html">Find a Location <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></a>
+                        <div class="dropdown dropdown-locations">
+                            <div class="dropdown-col">
+                                <span class="dropdown-header">Michigan</span>
+                                <a href="location-ann-arbor.html">Ann Arbor</a>
+                                <a href="location-canton.html">Canton</a>
+                                <a href="location-grand-rapids.html">Grand Rapids</a>
+                                <a href="location-troy.html">Troy</a>
+                            </div>
+                            <div class="dropdown-col">
+                                <span class="dropdown-header">Ohio</span>
+                                <a href="location-grand-dublin.html">Dublin</a>
+                                <a href="location-new-albany.html">New Albany</a>
+                            </div>
+                            <a href="locations.html" class="dropdown-view-all">View All 30+ Locations →</a>
+                        </div>
+                    </li>
+                    <li class="has-dropdown">
+                        <a href="resources.html">Resources <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></a>
+                        <div class="dropdown">
+                            <a href="what-to-expect.html">What to Expect</a>
+                            <a href="cost.html">Cost &amp; Insurance</a>
+                            <a href="insurance.html">Managed Care Benefits</a>
+                            <a href="pre-surgery.html">Pre-Surgery Planning</a>
+                        </div>
+                    </li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="careers.html">Careers</a></li>
+                    <li><a href="contact.html" class="nav-cta">Contact Us</a></li>
+                </ul>
+                <button class="mobile-menu" aria-label="Menu" onclick="openMobileNav()">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Breadcrumb -->
+    <section class="breadcrumb">
+        <div class="container">
+            <a href="index.html">Home</a>
+            <span>/</span>
+            <span>Find a Location</span>
+        </div>
+    </section>
+
+    <!-- Hero Section -->
+    <section class="hero simple">
+        <div class="container">
+            <div class="hero-content">
+                <span class="hero-label">Our Communities</span>
+                <h1>Find a Community Near You</h1>
+                <p>With over 30 locations across Ohio and Michigan, exceptional care is always within reach. Each community offers a welcoming environment with access to the services you need, delivered by compassionate professionals who truly care.</p>
+                <div class="stats-grid">
+                    <div class="stat-item text-center">
+                        <div class="stat-number">30+</div>
+                        <div class="stat-label">Care Communities</div>
+                    </div>
+                    <div class="stat-item text-center">
+                        <div class="stat-number">2</div>
+                        <div class="stat-label">States Served</div>
+                    </div>
+                    <div class="stat-item text-center">
+                        <div class="stat-number">100+</div>
+                        <div class="stat-label">Years Experience</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Location Tabs -->
+    <section class="section bg-white" id="locations-list">
+        <div class="container">
+            <div class="tabs" style="justify-content: center; margin-bottom: 48px;">
+                <button class="tab active" onclick="showLocationCategory('michigan')">Michigan Locations (27)</button>
+                <button class="tab" onclick="showLocationCategory('ohio')">Ohio Locations (9)</button>
+            </div>
+
+            <!-- Michigan Locations -->
+            <div id="michigan-locations" class="location-category">
+                <div class="section-header">
+                    <h2 id="michigan">Michigan Locations</h2>
+                    <p>Discover comprehensive care across beautiful Michigan communities.</p>
+                </div>
+                
+                <div class="grid-3 location-grid">
+                    <!-- Allen Park -->
+                    <a href="location-allen-park.html" class="location-card">
+                        <div class="location-image">
+                            <img src="https://www.optalishealthcare.com/wp-content/uploads/2024/10/Allen-Park.webp" alt="Optalis Allen Park Exterior">
+                            <div class="location-overlay">
+                                <span class="location-phone">(313) 386-2150</span>
+                            </div>
+                        </div>
+                        <div class="location-content">
+                            <div class="location-header">
+                                <h3>Allen Park</h3>
+                                <span class="location-type">Rehab & Long-term Care</span>
+                            </div>
+                            <p>Residents experience personalized care from highly qualified, professional, and compassionate staff.</p>
+                        </div>
+                    </a>
+
+                    <!-- Ann Arbor -->
+                    <a href="location-ann-arbor.html" class="location-card">
+                        <div class="location-image">
+                            <img src="https://www.optalishealthcare.com/wp-content/uploads/2024/10/Ann-Arbor.webp" alt="Optalis Ann Arbor Exterior">
+                            <div class="location-overlay">
+                                <span class="location-phone">(734) 975-2600</span>
+                            </div>
+                        </div>
+                        <div class="location-content">
+                            <div class="location-header">
+                                <h3>Ann Arbor</h3>
+                                <span class="location-type">Rehab & Long-term Care</span>
+                            </div>
+                            <p>Offers the best in quality care and rehabilitation by highly trained, professional staff.</p>
+                        </div>
+                    </a>
+
+                    <!-- Belle Fountain -->
+                    <a href="location-belle-fountain.html" class="location-card">
+                        <div class="location-image">
+                            <img src="https://www.optalishealthcare.com/wp-content/uploads/2024/10/Belle-Fountain.webp" alt="Optalis Belle Fountain Exterior">
+                            <div class="location-overlay">
+                                <span class="location-phone">(734) 282-2100</span>
+                            </div>
+                        </div>
+                        <div class="location-content">
+                            <div class="location-header">
+                                <h3>Belle Fountain</h3>
+                                <span class="location-type">Rehab & Long-term Care</span>
+                            </div>
+                            <p>Prides itself on offering a unique and personal experience to each resident while focusing on quality.</p>
+                        </div>
+                    </a>
+
+                    <!-- Bloomfield Hills / Woodward Hills -->
+                    <a href="location-woodward-hills.html" class="location-card">
+                        <div class="location-image">
+                            <img src="https://www.optalishealthcare.com/wp-content/uploads/2024/10/woodward.webp" alt="Optalis Woodward Hills Exterior">
+                            <div class="location-overlay">
+                                <span class="location-phone">(248) 645-6400</span>
+                            </div>
+                        </div>
+                        <div class="location-content">
+                            <div class="location-header">
+                                <h3>Bloomfield Hills (Woodward Hills)</h3>
+                                <span class="location-type">Rehab & Long-term Care</span>
+                            </div>
+                            <p>Serving the Bloomfield Hills community with comprehensive care and rehabilitation services.</p>
+                        </div>
+                    </a>
+
+                    <!-- Canton -->
+                    <a href="location-canton.html" class="location-card">
+                        <div class="location-image">
+                            <img src="https://www.optalishealthcare.com/wp-content/uploads/2024/10/Canton.webp" alt="Optalis Canton Exterior">
+                            <div class="location-overlay">
+                                <span class="location-phone">(734) 394-3100</span>
+                            </div>
+                        </div>
+                        <div class="location-content">
+                            <div class="location-header">
+                                <h3>Canton</h3>
+                                <span class="location-type">Rehab & Long-term Care</span>
+                            </div>
+                            <p>Serving the community since 2005, the premier choice for short-term rehabilitation and long-term care.</p>
+                        </div>
+                    </a>
+
+                    <!-- Dearborn Heights -->
+                    <a href="location-dearborn-heights.html" class="location-card">
+                        <div class="location-image">
+                            <img src="https://www.optalishealthcare.com/wp-content/uploads/2024/10/Dearborn-Heights.webp" alt="Optalis Dearborn Heights Exterior">
+                            <div class="location-overlay">
+                                <span class="location-phone">(313) 562-4500</span>
+                            </div>
+                        </div>
+                        <div class="location-content">
+                            <div class="location-header">
+                                <h3>Dearborn Heights</h3>
+                                <span class="location-type">Rehab & Long-term Care</span>
+                            </div>
+                            <p>Quality healthcare services in the heart of Dearborn Heights.</p>
+                        </div>
+                    </a>
+
+                    <!-- Evergreen -->
+                    <a href="location-evergreen.html" class="location-card">
+                        <div class="location-image">
+                            <img src="https://www.optalishealthcare.com/wp-content/uploads/2024/10/Evergreen.webp" alt="Optalis Evergreen Exterior">
+                            <div class="location-overlay">
+                                <span class="location-phone">(313) 425-3400</span>
+                            </div>
+                        </div>
+                        <div class="location-content">
+                            <div class="location-header">
+                                <h3>Evergreen</h3>
+                                <span class="location-type">Rehab & Long-term Care</span>
+                            </div>
+                            <p>Comprehensive care in a welcoming environment.</p>
+                        </div>
+                    </a>
+
+                    <!-- Fountain Bleu -->
+                    <a href="location-fountain-bleu.html" class="location-card">
+                        <div class="location-image">
+                            <img src="https://www.optalishealthcare.com/wp-content/uploads/2024/10/Foutain-Bleu.webp" alt="Optalis Fountain Bleu Exterior">
+                            <div class="location-overlay">
+                                <span class="location-phone">(313) 562-4600</span>
+                            </div>
+                        </div>
+                        <div class="location-content">
+                            <div class="location-header">
+                                <h3>Fountain Bleu</h3>
+                                <span class="location-type">Rehab & Long-term Care</span>
+                            </div>
+                            <p>Excellence in rehabilitation and long-term care services.</p>
+                        </div>
+                    </a>
+
+                    <!-- Four Seasons -->
+                    <a href="location-four-seasons.html" class="location-card">
+                        <div class="location-image">
+                            <img src="https://www.optalishealthcare.com/wp-content/uploads/2024/10/Four-Seasons-lobby.webp" alt="Optalis Four Seasons Exterior">
+                            <div class="location-overlay">
+                                <span class="location-phone">(586) 758-0700</span>
+                            </div>
+                        </div>
+                        <div class="location-content">
+                            <div class="location-header">
+                                <h3>Four Seasons</h3>
+                                <span class="location-type">Rehab & Long-term Care</span>
+                            </div>
+                            <p>Providing quality care in Warren for over 40 years.</p>
+                        </div>
+                    </a>
+
+                    <!-- Grand Rapids -->
+                    <a href="location-grand-rapids.html" class="location-card">
+                        <div class="location-image">
+                            <img src="https://www.optalishealthcare.com/wp-content/uploads/2024/10/OPH-GR-locationpage.webp" alt="Optalis Grand Rapids Exterior">
+                            <div class="location-overlay">
+                                <span class="location-phone">(616) 452-9091</span>
+                            </div>
+                        </div>
+                        <div class="location-content">
+                            <div class="location-header">
+                                <h3>Grand Rapids</h3>
+                                <span class="location-type">Full Continuum of Care</span>
+                            </div>
+                            <p>Comprehensive care services including rehabilitation, skilled nursing, and assisted living.</p>
+                        </div>
+                    </a>
+
+                    <!-- Greenfield -->
+                    <a href="location-greenfield.html" class="location-card">
+                        <div class="location-image">
+                            <img src="https://www.optalishealthcare.com/wp-content/uploads/2024/10/Greenfield.webp" alt="Optalis Greenfield Exterior">
+                            <div class="location-overlay">
+                                <span class="location-phone">(313) 271-3800</span>
+                            </div>
+                        </div>
+                        <div class="location-content">
+                            <div class="location-header">
+                                <h3>Greenfield</h3>
+                                <span class="location-type">Rehab & Long-term Care</span>
+                            </div>
+                            <p>Dedicated to providing excellent care in the Detroit area.</p>
+                        </div>
+                    </a>
+
+                    <!-- Grosse Pointe Woods -->
+                    <a href="location-grosse-pointe-woods.html" class="location-card">
+                        <div class="location-image">
+                            <img src="https://www.optalishealthcare.com/wp-content/uploads/2024/10/Grosse-Pointe.webp" alt="Optalis Grosse Pointe Woods Exterior">
+                            <div class="location-overlay">
+                                <span class="location-phone">(586) 778-0800</span>
+                            </div>
+                        </div>
+                        <div class="location-content">
+                            <div class="location-header">
+                                <h3>Grosse Pointe Woods</h3>
+                                <span class="location-type">Rehab & Long-term Care</span>
+                            </div>
+                            <p>Serving the community for more than 50 years, a pillar for post-acute and long-term care.</p>
+                        </div>
+                    </a>
+
+                    <!-- Ionia -->
+                    <a href="location-ionia.html" class="location-card">
+                        <div class="location-image">
+                            <img src="https://www.optalishealthcare.com/wp-content/uploads/slider83/Ioniaexteriorbuilding_0625.webp" alt="Optalis Ionia Exterior">
+                            <div class="location-overlay">
+                                <span class="location-phone">(616) 527-0080</span>
+                            </div>
+                        </div>
+                        <div class="location-content">
+                            <div class="location-header">
+                                <h3>Ionia</h3>
+                                <span class="location-type">Rehab & Long-term Care</span>
+                            </div>
+                            <p>Quality care services in the Ionia community.</p>
+                        </div>
+                    </a>
+
+                    <!-- Kent Crossing -->
+                    <a href="location-kent-crossing.html" class="location-card">
+                        <div class="location-image">
+                            <img src="https://www.optalishealthcare.com/wp-content/uploads/2025/06/Kent-Crossing-exterior_0625.webp" alt="Optalis Kent Crossing Exterior">
+                            <div class="location-overlay">
+                                <span class="location-phone">(616) 940-9900</span>
+                            </div>
+                        </div>
+                        <div class="location-content">
+                            <div class="location-header">
+                                <h3>Kent Crossing</h3>
+                                <span class="location-type">Rehab & Long-term Care</span>
+                            </div>
+                            <p>Modern facilities and compassionate care in Grand Rapids area.</p>
+                        </div>
+                    </a>
+
+                    <!-- Kingsford -->
+                    <a href="location-kingsford.html" class="location-card">
+                        <div class="location-image">
+                            <img src="https://www.optalishealthcare.com/wp-content/uploads/2024/10/Kingsford.webp" alt="Optalis Kingsford Exterior">
+                            <div class="location-overlay">
+                                <span class="location-phone">(906) 774-0011</span>
+                            </div>
+                        </div>
+                        <div class="location-content">
+                            <div class="location-header">
+                                <h3>Kingsford</h3>
+                                <span class="location-type">Rehab & Long-term Care</span>
+                            </div>
+                            <p>Serving the Upper Peninsula with quality care services.</p>
+                        </div>
+                    </a>
+
+                    <!-- Lakeland -->
+                    <a href="location-lakeland.html" class="location-card">
+                        <div class="location-image">
+                            <img src="https://www.optalishealthcare.com/wp-content/uploads/2024/10/Lakeland.webp" alt="Optalis Lakeland Exterior">
+                            <div class="location-overlay">
+                                <span class="location-phone">(269) 683-5827</span>
+                            </div>
+                        </div>
+                        <div class="location-content">
+                            <div class="location-header">
+                                <h3>Lakeland</h3>
+                                <span class="location-type">Rehab & Long-term Care</span>
+                            </div>
+                            <p>Scenic lakeside location with comprehensive care services.</p>
+                        </div>
+                    </a>
+
+                    <!-- Leonard -->
+                    <a href="location-leonard.html" class="location-card">
+                        <div class="location-image">
+                            <img src="https://www.optalishealthcare.com/wp-content/uploads/slider89/Leonardexteriorfront_0625.webp" alt="Optalis Leonard Exterior">
+                            <div class="location-overlay">
+                                <span class="location-phone">(248) 628-3000</span>
+                            </div>
+                        </div>
+                        <div class="location-content">
+                            <div class="location-header">
+                                <h3>Leonard</h3>
+                                <span class="location-type">Rehab & Long-term Care</span>
+                            </div>
+                            <p>Personal care in a community setting.</p>
+                        </div>
+                    </a>
+
+                    <!-- Muskegon -->
+                    <a href="location-muskegon.html" class="location-card">
+                        <div class="location-image">
+                            <img src="https://www.optalishealthcare.com/wp-content/uploads/2025/07/Muskegon-exterior-front-ed.webp" alt="Optalis Muskegon Exterior">
+                            <div class="location-overlay">
+                                <span class="location-phone">(231) 733-2601</span>
+                            </div>
+                        </div>
+                        <div class="location-content">
+                            <div class="location-header">
+                                <h3>Muskegon</h3>
+                                <span class="location-type">Rehab & Long-term Care</span>
+                            </div>
+                            <p>Quality healthcare on Michigan's west coast.</p>
+                        </div>
+                    </a>
+
+                    <!-- Shelby -->
+                    <a href="location-shelby.html" class="location-card">
+                        <div class="location-image">
+                            <img src="https://www.optalishealthcare.com/wp-content/uploads/2024/10/Shelby.webp" alt="Optalis Shelby Exterior">
+                            <div class="location-overlay">
+                                <span class="location-phone">(586) 254-6570</span>
+                            </div>
+                        </div>
+                        <div class="location-content">
+                            <div class="location-header">
+                                <h3>Shelby</h3>
+                                <span class="location-type">Rehab & Long-term Care</span>
+                            </div>
+                            <p>Comprehensive care in Shelby Township.</p>
+                        </div>
+                    </a>
+
+                    <!-- Shorepointe -->
+                    <a href="location-shorepointe.html" class="location-card">
+                        <div class="location-image">
+                            <img src="https://www.optalishealthcare.com/wp-content/uploads/2024/10/ShorePointe.webp" alt="Optalis Shorepointe Exterior">
+                            <div class="location-overlay">
+                                <span class="location-phone">(586) 779-7000</span>
+                            </div>
+                        </div>
+                        <div class="location-content">
+                            <div class="location-header">
+                                <h3>Shorepointe</h3>
+                                <span class="location-type">Rehab & Long-term Care</span>
+                            </div>
+                            <p>Waterfront care with a focus on rehabilitation excellence.</p>
+                        </div>
+                    </a>
+
+                    <!-- St. Francis -->
+                    <a href="location-st-francis.html" class="location-card">
+                        <div class="location-image">
+                            <img src="https://www.optalishealthcare.com/wp-content/uploads/2024/10/St.-Francis.webp" alt="Optalis St. Francis Exterior">
+                            <div class="location-overlay">
+                                <span class="location-phone">(586) 725-6200</span>
+                            </div>
+                        </div>
+                        <div class="location-content">
+                            <div class="location-header">
+                                <h3>St. Francis</h3>
+                                <span class="location-type">Rehab & Long-term Care</span>
+                            </div>
+                            <p>Faith-based care with compassion and dignity.</p>
+                        </div>
+                    </a>
+
+                    <!-- Sterling Heights -->
+                    <a href="location-sterling-heights.html" class="location-card">
+                        <div class="location-image">
+                            <img src="https://www.optalishealthcare.com/wp-content/uploads/2024/10/Sterling.webp" alt="Optalis Sterling Heights Exterior">
+                            <div class="location-overlay">
+                                <span class="location-phone">(586) 274-9044</span>
+                            </div>
+                        </div>
+                        <div class="location-content">
+                            <div class="location-header">
+                                <h3>Sterling Heights</h3>
+                                <span class="location-type">Rehab & Long-term Care</span>
+                            </div>
+                            <p>As a leader of quality care and services, the team has proven outcomes to get you home sooner.</p>
+                        </div>
+                    </a>
+
+                    <!-- Three Rivers -->
+                    <a href="location-three-rivers.html" class="location-card">
+                        <div class="location-image">
+                            <img src="https://www.optalishealthcare.com/wp-content/uploads/2024/10/Three-Rivers.webp" alt="Optalis Three Rivers Exterior">
+                            <div class="location-overlay">
+                                <span class="location-phone">(269) 278-7927</span>
+                            </div>
+                        </div>
+                        <div class="location-content">
+                            <div class="location-header">
+                                <h3>Three Rivers</h3>
+                                <span class="location-type">Rehab & Long-term Care</span>
+                            </div>
+                            <p>Serving the Three Rivers community with dedicated care.</p>
+                        </div>
+                    </a>
+
+                    <!-- Troy -->
+                    <a href="location-troy.html" class="location-card">
+                        <div class="location-image">
+                            <img src="https://www.optalishealthcare.com/wp-content/uploads/2024/10/Troy.webp" alt="Optalis Troy Exterior">
+                            <div class="location-overlay">
+                                <span class="location-phone">(248) 526-8700</span>
+                            </div>
+                        </div>
+                        <div class="location-content">
+                            <div class="location-header">
+                                <h3>Troy</h3>
+                                <span class="location-type">Rehab & Long-term Care</span>
+                            </div>
+                            <p>Providing quality rehabilitation and long-term care services in the Troy community.</p>
+                        </div>
+                    </a>
+
+                    <!-- Whitehall -->
+                    <a href="location-whitehall.html" class="location-card">
+                        <div class="location-image">
+                            <img src="https://www.optalishealthcare.com/wp-content/uploads/slider87/Whitehallexteriorsign_0625.webp" alt="Optalis Whitehall Exterior">
+                            <div class="location-overlay">
+                                <span class="location-phone">(231) 894-5656</span>
+                            </div>
+                        </div>
+                        <div class="location-content">
+                            <div class="location-header">
+                                <h3>Whitehall</h3>
+                                <span class="location-type">Rehab & Long-term Care</span>
+                            </div>
+                            <p>Quality care on Michigan's beautiful west coast.</p>
+                        </div>
+                    </a>
+
+                    <!-- Wyoming -->
+                    <a href="location-wyoming.html" class="location-card">
+                        <div class="location-image">
+                            <img src="https://www.optalishealthcare.com/wp-content/uploads/slider85/Wyomingfrontwithsign_0625.webp" alt="Optalis Wyoming Exterior">
+                            <div class="location-overlay">
+                                <span class="location-phone">(616) 534-7616</span>
+                            </div>
+                        </div>
+                        <div class="location-content">
+                            <div class="location-header">
+                                <h3>Wyoming</h3>
+                                <span class="location-type">Rehab & Long-term Care</span>
+                            </div>
+                            <p>Comprehensive care in the Grand Rapids metro area.</p>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Cranberry Park Assisted Living Section -->
+                <div class="section-header" style="margin-top: 64px;">
+                    <h3 style="color: var(--primary);">Cranberry Park Assisted Living</h3>
+                    <p>Boutique-style senior living communities offering assisted living, memory care, and independent living options.</p>
+                </div>
+                
+                <div class="grid-3 location-grid">
+                    <!-- Cranberry Park at West Bloomfield -->
+                    <a href="location-cranberry-west-bloomfield.html" class="location-card">
+                        <div class="location-image">
+                            <img src="https://www.optalishealthcare.com/wp-content/uploads/2024/01/OPH_Woodward_0124.webp" alt="Cranberry Park West Bloomfield">
+                            <div class="location-overlay">
+                                <span class="location-phone">(248) 538-2400</span>
+                            </div>
+                        </div>
+                        <div class="location-content">
+                            <div class="location-header">
+                                <h3>Cranberry Park at West Bloomfield</h3>
+                                <span class="location-type">Assisted Living & Memory Care</span>
+                            </div>
+                            <p>Boutique-style assisted living with personalized care and specialized memory care neighborhoods.</p>
+                        </div>
+                    </a>
+
+                    <!-- Cranberry Park at Milford -->
+                    <a href="location-cranberry-milford.html" class="location-card">
+                        <div class="location-image">
+                            <img src="https://www.optalishealthcare.com/wp-content/uploads/2024/10/OPH-GR-locationpage.webp" alt="Cranberry Park Milford">
+                            <div class="location-overlay">
+                                <span class="location-phone">(248) 685-1400</span>
+                            </div>
+                        </div>
+                        <div class="location-content">
+                            <div class="location-header">
+                                <h3>Cranberry Park at Milford</h3>
+                                <span class="location-type">Assisted Living & Memory Care</span>
+                            </div>
+                            <p>Where care meets community in the charming village of Milford.</p>
+                        </div>
+                    </a>
+
+                    <!-- Cranberry Park of Grand Rapids -->
+                    <a href="location-cranberry-grand-rapids.html" class="location-card">
+                        <div class="location-image">
+                            <img src="https://www.optalishealthcare.com/wp-content/uploads/2024/08/OPH_GR-cottages-exterior_0824.webp" alt="Cranberry Park Grand Rapids">
+                            <div class="location-overlay">
+                                <span class="location-phone">(616) 949-4000</span>
+                            </div>
+                        </div>
+                        <div class="location-content">
+                            <div class="location-header">
+                                <h3>Cranberry Park of Grand Rapids</h3>
+                                <span class="location-type">Assisted Living & Memory Care</span>
+                            </div>
+                            <p>Part of our full continuum of care campus with access to comprehensive services.</p>
+                        </div>
+                    </a>
+
+                    <!-- The Cottages at Grand Rapids -->
+                    <a href="location-cottages-grand-rapids.html" class="location-card">
+                        <div class="location-image">
+                            <img src="https://www.optalishealthcare.com/wp-content/uploads/slider/cache/9e79c9e1bd129c45af0b2710b5adee6c/GR-cottages-back-patio-1.webp" alt="The Cottages Grand Rapids">
+                            <div class="location-overlay">
+                                <span class="location-phone">(616) 949-4100</span>
+                            </div>
+                        </div>
+                        <div class="location-content">
+                            <div class="location-header">
+                                <h3>The Cottages at Grand Rapids</h3>
+                                <span class="location-type">Independent Living</span>
+                            </div>
+                            <p>Spacious 1 & 2 bedroom cottages with month-to-month leases and full campus access.</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Ohio Locations -->
+            <div id="ohio-locations" class="location-category hidden">
+                <div class="section-header">
+                    <h2 id="ohio">Ohio Locations</h2>
+                    <p>Serving communities throughout Ohio with exceptional healthcare services.</p>
+                </div>
+                
+                <div class="grid-3 location-grid">
+                    <!-- Abbyshire Place -->
+                    <a href="location-abbyshire-place.html" class="location-card">
+                        <div class="location-image">
+                            <img src="https://www.optalishealthcare.com/wp-content/uploads/2023/10/OPH_ABBYSHIRE_Img_1023.webp" alt="Optalis Abbyshire Place">
+                            <div class="location-overlay">
+                                <span class="location-phone">(740) 446-7150</span>
+                            </div>
+                        </div>
+                        <div class="location-content">
+                            <div class="location-header">
+                                <h3>Abbyshire Place</h3>
+                                <span class="location-type">Rehab & Long-term Care</span>
+                            </div>
+                            <p>Specializes in long-term care, rehabilitation and therapy, memory care, hospice, and respite care.</p>
+                        </div>
+                    </a>
+
+                    <!-- Canal Winchester -->
+                    <a href="location-canal-winchester.html" class="location-card">
+                        <div class="location-image">
+                            <img src="https://www.optalishealthcare.com/wp-content/uploads/2024/02/OPH_CW_Img_0224.webp" alt="Optalis Canal Winchester">
+                            <div class="location-overlay">
+                                <span class="location-phone">(614) 834-6800</span>
+                            </div>
+                        </div>
+                        <div class="location-content">
+                            <div class="location-header">
+                                <h3>Canal Winchester</h3>
+                                <span class="location-type">Rehab & Long-term Care</span>
+                            </div>
+                            <p>Leading provider of short-term rehabilitative care while offering a full continuum of services.</p>
+                        </div>
+                    </a>
+
+                    <!-- Mill Run -->
+                    <a href="location-mill-run.html" class="location-card">
+                        <div class="location-image">
+                            <img src="https://www.optalishealthcare.com/wp-content/uploads/2023/10/OPH_MillRun_1023.webp" alt="Optalis Mill Run">
+                            <div class="location-overlay">
+                                <span class="location-phone">(614) 527-3000</span>
+                            </div>
+                        </div>
+                        <div class="location-content">
+                            <div class="location-header">
+                                <h3>Mill Run</h3>
+                                <span class="location-type">Rehab Care</span>
+                            </div>
+                            <p>Hilliard's most esteemed and established provider, offering the only full continuum of care in the Hilliard area.</p>
+                        </div>
+                    </a>
+
+                    <!-- Monterey -->
+                    <a href="location-monterey.html" class="location-card">
+                        <div class="location-image">
+                            <img src="https://www.optalishealthcare.com/wp-content/uploads/2024/02/OPH_MONT_Img_0224.webp" alt="Optalis Monterey">
+                            <div class="location-overlay">
+                                <span class="location-phone">(614) 527-4500</span>
+                            </div>
+                        </div>
+                        <div class="location-content">
+                            <div class="location-header">
+                                <h3>Monterey</h3>
+                                <span class="location-type">Rehab & Long-term Care</span>
+                            </div>
+                            <p>Comprehensive care services in a modern, comfortable setting.</p>
+                        </div>
+                    </a>
+
+                    <!-- New Albany -->
+                    <a href="location-new-albany.html" class="location-card">
+                        <div class="location-image">
+                            <img src="https://www.optalishealthcare.com/wp-content/uploads/2024/02/OPH_NA_Img_0224.webp" alt="Optalis New Albany">
+                            <div class="location-overlay">
+                                <span class="location-phone">(614) 855-3000</span>
+                            </div>
+                        </div>
+                        <div class="location-content">
+                            <div class="location-header">
+                                <h3>New Albany</h3>
+                                <span class="location-type">Rehab & Long-term Care</span>
+                            </div>
+                            <p>Quality healthcare services in the New Albany community.</p>
+                        </div>
+                    </a>
+
+                    <!-- Pickaway Manor -->
+                    <a href="location-pickaway-manor.html" class="location-card">
+                        <div class="location-image">
+                            <img src="https://www.optalishealthcare.com/wp-content/uploads/2023/10/OPH_PickawayMan_1023.webp" alt="Optalis Pickaway Manor">
+                            <div class="location-overlay">
+                                <span class="location-phone">(740) 474-3361</span>
+                            </div>
+                        </div>
+                        <div class="location-content">
+                            <div class="location-header">
+                                <h3>Pickaway Manor</h3>
+                                <span class="location-type">Rehab & Long-term Care</span>
+                            </div>
+                            <p>Personalized care in a comfortable community setting.</p>
+                        </div>
+                    </a>
+
+                    <!-- Riverview -->
+                    <a href="location-riverview.html" class="location-card">
+                        <div class="location-image">
+                            <img src="https://www.optalishealthcare.com/wp-content/uploads/2024/02/OPH_RV_Img_0224.webp" alt="Optalis Riverview">
+                            <div class="location-overlay">
+                                <span class="location-phone">(614) 266-9200</span>
+                            </div>
+                        </div>
+                        <div class="location-content">
+                            <div class="location-header">
+                                <h3>Riverview</h3>
+                                <span class="location-type">Rehab & Long-term Care</span>
+                            </div>
+                            <p>Exceptional care with beautiful views and modern amenities.</p>
+                        </div>
+                    </a>
+
+                    <!-- The Grand Dublin -->
+                    <a href="location-grand-dublin.html" class="location-card">
+                        <div class="location-image">
+                            <img src="https://www.optalishealthcare.com/wp-content/uploads/2024/01/OPH_GRAND_0124.webp" alt="Optalis The Grand Dublin">
+                            <div class="location-overlay">
+                                <span class="location-phone">(614) 266-8000</span>
+                            </div>
+                        </div>
+                        <div class="location-content">
+                            <div class="location-header">
+                                <h3>The Grand Dublin</h3>
+                                <span class="location-type">Full Continuum of Care</span>
+                            </div>
+                            <p>Premium care in an elegant, comfortable environment.</p>
+                        </div>
+                    </a>
+
+                    <!-- West Park -->
+                    <a href="location-west-park.html" class="location-card">
+                        <div class="location-image">
+                            <img src="https://www.optalishealthcare.com/wp-content/uploads/2024/01/OPH_Wstpark_0124-1.webp" alt="Optalis West Park">
+                            <div class="location-overlay">
+                                <span class="location-phone">(614) 266-6700</span>
+                            </div>
+                        </div>
+                        <div class="location-content">
+                            <div class="location-header">
+                                <h3>West Park</h3>
+                                <span class="location-type">Rehab & Long-term Care</span>
+                            </div>
+                            <p>Comprehensive healthcare services in the Columbus area.</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="section bg-primary" style="text-align: center; color: white;">
+        <div class="container">
+            <h2 style="font-size: 48px; margin-bottom: 24px;">Ready to Schedule a Tour?</h2>
+            <p style="font-size: 19px; opacity: 0.8; margin-bottom: 44px; max-width: 580px; margin-left: auto; margin-right: auto;">Contact us today to learn more about our services and schedule a personalized tour of any location.</p>
+            <a href="contact.html" class="btn btn-accent" style="font-size: 15px; padding: 22px 48px;">Contact Us Today</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-main">
+                <div class="footer-brand">
+                    <img src="https://www.optalishealthcare.com/wp-content/uploads/2023/03/optalis_logonav.webp" alt="Optalis Health & Rehabilitation">
+                    <p>Providing exceptional care with a sincere commitment to service and individualized attention across Ohio and Michigan.</p>
+                    <div class="footer-hq">
+                        <strong>Ohio Corporate Headquarters</strong>
+                        <p>715 Shawan Falls Drive, PO Box 68<br>Dublin, OH 43017</p>
+                    </div>
+                    <div class="footer-hq">
+                        <strong>Michigan Corporate Headquarters</strong>
+                        <p>25500 Meadowbrook Road, Suite 230<br>Novi, MI 48375</p>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4>Care Services</h4>
+                    <ul>
+                        <li><a href="rehab.html">Rehabilitation & Therapy</a></li>
+                        <li><a href="skilled-nursing.html">Skilled Nursing</a></li>
+                        <li><a href="assisted-living.html">Assisted Living</a></li>
+                        <li><a href="memory-care.html">Memory Care</a></li>
+                        <li><a href="specialized-care.html">Specialized Care</a></li>
+                        <li><a href="veterans.html">Veterans Care</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Locations</h4>
+                    <ul>
+                        <li><a href="locations.html">Find a Location</a></li>
+                        <li><a href="locations.html#michigan">Michigan Centers</a></li>
+                        <li><a href="locations.html#ohio">Ohio Centers</a></li>
+                        <li><a href="assisted-living.html">Cranberry Park</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="resources.html">Care Resources</a></li>
+                        <li><a href="what-to-expect.html">What to Expect</a></li>
+                        <li><a href="cost.html">Cost & Insurance</a></li>
+                        <li><a href="pre-surgery.html">Pre-Surgery Planning</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="careers.html">Careers</a></li>
+                        <li><a href="contact.html">Contact Us</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Optalis Healthcare. All rights reserved.</p>
+                <div class="footer-links">
+                    <a href="privacy.html">Privacy Policy</a>
+                    <a href="terms.html">Terms of Service</a>
+                    <a href="compliance.html">Compliance</a>
+                </div>
+                <div class="footer-social">
+                    <a href="#" aria-label="Facebook">
+                        <svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+                    </a>
+                    <a href="#" aria-label="LinkedIn">
+                        <svg viewBox="0 0 24 24"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile navigation
+        function openMobileNav() {
+            document.querySelector('.mobile-nav').classList.add('open');
+            document.querySelector('.mobile-nav-overlay').classList.add('open');
+        }
+
+        function closeMobileNav() {
+            document.querySelector('.mobile-nav').classList.remove('open');
+            document.querySelector('.mobile-nav-overlay').classList.remove('open');
+        }
+
+        // Header scroll effect
+        window.addEventListener('scroll', function() {
+            const header = document.querySelector('header');
+            if (window.scrollY > 100) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // Location category switching
+        function showLocationCategory(category) {
+            // Update active tab
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Show/hide location categories
+            document.querySelectorAll('.location-category').forEach(cat => {
+                cat.classList.add('hidden');
+            });
+            
+            if (category === 'michigan') {
+                document.getElementById('michigan-locations').classList.remove('hidden');
+            } else if (category === 'ohio') {
+                document.getElementById('ohio-locations').classList.remove('hidden');
+            }
+        }
+
+        // Handle hash links for state sections
+        document.addEventListener('DOMContentLoaded', function() {
+            const hash = window.location.hash;
+            if (hash === '#ohio') {
+                showLocationCategory('ohio');
+                // Update tab state
+                document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+                document.querySelectorAll('.tab')[1].classList.add('active');
+            }
+        });
+    </script>
+</body>
+</html>

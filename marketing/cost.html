@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cost & Insurance - Optalis Health & Rehabilitation</title>
+    <meta name="description" content="Understand costs for assisted living, rehabilitation, and skilled nursing at Optalis. Learn about Medicare, Medicaid, and insurance coverage options.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Mobile Navigation Overlay -->
+    <div class="mobile-nav-overlay" onclick="closeMobileNav()"></div>
+    
+    <!-- Mobile Navigation -->
+    <nav class="mobile-nav">
+        <button class="mobile-nav-close" onclick="closeMobileNav()">&times;</button>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="services.html">Care Services</a></li>
+            <li><a href="locations.html">Find a Location</a></li>
+            <li><a href="resources.html">Resources</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="careers.html">Careers</a></li>
+            <li><a href="contact.html">Contact Us</a></li>
+        </ul>
+    </nav>
+
+    <!-- Header -->
+    <header>
+        <div class="header-top">
+            <div class="container">
+                <div class="header-contact">
+                    <span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        Serving Ohio & Michigan
+                    </span>
+                    <span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                        <a href="tel:+18005551234">1-800-555-1234</a>
+                    </span>
+                </div>
+                <a href="veterans.html" class="header-veterans">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    Preferred Provider for Veterans
+                </a>
+            </div>
+        </div>
+        <nav>
+            <div class="container">
+                <a href="index.html" class="logo">
+                    <img src="https://www.optalishealthcare.com/wp-content/uploads/2023/03/optalis_logonav.webp" alt="Optalis Health & Rehabilitation">
+                </a>
+                <ul class="nav-links">
+                    <li class="has-dropdown">
+                        <a href="services.html">Care Services <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></a>
+                        <div class="dropdown">
+                            <a href="rehab.html">Rehabilitation \&amp; Therapy</a>
+                            <a href="skilled-nursing.html">Skilled Nursing</a>
+                            <a href="assisted-living.html">Assisted Living</a>
+                            <a href="independent-living.html">Independent Living</a>
+                            <a href="memory-care.html">Memory Care</a>
+                            <a href="specialized-care.html">Specialized Care</a>
+                            <a href="respite-care.html">Respite Care</a>
+                            <a href="veterans.html">Veterans Care</a>
+                        </div>
+                    </li>
+                    <li class="has-dropdown">
+                        <a href="locations.html">Find a Location <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></a>
+                        <div class="dropdown dropdown-locations">
+                            <div class="dropdown-col">
+                                <span class="dropdown-header">Michigan</span>
+                                <a href="locations.html#ann-arbor">Ann Arbor</a>
+                                <a href="locations.html#canton">Canton</a>
+                                <a href="locations.html#grand-rapids">Grand Rapids</a>
+                                <a href="locations.html#troy">Troy</a>
+                            </div>
+                            <div class="dropdown-col">
+                                <span class="dropdown-header">Ohio</span>
+                                <a href="locations.html#dublin">Dublin</a>
+                                <a href="locations.html#akron">Akron</a>
+                            </div>
+                            <a href="locations.html" class="dropdown-view-all">View All 30+ Locations →</a>
+                        </div>
+                    </li>
+                    <li class="has-dropdown">
+                        <a href="resources.html">Resources <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></a>
+                        <div class="dropdown">
+                            <a href="what-to-expect.html">What to Expect</a>
+                            <a href="cost.html">Cost \&amp; Insurance</a>
+                            <a href="insurance.html">Managed Care Benefits</a>
+                            <a href="pre-surgery.html">Pre-Surgery Planning</a>
+                        </div>
+                    </li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="careers.html">Careers</a></li>
+                    <li><a href="contact.html" class="nav-cta">Contact Us</a></li>
+                </ul>
+                <button class="mobile-menu" aria-label="Menu" onclick="openMobileNav()">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Breadcrumb -->
+    <section class="breadcrumb">
+        <div class="container">
+            <a href="index.html">Home</a>
+            <span>/</span>
+            <a href="resources.html">Resources</a>
+            <span>/</span>
+            <span>Cost & Insurance</span>
+        </div>
+    </section>
+
+    <!-- Hero Section -->
+    <section class="page-hero">
+        <div class="container">
+            <span class="section-label">Financial Information</span>
+            <h1>Understanding Cost & Payment Options</h1>
+            <p>Confused about what insurance covers? We're here to help you navigate the costs associated with assisted living, rehabilitation, and skilled nursing.</p>
+        </div>
+    </section>
+
+    <!-- Content Section -->
+    <section class="section bg-white">
+        <div class="container">
+            <div class="content-grid">
+                <div class="content-main">
+                    <h2>Rehabilitation Cost Questions</h2>
+                    <p>Most rehabilitation centers charge a daily rate. The average cost of a skilled nursing and rehabilitation center is approximately <strong>$280 per day</strong> for a semi-private room and <strong>$319 for a private room</strong>.</p>
+                    
+                    <h3>Medicare Coverage for Rehabilitation</h3>
+                    <p>Most Medicare plans cover up to 100 days of rehab if you meet the guidelines, although the average length of stay is approximately 30 days.</p>
+                    <ul>
+                        <li><strong>Days 1-20:</strong> Covered by Medicare at 100%</li>
+                        <li><strong>Days 21-100:</strong> Daily copay required if you still qualify for care</li>
+                        <li><strong>After Day 100:</strong> You are responsible for full costs</li>
+                    </ul>
+
+                    <h3>Does Medicaid Cover Rehabilitation?</h3>
+                    <p>If you qualify, Medicaid does help cover rehabilitation needed due to injury, disability, or illness. Medicaid also covers skilled nursing services at Medicaid-certified communities as long as the patient meets certain eligibility requirements.</p>
+
+                    <h3>What's Included in Rehab Costs?</h3>
+                    <p>While receiving inpatient rehabilitation services at an Optalis care community, patients have access to:</p>
+                    <ul>
+                        <li>Therapy and nursing services</li>
+                        <li>Meals and activities</li>
+                        <li>Personal laundry and linen services</li>
+                        <li>Activities and outings</li>
+                        <li>Transportation</li>
+                    </ul>
+
+                    <hr style="margin: 48px 0; border: none; border-top: 1px solid var(--border);">
+
+                    <h2>Assisted Living Cost Questions</h2>
+                    <p>The cost of assisted living depends on the community you choose and the apartment type. The average monthly cost of an assisted living community is approximately <strong>$4,774</strong>.</p>
+                    
+                    <p>At Optalis, monthly rates vary based on two factors:</p>
+                    <ol>
+                        <li>The apartment rate</li>
+                        <li>The level of care rate (determined by assessment prior to moving in)</li>
+                    </ol>
+                    <p>Monthly rates at Optalis assisted living communities typically range from <strong>$4,000-$5,000</strong>.</p>
+
+                    <h3>Does Medicare Cover Assisted Living?</h3>
+                    <p>Medicare does not cover assisted living. Most assisted living communities are private-pay, and most private health insurance plans do not cover the cost of assisted living.</p>
+
+                    <h3>What About Medicaid for Assisted Living?</h3>
+                    <p>Some assisted living communities accept the Ohio Medicaid assisted living waiver, which can help with costs. However, the resident must first have completed two or more years of private pay before this option is available.</p>
+
+                    <hr style="margin: 48px 0; border: none; border-top: 1px solid var(--border);">
+
+                    <h2>Long-Term Care Cost Questions</h2>
+                    <p>The cost of long-term care varies with each resident. Because of differing needs and levels of care, it's best to <a href="contact.html" style="color: var(--primary);">contact us</a> for a specific cost range.</p>
+
+                    <h3>Medicare & Long-Term Care</h3>
+                    <p>Medicare will not cover extended stays in long-term care. However, if you have recently been hospitalized for three or more nights, Medicare may cover all or part of the cost of skilled nursing for up to 100 days.</p>
+
+                    <h3>What's Included in Long-Term Care?</h3>
+                    <ul>
+                        <li>Rooms with in-room amenities</li>
+                        <li>Personal laundry and linen service</li>
+                        <li>Activities and outings</li>
+                        <li>Dining and community spaces</li>
+                        <li>Personal billing assistance</li>
+                    </ul>
+                </div>
+                <div class="content-sidebar">
+                    <div class="sidebar-card" style="background: var(--primary); color: white;">
+                        <h4 style="color: white;">Financial Assistance</h4>
+                        <p style="opacity: 0.9;">Our financial coordinators can help you explore all payment options.</p>
+                        <a href="contact.html" class="btn btn-accent" style="width: 100%; margin-top: 16px;">Contact Us</a>
+                    </div>
+                    <div class="sidebar-card">
+                        <h4>Related Resources</h4>
+                        <ul style="list-style: none; padding: 0;">
+                            <li style="margin-bottom: 12px;"><a href="what-to-expect.html" style="color: var(--primary);">What to Expect</a></li>
+                            <li style="margin-bottom: 12px;"><a href="pre-surgery.html" style="color: var(--primary);">Pre-Surgery Planning</a></li>
+                            <li><a href="locations.html" style="color: var(--primary);">Find a Location</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="section bg-primary text-center" style="color: white;">
+        <div class="container">
+            <h2 style="font-size: 42px; margin-bottom: 20px;">Still Have Questions?</h2>
+            <p style="font-size: 17px; opacity: 0.9; margin-bottom: 32px; max-width: 600px; margin-left: auto; margin-right: auto;">Our experts will help answer your financial questions specific to your individual situation.</p>
+            <a href="contact.html" class="btn btn-accent">Get in Touch</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-main">
+                <div class="footer-brand">
+                    <img src="https://www.optalishealthcare.com/wp-content/uploads/2023/03/optalis_logonav.webp" alt="Optalis Health & Rehabilitation">
+                    <p>Providing exceptional care across Ohio and Michigan.</p>
+                    <div class="footer-hq">
+                        <strong>Ohio Corporate Headquarters</strong>
+                        <p>715 Shawan Falls Drive, Dublin, OH 43017</p>
+                    </div>
+                    <div class="footer-hq">
+                        <strong>Michigan Corporate Headquarters</strong>
+                        <p>25500 Meadowbrook Road, Novi, MI 48375</p>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4>Care Services</h4>
+                    <ul>
+                        <li><a href="rehab.html">Rehabilitation & Therapy</a></li>
+                        <li><a href="skilled-nursing.html">Skilled Nursing</a></li>
+                        <li><a href="assisted-living.html">Assisted Living</a></li>
+                        <li><a href="memory-care.html">Memory Care</a></li>
+                        <li><a href="veterans.html">Veterans Care</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="what-to-expect.html">What to Expect</a></li>
+                        <li><a href="cost.html">Cost & Insurance</a></li>
+                        <li><a href="pre-surgery.html">Pre-Surgery Planning</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="careers.html">Careers</a></li>
+                        <li><a href="contact.html">Contact Us</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Optalis Healthcare. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function openMobileNav() {
+            document.querySelector('.mobile-nav').classList.add('open');
+            document.querySelector('.mobile-nav-overlay').classList.add('open');
+        }
+        function closeMobileNav() {
+            document.querySelector('.mobile-nav').classList.remove('open');
+            document.querySelector('.mobile-nav-overlay').classList.remove('open');
+        }
+    </script>
+</body>
+</html>

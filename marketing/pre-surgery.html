@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pre-Surgery Reservations - Optalis Health & Rehabilitation</title>
+    <meta name="description" content="Plan ahead for your surgery recovery. Reserve your room at Optalis before your scheduled procedure for peace of mind.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Mobile Navigation Overlay -->
+    <div class="mobile-nav-overlay" onclick="closeMobileNav()"></div>
+    
+    <!-- Mobile Navigation -->
+    <nav class="mobile-nav">
+        <button class="mobile-nav-close" onclick="closeMobileNav()">&times;</button>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="services.html">Care Services</a></li>
+            <li><a href="locations.html">Find a Location</a></li>
+            <li><a href="resources.html">Resources</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="careers.html">Careers</a></li>
+            <li><a href="contact.html">Contact Us</a></li>
+        </ul>
+    </nav>
+
+    <!-- Header -->
+    <header>
+        <div class="header-top">
+            <div class="container">
+                <div class="header-contact">
+                    <span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        Serving Ohio & Michigan
+                    </span>
+                    <span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                        <a href="tel:+18005551234">1-800-555-1234</a>
+                    </span>
+                </div>
+                <a href="veterans.html" class="header-veterans">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    Preferred Provider for Veterans
+                </a>
+            </div>
+        </div>
+        <nav>
+            <div class="container">
+                <a href="index.html" class="logo">
+                    <img src="https://www.optalishealthcare.com/wp-content/uploads/2023/03/optalis_logonav.webp" alt="Optalis Health & Rehabilitation">
+                </a>
+                <ul class="nav-links">
+                    <li class="has-dropdown">
+                        <a href="services.html">Care Services <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></a>
+                        <div class="dropdown">
+                            <a href="rehab.html">Rehabilitation \&amp; Therapy</a>
+                            <a href="skilled-nursing.html">Skilled Nursing</a>
+                            <a href="assisted-living.html">Assisted Living</a>
+                            <a href="independent-living.html">Independent Living</a>
+                            <a href="memory-care.html">Memory Care</a>
+                            <a href="specialized-care.html">Specialized Care</a>
+                            <a href="respite-care.html">Respite Care</a>
+                            <a href="veterans.html">Veterans Care</a>
+                        </div>
+                    </li>
+                    <li class="has-dropdown">
+                        <a href="locations.html">Find a Location <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></a>
+                        <div class="dropdown dropdown-locations">
+                            <div class="dropdown-col">
+                                <span class="dropdown-header">Michigan</span>
+                                <a href="locations.html#ann-arbor">Ann Arbor</a>
+                                <a href="locations.html#canton">Canton</a>
+                                <a href="locations.html#grand-rapids">Grand Rapids</a>
+                                <a href="locations.html#troy">Troy</a>
+                            </div>
+                            <div class="dropdown-col">
+                                <span class="dropdown-header">Ohio</span>
+                                <a href="locations.html#dublin">Dublin</a>
+                                <a href="locations.html#akron">Akron</a>
+                            </div>
+                            <a href="locations.html" class="dropdown-view-all">View All 30+ Locations →</a>
+                        </div>
+                    </li>
+                    <li class="has-dropdown">
+                        <a href="resources.html">Resources <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></a>
+                        <div class="dropdown">
+                            <a href="what-to-expect.html">What to Expect</a>
+                            <a href="cost.html">Cost \&amp; Insurance</a>
+                            <a href="insurance.html">Managed Care Benefits</a>
+                            <a href="pre-surgery.html">Pre-Surgery Planning</a>
+                        </div>
+                    </li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="careers.html">Careers</a></li>
+                    <li><a href="contact.html" class="nav-cta">Contact Us</a></li>
+                </ul>
+                <button class="mobile-menu" aria-label="Menu" onclick="openMobileNav()">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Breadcrumb -->
+    <section class="breadcrumb">
+        <div class="container">
+            <a href="index.html">Home</a>
+            <span>/</span>
+            <a href="resources.html">Resources</a>
+            <span>/</span>
+            <span>Pre-Surgery Reservations</span>
+        </div>
+    </section>
+
+    <!-- Hero Section -->
+    <section class="page-hero">
+        <div class="container">
+            <span class="section-label">Plan Ahead</span>
+            <h1>Pre-Surgery Reservations</h1>
+            <p>Knowing what to expect and that your room and medical team will be ready for you allows you to feel more confident as a surgical patient.</p>
+        </div>
+    </section>
+
+    <!-- Content Section -->
+    <section class="section bg-white">
+        <div class="container">
+            <div class="content-grid">
+                <div class="content-main">
+                    <h2>Plan Your Recovery Before Your Surgery</h2>
+                    <p>If you are considering or have scheduled surgery and would like to plan for your recovery needs, we recommend making a pre-surgery reservation at one of our communities.</p>
+                    
+                    <div style="background: var(--cream); padding: 32px; border-radius: var(--radius-lg); margin: 32px 0; border-left: 4px solid var(--primary);">
+                        <h3 style="margin-top: 0;">No Financial Obligation</h3>
+                        <p style="margin-bottom: 0;">When you make a pre-surgery room reservation, there is <strong>no financial obligation</strong> should your surgery be canceled or postponed.</p>
+                    </div>
+
+                    <h3>Why Make a Pre-Surgery Reservation?</h3>
+                    <ul>
+                        <li><strong>Peace of Mind:</strong> Know that your room and care team will be ready and waiting for you</li>
+                        <li><strong>Better Planning:</strong> Prepare for your recovery with confidence</li>
+                        <li><strong>No Surprises:</strong> Understand your care plan before you arrive</li>
+                        <li><strong>Family Assurance:</strong> Your loved ones will know where you'll be recovering</li>
+                    </ul>
+
+                    <h3>What's Included in Your Stay</h3>
+                    <p>When you choose Optalis for your post-surgery recovery, you'll have access to:</p>
+                    <ul>
+                        <li>Physical, occupational, and speech therapy</li>
+                        <li>24-hour nursing care</li>
+                        <li>Comfortable private or semi-private rooms</li>
+                        <li>Chef-prepared meals with dietary accommodations</li>
+                        <li>Activities and enrichment programs</li>
+                        <li>Personal laundry and linen service</li>
+                        <li>Transportation services</li>
+                    </ul>
+
+                    <h3>How to Make a Reservation</h3>
+                    <ol>
+                        <li><strong>Contact Us:</strong> Reach out to your preferred Optalis location or fill out our contact form</li>
+                        <li><strong>Share Your Surgery Details:</strong> Let us know your surgery date and type of procedure</li>
+                        <li><strong>Tour the Facility:</strong> We encourage you to visit and see where you'll be recovering</li>
+                        <li><strong>Complete the Reservation:</strong> Our team will guide you through the simple process</li>
+                    </ol>
+
+                    <h3>Common Surgeries We Support Recovery For</h3>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 24px;">
+                        <div style="background: var(--light-gray); padding: 16px; border-radius: var(--radius-md);">
+                            <strong>Orthopedic</strong>
+                            <p style="margin: 8px 0 0; font-size: 14px; color: var(--text-muted);">Hip replacement, knee replacement, spinal surgery</p>
+                        </div>
+                        <div style="background: var(--light-gray); padding: 16px; border-radius: var(--radius-md);">
+                            <strong>Cardiac</strong>
+                            <p style="margin: 8px 0 0; font-size: 14px; color: var(--text-muted);">Heart valve, bypass, pacemaker</p>
+                        </div>
+                        <div style="background: var(--light-gray); padding: 16px; border-radius: var(--radius-md);">
+                            <strong>Neurological</strong>
+                            <p style="margin: 8px 0 0; font-size: 14px; color: var(--text-muted);">Stroke recovery, brain surgery</p>
+                        </div>
+                        <div style="background: var(--light-gray); padding: 16px; border-radius: var(--radius-md);">
+                            <strong>General</strong>
+                            <p style="margin: 8px 0 0; font-size: 14px; color: var(--text-muted);">Abdominal, cancer treatment recovery</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="content-sidebar">
+                    <div class="sidebar-card" style="background: var(--primary); color: white;">
+                        <h4 style="color: white;">Ready to Reserve?</h4>
+                        <p style="opacity: 0.9;">Contact us today to make your pre-surgery reservation.</p>
+                        <a href="contact.html" class="btn btn-accent" style="width: 100%; margin-top: 16px;">Make a Reservation</a>
+                    </div>
+                    <div class="sidebar-card">
+                        <h4>Find a Location</h4>
+                        <p style="font-size: 14px; color: var(--text-muted);">Find the Optalis community nearest to your hospital.</p>
+                        <a href="locations.html" class="btn btn-outline" style="width: 100%; margin-top: 16px;">View Locations</a>
+                    </div>
+                    <div class="sidebar-card">
+                        <h4>Related Resources</h4>
+                        <ul style="list-style: none; padding: 0;">
+                            <li style="margin-bottom: 12px;"><a href="what-to-expect.html" style="color: var(--primary);">What to Expect</a></li>
+                            <li style="margin-bottom: 12px;"><a href="cost.html" style="color: var(--primary);">Cost & Insurance</a></li>
+                            <li><a href="rehab.html" style="color: var(--primary);">Rehabilitation Services</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="section bg-primary text-center" style="color: white;">
+        <div class="container">
+            <h2 style="font-size: 42px; margin-bottom: 20px;">Questions About Your Upcoming Surgery?</h2>
+            <p style="font-size: 17px; opacity: 0.9; margin-bottom: 32px; max-width: 600px; margin-left: auto; margin-right: auto;">Our team is ready to help you plan for a successful recovery.</p>
+            <a href="contact.html" class="btn btn-accent">Contact Us Today</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-main">
+                <div class="footer-brand">
+                    <img src="https://www.optalishealthcare.com/wp-content/uploads/2023/03/optalis_logonav.webp" alt="Optalis Health & Rehabilitation">
+                    <p>Providing exceptional care across Ohio and Michigan.</p>
+                    <div class="footer-hq">
+                        <strong>Ohio Corporate Headquarters</strong>
+                        <p>715 Shawan Falls Drive, Dublin, OH 43017</p>
+                    </div>
+                    <div class="footer-hq">
+                        <strong>Michigan Corporate Headquarters</strong>
+                        <p>25500 Meadowbrook Road, Novi, MI 48375</p>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4>Care Services</h4>
+                    <ul>
+                        <li><a href="rehab.html">Rehabilitation & Therapy</a></li>
+                        <li><a href="skilled-nursing.html">Skilled Nursing</a></li>
+                        <li><a href="assisted-living.html">Assisted Living</a></li>
+                        <li><a href="memory-care.html">Memory Care</a></li>
+                        <li><a href="veterans.html">Veterans Care</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="what-to-expect.html">What to Expect</a></li>
+                        <li><a href="cost.html">Cost & Insurance</a></li>
+                        <li><a href="pre-surgery.html">Pre-Surgery Planning</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="careers.html">Careers</a></li>
+                        <li><a href="contact.html">Contact Us</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Optalis Healthcare. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function openMobileNav() {
+            document.querySelector('.mobile-nav').classList.add('open');
+            document.querySelector('.mobile-nav-overlay').classList.add('open');
+        }
+        function closeMobileNav() {
+            document.querySelector('.mobile-nav').classList.remove('open');
+            document.querySelector('.mobile-nav-overlay').classList.remove('open');
+        }
+    </script>
+</body>
+</html>
