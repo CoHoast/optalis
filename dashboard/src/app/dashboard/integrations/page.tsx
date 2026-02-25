@@ -3,9 +3,9 @@
 import { useState } from 'react';
 
 const crmIntegrations = [
-  { id: 'salesforce', name: 'Salesforce', type: 'CRM', status: 'connected', lastSync: '5 minutes ago', logo: '☁️', records: 1247 },
+  { id: 'salesforce', name: 'Salesforce', type: 'CRM', status: 'disconnected', lastSync: 'Never', logo: '☁️', records: 0 },
   { id: 'hubspot', name: 'HubSpot', type: 'CRM', status: 'disconnected', lastSync: 'Never', logo: '🟠', records: 0 },
-  { id: 'pointclickcare', name: 'PointClickCare', type: 'EHR', status: 'connected', lastSync: '10 minutes ago', logo: '🏥', records: 892 },
+  { id: 'pointclickcare', name: 'PointClickCare', type: 'EHR/CRM', status: 'connected', lastSync: '2 minutes ago', logo: '🏥', records: 1456 },
 ];
 
 const inputSources = [
@@ -16,16 +16,16 @@ const inputSources = [
 ];
 
 const fieldMappings = [
-  { source: 'Patient Name', destination: 'Contact.Name', status: 'mapped' },
-  { source: 'Date of Birth', destination: 'Contact.Birthdate', status: 'mapped' },
-  { source: 'Phone', destination: 'Contact.Phone', status: 'mapped' },
-  { source: 'Insurance Provider', destination: 'Contact.Insurance__c', status: 'mapped' },
-  { source: 'Policy Number', destination: 'Contact.Policy_Number__c', status: 'mapped' },
-  { source: 'Diagnosis', destination: 'Opportunity.Diagnosis__c', status: 'mapped' },
-  { source: 'Requested Facility', destination: 'Opportunity.Facility__c', status: 'mapped' },
-  { source: 'Referring Physician', destination: 'Opportunity.Referral_Source__c', status: 'mapped' },
-  { source: 'Decision Status', destination: 'Opportunity.Stage', status: 'mapped' },
-  { source: 'Decision Notes', destination: 'Opportunity.Description', status: 'mapped' },
+  { source: 'Patient Name', destination: 'Patient.FullName', status: 'mapped' },
+  { source: 'Date of Birth', destination: 'Patient.DateOfBirth', status: 'mapped' },
+  { source: 'Phone', destination: 'Patient.PrimaryPhone', status: 'mapped' },
+  { source: 'Insurance Provider', destination: 'Patient.InsurancePlan', status: 'mapped' },
+  { source: 'Policy Number', destination: 'Patient.MemberID', status: 'mapped' },
+  { source: 'Diagnosis', destination: 'Referral.PrimaryDiagnosis', status: 'mapped' },
+  { source: 'Requested Facility', destination: 'Referral.FacilityCode', status: 'mapped' },
+  { source: 'Referring Physician', destination: 'Referral.ReferringProvider', status: 'mapped' },
+  { source: 'Decision Status', destination: 'Referral.AdmissionStatus', status: 'mapped' },
+  { source: 'Decision Notes', destination: 'Referral.ClinicalNotes', status: 'mapped' },
 ];
 
 export default function IntegrationsPage() {
@@ -201,7 +201,7 @@ export default function IntegrationsPage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px', padding: '12px 16px', background: '#f9f7f4', borderRadius: '8px' }}>
           <span style={{ fontWeight: 500, color: '#666', width: '200px' }}>Extracted Field</span>
           <span style={{ color: '#888' }}>→</span>
-          <span style={{ fontWeight: 500, color: '#666', flex: 1 }}>Salesforce Field</span>
+          <span style={{ fontWeight: 500, color: '#666', flex: 1 }}>PointClickCare Field</span>
           <span style={{ width: '80px' }}></span>
         </div>
 
@@ -228,10 +228,10 @@ export default function IntegrationsPage() {
             <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
           </svg>
           <div>
-            <div style={{ fontWeight: 500, color: '#1e40af', marginBottom: '4px' }}>One-Click CRM Sync</div>
+            <div style={{ fontWeight: 500, color: '#1e40af', marginBottom: '4px' }}>One-Click PointClickCare Sync</div>
             <div style={{ fontSize: '14px', color: '#1e40af' }}>
-              When you approve or deny an application, the decision and all mapped fields are automatically sent to Salesforce. 
-              The patient record is created (or updated) and the opportunity stage is set based on your decision.
+              When you approve or deny an application, the decision and all mapped fields are automatically sent to PointClickCare. 
+              The patient referral is created (or updated) and the admission status is set based on your decision.
             </div>
           </div>
         </div>
