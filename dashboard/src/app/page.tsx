@@ -15,7 +15,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', minHeight: '100dvh', display: 'flex', flexDirection: 'column', background: '#f9f7f4' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#f9f7f4' }}>
       {/* Mobile Header - Shows only on mobile */}
       <div className="mobile-login-header" style={{
         display: 'none',
