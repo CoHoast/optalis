@@ -9,15 +9,45 @@ import {
   Cog6ToothIcon,
   ArrowRightOnRectangleIcon,
   Bars3Icon,
-  XMarkIcon
+  XMarkIcon,
+  ChartBarIcon,
+  ClipboardDocumentListIcon,
+  LinkIcon,
+  UserGroupIcon,
+  ShieldCheckIcon
 } from '@heroicons/react/24/outline';
 import { useState } from 'react';
 
-const navigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
-  { name: 'Applications', href: '/dashboard/applications', icon: InboxIcon },
-  { name: 'Decisions', href: '/dashboard/decisions', icon: ClipboardDocumentCheckIcon },
-  { name: 'Settings', href: '/dashboard/settings', icon: Cog6ToothIcon },
+const navigationGroups = [
+  {
+    name: 'Overview',
+    items: [
+      { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
+    ]
+  },
+  {
+    name: 'Admissions',
+    items: [
+      { name: 'Applications', href: '/dashboard/applications', icon: InboxIcon },
+      { name: 'Decisions', href: '/dashboard/decisions', icon: ClipboardDocumentCheckIcon },
+    ]
+  },
+  {
+    name: 'Analytics',
+    items: [
+      { name: 'Reports', href: '/dashboard/reports', icon: ChartBarIcon },
+      { name: 'Audit Log', href: '/dashboard/audit-log', icon: ClipboardDocumentListIcon },
+    ]
+  },
+  {
+    name: 'Configuration',
+    items: [
+      { name: 'Integrations', href: '/dashboard/integrations', icon: LinkIcon },
+      { name: 'Team', href: '/dashboard/team', icon: UserGroupIcon },
+      { name: 'Security', href: '/dashboard/security', icon: ShieldCheckIcon },
+      { name: 'Settings', href: '/dashboard/settings', icon: Cog6ToothIcon },
+    ]
+  },
 ];
 
 export default function Sidebar() {
@@ -70,28 +100,40 @@ export default function Sidebar() {
         </div>
 
         {/* Navigation */}
-        <nav className="p-4 space-y-1">
-          {navigation.map((item) => {
-            const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
-            return (
-              <Link
-                key={item.name}
-                href={item.href}
-                onClick={() => setMobileOpen(false)}
-                className={`
-                  flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium
-                  transition-all duration-200
-                  ${isActive 
-                    ? 'bg-primary text-white' 
-                    : 'text-gray-700 hover:bg-cream hover:text-primary'
-                  }
-                `}
-              >
-                <item.icon className="w-5 h-5" />
-                {item.name}
-              </Link>
-            );
-          })}
+        <nav className="p-4 space-y-6 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 220px)' }}>
+          {navigationGroups.map((group) => (
+            <div key={group.name}>
+              <h3 className="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+                {group.name}
+              </h3>
+              <div className="space-y-1">
+                {group.items.map((item) => {
+                  const isActive = pathname === item.href || 
+                    (item.href !== '/dashboard' && pathname.startsWith(item.href + '/'));
+                  const isExactDashboard = item.href === '/dashboard' && pathname === '/dashboard';
+                  const active = isActive || isExactDashboard;
+                  return (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      onClick={() => setMobileOpen(false)}
+                      className={`
+                        flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium
+                        transition-all duration-200
+                        ${active 
+                          ? 'bg-primary text-white' 
+                          : 'text-gray-700 hover:bg-cream hover:text-primary'
+                        }
+                      `}
+                    >
+                      <item.icon className="w-5 h-5" />
+                      {item.name}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
         </nav>
 
         {/* User section */}
