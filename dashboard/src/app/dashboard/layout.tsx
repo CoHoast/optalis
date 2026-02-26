@@ -1,8 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { useUser } from '@/context/UserContext';
+import { filterNavigation, canAccess, getRoleDisplayName, demoUsers, UserRole } from '@/lib/permissions';
 
 const navigationGroups = [
   {
@@ -38,9 +40,51 @@ const navigationGroups = [
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const { user, switchUser, isLoading } = useUser();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
 
   const closeSidebar = () => setSidebarOpen(false);
+
+  // Filter navigation based on user role
+  const filteredNavigation = user 
+    ? filterNavigation(navigationGroups, user.role)
+    : navigationGroups;
+
+  // Redirect if user doesn't have access to current page
+  useEffect(() => {
+    if (!isLoading && user && !canAccess(user.role, pathname)) {
+      // Redirect to first accessible page
+      const firstAccessiblePage = filteredNavigation[0]?.items[0]?.href || '/dashboard/applications';
+      router.push(firstAccessiblePage);
+    }
+  }, [pathname, user, isLoading, filteredNavigation, router]);
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div className="loading-spinner" style={{ 
+            width: 40, 
+            height: 40, 
+            border: '3px solid #e5e7eb', 
+            borderTopColor: '#275380', 
+            borderRadius: '50%', 
+            animation: 'spin 0.8s linear infinite',
+            margin: '0 auto 16px'
+          }} />
+          <p style={{ color: '#6b7280' }}>Loading...</p>
+        </div>
+        <style jsx>{`
+          @keyframes spin {
+            to { transform: rotate(360deg); }
+          }
+        `}</style>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -76,7 +120,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
         
         <nav className="sidebar-nav" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          {navigationGroups.map((group) => (
+          {filteredNavigation.map((group) => (
             <div key={group.name}>
               <div style={{ 
                 fontSize: '11px', 
@@ -111,14 +155,117 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           ))}
         </nav>
         
+        {/* User Section with Role Switcher */}
         <div className="sidebar-user">
-          <div className="sidebar-user-info">
-            <div className="sidebar-avatar">JW</div>
-            <div>
-              <div className="sidebar-user-name">Jennifer Walsh</div>
-              <div className="sidebar-user-role">Admin</div>
+          <div 
+            className="sidebar-user-info" 
+            style={{ cursor: 'pointer', position: 'relative' }}
+            onClick={() => setShowUserMenu(!showUserMenu)}
+          >
+            <div className="sidebar-avatar">{user?.initials || 'U'}</div>
+            <div style={{ flex: 1 }}>
+              <div className="sidebar-user-name">{user?.name || 'User'}</div>
+              <div className="sidebar-user-role">{user ? getRoleDisplayName(user.role) : 'Loading...'}</div>
             </div>
+            <svg 
+              width="16" 
+              height="16" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2" 
+              viewBox="0 0 24 24"
+              style={{ 
+                transform: showUserMenu ? 'rotate(180deg)' : 'rotate(0deg)',
+                transition: 'transform 0.2s'
+              }}
+            >
+              <path d="M19 9l-7 7-7-7" />
+            </svg>
           </div>
+          
+          {/* User Dropdown Menu */}
+          {showUserMenu && (
+            <div style={{
+              position: 'absolute',
+              bottom: '100%',
+              left: 16,
+              right: 16,
+              background: 'white',
+              borderRadius: 8,
+              boxShadow: '0 -4px 20px rgba(0,0,0,0.15)',
+              marginBottom: 8,
+              overflow: 'hidden',
+              zIndex: 100,
+            }}>
+              <div style={{ 
+                padding: '12px 16px', 
+                fontSize: 11, 
+                fontWeight: 600, 
+                color: '#9ca3af', 
+                textTransform: 'uppercase',
+                borderBottom: '1px solid #f3f4f6'
+              }}>
+                Switch User (Demo)
+              </div>
+              {Object.values(demoUsers).map((demoUser) => (
+                <button
+                  key={demoUser.email}
+                  onClick={() => {
+                    switchUser(demoUser.email);
+                    setShowUserMenu(false);
+                  }}
+                  style={{
+                    width: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 12,
+                    padding: '12px 16px',
+                    background: user?.email === demoUser.email ? '#f0f7ff' : 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                  }}
+                >
+                  <div style={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: '50%',
+                    background: user?.email === demoUser.email ? '#275380' : '#e5e7eb',
+                    color: user?.email === demoUser.email ? 'white' : '#6b7280',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 12,
+                    fontWeight: 600,
+                  }}>
+                    {demoUser.initials}
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 14, fontWeight: 500, color: '#1a1a1a' }}>
+                      {demoUser.name}
+                    </div>
+                    <div style={{ fontSize: 12, color: '#6b7280' }}>
+                      {getRoleDisplayName(demoUser.role)}
+                    </div>
+                  </div>
+                  {user?.email === demoUser.email && (
+                    <svg 
+                      width="16" 
+                      height="16" 
+                      fill="none" 
+                      stroke="#275380" 
+                      strokeWidth="2" 
+                      viewBox="0 0 24 24"
+                      style={{ marginLeft: 'auto' }}
+                    >
+                      <path d="M5 13l4 4L19 7" />
+                    </svg>
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
+          
           <Link href="/" onClick={closeSidebar} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px', marginTop: '8px', color: '#666', textDecoration: 'none', fontSize: '14px' }}>
             <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>
