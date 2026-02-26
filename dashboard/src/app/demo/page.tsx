@@ -480,6 +480,20 @@ export default function DemoLauncherPage() {
         onClose={() => setActiveModal(null)}
         title="Marketing Website"
       >
+        {/* Screenshot Preview */}
+        <div style={{
+          borderRadius: '12px',
+          overflow: 'hidden',
+          marginBottom: '24px',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+        }}>
+          <img 
+            src="/demo-previews/marketing-preview.jpg" 
+            alt="Marketing Website Preview"
+            style={{ width: '100%', height: 'auto', display: 'block' }}
+          />
+        </div>
+        
         <p style={{ fontSize: '16px', color: '#444', lineHeight: 1.7, marginBottom: '20px' }}>
           We&apos;ve completely redesigned the Optalis public-facing website with a modern, clean, and welcoming aesthetic that reflects your commitment to exceptional patient care.
         </p>
@@ -540,6 +554,20 @@ export default function DemoLauncherPage() {
         onClose={() => setActiveModal(null)}
         title="Desktop Dashboard"
       >
+        {/* Screenshot Preview */}
+        <div style={{
+          borderRadius: '12px',
+          overflow: 'hidden',
+          marginBottom: '24px',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+        }}>
+          <img 
+            src="/demo-previews/dashboard-preview.jpg" 
+            alt="Dashboard Preview"
+            style={{ width: '100%', height: 'auto', display: 'block' }}
+          />
+        </div>
+        
         <p style={{ fontSize: '16px', color: '#444', lineHeight: 1.7, marginBottom: '20px' }}>
           The Optalis Admissions Dashboard is a <strong>white-labeled AI-powered platform</strong> custom-built specifically for Optalis workflows. Powered by DOKit technology, it automates document intake and processing to save your team hours of manual data entry.
         </p>
