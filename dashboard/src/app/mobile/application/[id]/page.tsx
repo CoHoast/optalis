@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import MobileLayout from '@/components/MobileLayout';
 import { 
   CheckIcon, 
@@ -12,52 +12,155 @@ import {
   DocumentTextIcon,
   DocumentIcon,
   ClipboardDocumentListIcon,
+  PhotoIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
 } from '@heroicons/react/24/outline';
 import '../../mobile.css';
 
-// Mock data - would come from API based on ID
-const getApplication = (id: string) => ({
+// API URL
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://optalis-api-production.up.railway.app';
+
+interface Application {
+  id: string;
+  patient_name: string;
+  dob: string;
+  phone: string;
+  address: string;
+  insurance: string;
+  policy_number: string;
+  diagnosis: string[];
+  medications: string[];
+  allergies: string[];
+  physician: string;
+  facility: string;
+  services: string[];
+  priority: string;
+  source: string;
+  created_at: string;
+  confidence_score: number;
+  ai_summary: string;
+  status: string;
+}
+
+interface DocumentInfo {
+  id: string;
+  document_type: string;
+  filename: string;
+  mime_type: string;
+  page_number: number;
+  created_at: string;
+}
+
+// Fallback mock data
+const getMockApplication = (id: string): Application => ({
   id,
-  patientName: 'Margaret Thompson',
+  patient_name: 'Margaret Thompson',
   dob: '03/15/1943',
-  age: 83,
-  gender: 'F',
   phone: '(248) 555-0147',
   address: '4521 Maple Grove Dr, West Bloomfield, MI 48322',
   insurance: 'Medicare',
-  policyNumber: '1EG4-TE5-MK72',
-  secondaryInsurance: 'AARP Medigap Plan F',
+  policy_number: '1EG4-TE5-MK72',
   diagnosis: ['Dementia - Moderate', 'Hypertension', 'Type 2 Diabetes'],
-  medications: [
-    'Lisinopril 10mg daily',
-    'Metformin 500mg twice daily',
-    'Donepezil 10mg at bedtime',
-    'Aspirin 81mg daily',
-  ],
+  medications: ['Lisinopril 10mg daily', 'Metformin 500mg twice daily', 'Donepezil 10mg at bedtime'],
   allergies: ['Penicillin', 'Sulfa drugs'],
   physician: 'Dr. Sarah Chen',
-  physicianPhone: '(313) 555-0199',
   facility: 'Beaumont Health - Royal Oak',
-  requestedServices: ['Skilled Nursing', 'Physical Therapy', 'Occupational Therapy'],
+  services: ['Skilled Nursing', 'Physical Therapy', 'Occupational Therapy'],
   priority: 'high',
   source: 'Hospital Referral',
-  createdAt: '2 hours ago',
-  confidence: 95,
-  summary: 'Post-acute rehabilitation following hip replacement surgery. Patient requires PT/OT and skilled nursing care. Family prefers facility close to daughter in West Bloomfield area.',
-  notes: 'Daughter (primary contact): Susan Thompson (248) 555-0198. Patient has history of falls. Currently ambulating with walker.',
+  created_at: new Date().toISOString(),
+  confidence_score: 95,
+  ai_summary: 'Post-acute rehabilitation following hip replacement surgery. Patient requires PT/OT and skilled nursing care.',
+  status: 'pending',
 });
 
 export default function MobileApplicationDetail() {
   const router = useRouter();
   const params = useParams();
+  const searchParams = useSearchParams();
   const id = params.id as string;
+  const isNewApplication = searchParams.get('new') === 'true';
   
-  const [app, setApp] = useState(getApplication(id));
+  const [app, setApp] = useState<Application | null>(null);
+  const [documents, setDocuments] = useState<DocumentInfo[]>([]);
+  const [currentDocPage, setCurrentDocPage] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [editedFields, setEditedFields] = useState<Record<string, string>>({});
   const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeTab, setActiveTab] = useState<'details' | 'document'>('details');
+  const [showNewBanner, setShowNewBanner] = useState(isNewApplication);
+
+  // Fetch application data
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        // Fetch application
+        const appResponse = await fetch(`${API_URL}/api/applications/${id}`);
+        if (appResponse.ok) {
+          const appData = await appResponse.json();
+          setApp(appData);
+        } else {
+          // Fall back to mock data for demo
+          setApp(getMockApplication(id));
+        }
+
+        // Fetch documents
+        const docsResponse = await fetch(`${API_URL}/api/applications/${id}/documents`);
+        if (docsResponse.ok) {
+          const docsData = await docsResponse.json();
+          setDocuments(docsData);
+        }
+      } catch (error) {
+        console.error('Error fetching application:', error);
+        setApp(getMockApplication(id));
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [id]);
+
+  // Auto-dismiss new application banner
+  useEffect(() => {
+    if (showNewBanner) {
+      const timer = setTimeout(() => setShowNewBanner(false), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [showNewBanner]);
+
+  // Loading state
+  if (isLoading || !app) {
+    return (
+      <MobileLayout title="Application" showBack>
+        <div className="mobile-section" style={{ paddingTop: 60, textAlign: 'center' }}>
+          <div className="scan-processing-spinner" style={{ margin: '0 auto 16px' }} />
+          <p style={{ color: '#6b7280' }}>Loading application...</p>
+        </div>
+      </MobileLayout>
+    );
+  }
+
+  // Helper to format date
+  const formatDate = (dateStr: string) => {
+    try {
+      const date = new Date(dateStr);
+      const now = new Date();
+      const diffMs = now.getTime() - date.getTime();
+      const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+      
+      if (diffHours < 1) return 'Just now';
+      if (diffHours < 24) return `${diffHours} hours ago`;
+      if (diffHours < 48) return 'Yesterday';
+      return date.toLocaleDateString();
+    } catch {
+      return dateStr;
+    }
+  };
 
   const handleFieldChange = (field: string, value: string) => {
     setEditedFields({ ...editedFields, [field]: value });
@@ -183,68 +286,127 @@ export default function MobileApplicationDetail() {
         </button>
       </div>
 
+      {/* New Application Banner */}
+      {showNewBanner && (
+        <div className="new-app-banner">
+          <CheckIcon className="w-5 h-5" />
+          <span>Application created successfully!</span>
+        </div>
+      )}
+
       {/* Document Viewer Tab */}
       {activeTab === 'document' && (
         <div className="mobile-section" style={{ paddingTop: 16 }}>
           <div className="document-viewer-mobile">
             <div className="document-header-mobile">
-              <span className="document-label">Scanned Intake Form</span>
-              <span className="document-date">Received {app.createdAt}</span>
+              <span className="document-label">
+                {app.source === 'Mobile Scan' ? 'Scanned Document' : 'Original Document'}
+                {documents.length > 1 && ` (${currentDocPage + 1}/${documents.length})`}
+              </span>
+              <span className="document-date">Received {formatDate(app.created_at)}</span>
             </div>
+            
+            {/* Document Image or Fallback */}
             <div className="document-frame-mobile">
-              {/* Mock document - in production, this would load the actual scanned document */}
-              <div className="mock-document">
-                <div className="mock-doc-header">
-                  <div className="mock-stamp">RECEIVED</div>
-                  <div className="mock-date">FEB 25 2026</div>
+              {documents.length > 0 ? (
+                <div className="scanned-doc-container">
+                  {/* Actual scanned image */}
+                  <img 
+                    src={`${API_URL}/api/documents/${documents[currentDocPage].id}/image`}
+                    alt={`Page ${currentDocPage + 1}`}
+                    className="scanned-doc-image"
+                    style={{ 
+                      maxWidth: '100%', 
+                      height: 'auto',
+                      borderRadius: 4,
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
+                    }}
+                  />
+                  
+                  {/* Page navigation for multi-page docs */}
+                  {documents.length > 1 && (
+                    <div className="doc-page-nav">
+                      <button 
+                        className="doc-page-btn"
+                        onClick={() => setCurrentDocPage(p => Math.max(0, p - 1))}
+                        disabled={currentDocPage === 0}
+                      >
+                        <ChevronLeftIcon className="w-5 h-5" />
+                      </button>
+                      <span className="doc-page-indicator">
+                        {currentDocPage + 1} / {documents.length}
+                      </span>
+                      <button 
+                        className="doc-page-btn"
+                        onClick={() => setCurrentDocPage(p => Math.min(documents.length - 1, p + 1))}
+                        disabled={currentDocPage === documents.length - 1}
+                      >
+                        <ChevronRightIcon className="w-5 h-5" />
+                      </button>
+                    </div>
+                  )}
                 </div>
-                <h3 className="mock-doc-title">PATIENT REFERRAL FORM</h3>
-                <div className="mock-doc-field">
-                  <span className="mock-label">Patient Name:</span>
-                  <span className="mock-value mock-handwritten">{app.patientName}</span>
+              ) : app.source === 'Mobile Scan' ? (
+                <div className="no-doc-placeholder">
+                  <PhotoIcon className="w-12 h-12" />
+                  <p>Scanned image not available</p>
                 </div>
-                <div className="mock-doc-field">
-                  <span className="mock-label">DOB:</span>
-                  <span className="mock-value mock-handwritten">{app.dob}</span>
-                </div>
-                <div className="mock-doc-field">
-                  <span className="mock-label">Phone:</span>
-                  <span className="mock-value mock-handwritten">{app.phone}</span>
-                </div>
-                <div className="mock-doc-field">
-                  <span className="mock-label">Address:</span>
-                  <span className="mock-value mock-handwritten">{app.address}</span>
-                </div>
-                <div className="mock-doc-divider" />
-                <div className="mock-doc-field">
-                  <span className="mock-label">Primary Insurance:</span>
-                  <span className="mock-value mock-handwritten">{app.insurance}</span>
-                </div>
-                <div className="mock-doc-field">
-                  <span className="mock-label">Policy #:</span>
-                  <span className="mock-value mock-handwritten">{app.policyNumber}</span>
-                </div>
-                <div className="mock-doc-divider" />
-                <div className="mock-doc-field">
-                  <span className="mock-label">Diagnosis:</span>
-                  <span className="mock-value mock-handwritten">{app.diagnosis.join(', ')}</span>
-                </div>
-                <div className="mock-doc-field">
-                  <span className="mock-label">Referring Physician:</span>
-                  <span className="mock-value mock-handwritten">{app.physician}</span>
-                </div>
-                <div className="mock-doc-field">
-                  <span className="mock-label">Referring Facility:</span>
-                  <span className="mock-value mock-handwritten">{app.facility}</span>
-                </div>
-                <div className="mock-doc-footer">
-                  <div className="mock-signature">
-                    <div className="mock-sig-line"></div>
-                    <span>Physician Signature</span>
+              ) : (
+                /* Fallback: Show mock document for email-sourced apps */
+                <div className="mock-document">
+                  <div className="mock-doc-header">
+                    <div className="mock-stamp">RECEIVED</div>
+                    <div className="mock-date">{formatDate(app.created_at)}</div>
+                  </div>
+                  <h3 className="mock-doc-title">PATIENT REFERRAL FORM</h3>
+                  <div className="mock-doc-field">
+                    <span className="mock-label">Patient Name:</span>
+                    <span className="mock-value mock-handwritten">{app.patient_name}</span>
+                  </div>
+                  <div className="mock-doc-field">
+                    <span className="mock-label">DOB:</span>
+                    <span className="mock-value mock-handwritten">{app.dob}</span>
+                  </div>
+                  <div className="mock-doc-field">
+                    <span className="mock-label">Phone:</span>
+                    <span className="mock-value mock-handwritten">{app.phone}</span>
+                  </div>
+                  <div className="mock-doc-field">
+                    <span className="mock-label">Address:</span>
+                    <span className="mock-value mock-handwritten">{app.address}</span>
+                  </div>
+                  <div className="mock-doc-divider" />
+                  <div className="mock-doc-field">
+                    <span className="mock-label">Primary Insurance:</span>
+                    <span className="mock-value mock-handwritten">{app.insurance}</span>
+                  </div>
+                  <div className="mock-doc-field">
+                    <span className="mock-label">Policy #:</span>
+                    <span className="mock-value mock-handwritten">{app.policy_number}</span>
+                  </div>
+                  <div className="mock-doc-divider" />
+                  <div className="mock-doc-field">
+                    <span className="mock-label">Diagnosis:</span>
+                    <span className="mock-value mock-handwritten">{app.diagnosis?.join(', ')}</span>
+                  </div>
+                  <div className="mock-doc-field">
+                    <span className="mock-label">Referring Physician:</span>
+                    <span className="mock-value mock-handwritten">{app.physician}</span>
+                  </div>
+                  <div className="mock-doc-field">
+                    <span className="mock-label">Referring Facility:</span>
+                    <span className="mock-value mock-handwritten">{app.facility}</span>
+                  </div>
+                  <div className="mock-doc-footer">
+                    <div className="mock-signature">
+                      <div className="mock-sig-line"></div>
+                      <span>Physician Signature</span>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
+            
             <div className="document-actions-mobile">
               <button className="doc-action-btn">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -272,14 +434,14 @@ export default function MobileApplicationDetail() {
               <div className="ai-summary-header">
                 <DocumentTextIcon className="w-5 h-5" />
                 <span>AI Summary</span>
-                <span className="ai-confidence">{app.confidence}% confidence</span>
+                <span className="ai-confidence">{app.confidence_score}% confidence</span>
               </div>
-              <p className="ai-summary-text">{app.summary}</p>
+              <p className="ai-summary-text">{app.ai_summary || 'No summary available'}</p>
             </div>
           </div>
 
           {/* Low Confidence Warning */}
-          {app.confidence < 85 && (
+          {app.confidence_score < 85 && (
             <div className="mobile-section">
               <div className="warning-banner">
                 <ExclamationTriangleIcon className="w-5 h-5" />
@@ -288,62 +450,66 @@ export default function MobileApplicationDetail() {
             </div>
           )}
 
+          {/* Source Badge */}
+          {app.source === 'Mobile Scan' && (
+            <div className="mobile-section">
+              <div className="source-badge scan">
+                <PhotoIcon className="w-4 h-4" />
+                <span>Created from mobile scan</span>
+              </div>
+            </div>
+          )}
+
           {/* Patient Information */}
           <div className="mobile-section">
-        <h3 className="mobile-section-title" style={{ fontSize: 15, color: '#6b7280', marginTop: 20 }}>
-          Patient Information
-        </h3>
-        
-        {renderEditableField('Patient Name', 'patientName', app.patientName)}
-        
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-          {renderEditableField('Date of Birth', 'dob', app.dob)}
-          {renderEditableField('Phone', 'phone', app.phone)}
-        </div>
-        
-        {renderEditableField('Address', 'address', app.address)}
-      </div>
-
-      {/* Insurance Information */}
-      <div className="mobile-section">
-        <h3 className="mobile-section-title" style={{ fontSize: 15, color: '#6b7280', marginTop: 20 }}>
-          Insurance
-        </h3>
-        
-        {renderEditableField('Primary Insurance', 'insurance', app.insurance)}
-        {renderEditableField('Policy Number', 'policyNumber', app.policyNumber)}
-        {renderEditableField('Secondary Insurance', 'secondaryInsurance', app.secondaryInsurance)}
-      </div>
-
-      {/* Medical Information */}
-      <div className="mobile-section">
-        <h3 className="mobile-section-title" style={{ fontSize: 15, color: '#6b7280', marginTop: 20 }}>
-          Medical Information
-        </h3>
-        
-        {renderListField('Diagnosis', app.diagnosis)}
-        {renderListField('Medications', app.medications)}
-        {renderListField('Allergies', app.allergies)}
-      </div>
-
-      {/* Referral Information */}
-      <div className="mobile-section">
-        <h3 className="mobile-section-title" style={{ fontSize: 15, color: '#6b7280', marginTop: 20 }}>
-          Referral
-        </h3>
-        
-        {renderEditableField('Referring Physician', 'physician', app.physician)}
-        {renderEditableField('Referring Facility', 'facility', app.facility)}
-        {renderListField('Requested Services', app.requestedServices)}
-      </div>
-
-      {/* Notes */}
-          <div className="mobile-section" style={{ paddingBottom: 120 }}>
             <h3 className="mobile-section-title" style={{ fontSize: 15, color: '#6b7280', marginTop: 20 }}>
-              Notes
+              Patient Information
             </h3>
-            {renderEditableField('Notes', 'notes', app.notes, true)}
+            
+            {renderEditableField('Patient Name', 'patient_name', app.patient_name || '')}
+            
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              {renderEditableField('Date of Birth', 'dob', app.dob || '')}
+              {renderEditableField('Phone', 'phone', app.phone || '')}
+            </div>
+            
+            {renderEditableField('Address', 'address', app.address || '')}
           </div>
+
+          {/* Insurance Information */}
+          <div className="mobile-section">
+            <h3 className="mobile-section-title" style={{ fontSize: 15, color: '#6b7280', marginTop: 20 }}>
+              Insurance
+            </h3>
+            
+            {renderEditableField('Primary Insurance', 'insurance', app.insurance || '')}
+            {renderEditableField('Policy Number', 'policy_number', app.policy_number || '')}
+          </div>
+
+          {/* Medical Information */}
+          <div className="mobile-section">
+            <h3 className="mobile-section-title" style={{ fontSize: 15, color: '#6b7280', marginTop: 20 }}>
+              Medical Information
+            </h3>
+            
+            {renderListField('Diagnosis', app.diagnosis || [])}
+            {renderListField('Medications', app.medications || [])}
+            {renderListField('Allergies', app.allergies || [])}
+          </div>
+
+          {/* Referral Information */}
+          <div className="mobile-section">
+            <h3 className="mobile-section-title" style={{ fontSize: 15, color: '#6b7280', marginTop: 20 }}>
+              Referral
+            </h3>
+            
+            {renderEditableField('Referring Physician', 'physician', app.physician || '')}
+            {renderEditableField('Referring Facility', 'facility', app.facility || '')}
+            {renderListField('Requested Services', app.services || [])}
+          </div>
+
+          {/* Spacer for action bar */}
+          <div style={{ paddingBottom: 120 }} />
         </>
       )}
 

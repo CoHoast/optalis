@@ -1,13 +1,15 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { 
   InboxIcon, 
   ClipboardDocumentCheckIcon,
   MagnifyingGlassIcon,
   UserCircleIcon,
   BellIcon,
+  CameraIcon,
+  PlusIcon,
 } from '@heroicons/react/24/outline';
 import { 
   InboxIcon as InboxIconSolid,
@@ -39,6 +41,13 @@ const tabs = [
     icon: ClipboardDocumentCheckIcon, 
     activeIcon: ClipboardSolid,
     badge: 5 // In review count
+  },
+  { 
+    name: 'Scan', 
+    href: '/mobile/scan', 
+    icon: CameraIcon,
+    activeIcon: CameraIcon,
+    isCenter: true, // Special center button
   },
   { 
     name: 'Search', 
@@ -124,6 +133,22 @@ export default function MobileLayout({
         {tabs.map((tab) => {
           const active = isTabActive(tab.href);
           const Icon = active ? tab.activeIcon : tab.icon;
+          
+          // Special center Scan button
+          if (tab.isCenter) {
+            return (
+              <Link
+                key={tab.name}
+                href={tab.href}
+                className="mobile-tab-scan"
+              >
+                <div className="mobile-tab-scan-btn">
+                  <PlusIcon className="w-7 h-7 text-white" strokeWidth={2.5} />
+                </div>
+                <span className="mobile-tab-label">{tab.name}</span>
+              </Link>
+            );
+          }
           
           return (
             <Link

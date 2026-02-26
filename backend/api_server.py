@@ -11,13 +11,18 @@ Runs on PORT from environment (Railway) or 8080 locally.
 import os
 import json
 import sqlite3
+import base64
 from datetime import datetime
 from pathlib import Path
 from typing import Optional, List
+import uuid
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+
+# Import vision extractor
+from vision_extractor import extract_with_vision, flatten_extraction, CONFIDENCE_THRESHOLD
 
 # ============================================================
 # Configuration
@@ -75,6 +80,24 @@ def init_db():
             message_id TEXT PRIMARY KEY,
             processed_at TEXT
         )
+    """)
+    
+    # Table for storing document images (mobile scan, email attachments)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS application_documents (
+            id TEXT PRIMARY KEY,
+            application_id TEXT NOT NULL,
+            document_type TEXT DEFAULT 'scan',
+            filename TEXT,
+            mime_type TEXT,
+            image_data BLOB,
+            page_number INTEGER DEFAULT 1,
+            created_at TEXT,
+            FOREIGN KEY (application_id) REFERENCES applications(id)
+        )
+    """)
+    cursor.execute("""
+        CREATE INDEX IF NOT EXISTS idx_app_docs ON application_documents(application_id)
     """)
     
     # Seed with demo data if empty
@@ -667,6 +690,216 @@ async def get_extracted_document(app_id: str):
 </body>
 </html>"""
     return HTMLResponse(content=html)
+
+
+# ============================================================
+# Mobile Scan Endpoint
+# ============================================================
+
+@app.post("/api/scan")
+async def mobile_scan(
+    images: List[UploadFile] = File(...)
+):
+    """
+    Process scanned document images from mobile app.
+    Uses GPT-4 Vision to extract application data.
+    """
+    if not images:
+        raise HTTPException(status_code=400, detail="No images provided")
+    
+    if len(images) > 10:
+        raise HTTPException(status_code=400, detail="Maximum 10 pages allowed")
+    
+    # Read all image data
+    image_data_list = []
+    image_files_info = []
+    
+    for i, img in enumerate(images):
+        # Validate content type
+        if not img.content_type or not img.content_type.startswith('image/'):
+            raise HTTPException(
+                status_code=400, 
+                detail=f"File {i+1} is not an image (got {img.content_type})"
+            )
+        
+        content = await img.read()
+        
+        # Validate size (max 10MB per image)
+        if len(content) > 10 * 1024 * 1024:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Image {i+1} exceeds 10MB limit"
+            )
+        
+        image_data_list.append(content)
+        image_files_info.append({
+            "filename": img.filename,
+            "content_type": img.content_type,
+            "data": content
+        })
+    
+    print(f"\n📱 Mobile Scan: Processing {len(image_data_list)} image(s)...")
+    
+    # Extract data using vision pipeline
+    try:
+        extraction_result = extract_with_vision(
+            image_data_list=image_data_list,
+            subject="Mobile Scan",
+            email_body=""
+        )
+    except Exception as e:
+        print(f"  ⚠ Vision extraction error: {e}")
+        raise HTTPException(status_code=500, detail=f"AI extraction failed: {str(e)}")
+    
+    # Flatten extraction for database
+    flat_data = flatten_extraction(extraction_result)
+    
+    # Generate application ID
+    now = datetime.now()
+    app_id = f"APP-{now.strftime('%Y')}-{uuid.uuid4().hex[:6].upper()}"
+    
+    # Determine priority based on confidence
+    confidence = flat_data.get('confidence_score', 0)
+    if confidence < CONFIDENCE_THRESHOLD:
+        status = 'review'  # Needs human review
+        priority = 'high'
+    else:
+        status = 'pending'
+        priority = flat_data.get('priority', 'normal')
+    
+    # Save to database
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    try:
+        # Create application
+        cursor.execute("""
+            INSERT INTO applications (
+                id, status, priority, source, source_email,
+                patient_name, dob, phone, address,
+                insurance, policy_number,
+                diagnosis, medications, allergies,
+                physician, facility, services,
+                ai_summary, confidence_score,
+                raw_text, raw_email_subject,
+                created_at, updated_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+            app_id,
+            status,
+            priority,
+            "Mobile Scan",
+            None,  # No email for scans
+            flat_data.get('patient_name'),
+            flat_data.get('dob'),
+            flat_data.get('phone'),
+            flat_data.get('address'),
+            flat_data.get('insurance'),
+            flat_data.get('policy_number'),
+            json.dumps(flat_data.get('diagnosis', [])),
+            json.dumps(flat_data.get('medications', [])),
+            json.dumps(flat_data.get('allergies', [])),
+            flat_data.get('physician'),
+            flat_data.get('facility', 'Optalis Healthcare'),
+            json.dumps(flat_data.get('services', [])),
+            flat_data.get('ai_summary', ''),
+            confidence,
+            f"[Mobile Scan - {len(image_data_list)} page(s)]",
+            "Mobile Scan",
+            now.isoformat(),
+            now.isoformat()
+        ))
+        
+        # Save document images
+        for i, img_info in enumerate(image_files_info):
+            doc_id = f"DOC-{uuid.uuid4().hex[:8].upper()}"
+            cursor.execute("""
+                INSERT INTO application_documents (
+                    id, application_id, document_type, filename, mime_type, 
+                    image_data, page_number, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                doc_id,
+                app_id,
+                "scan",
+                img_info['filename'] or f"scan_page_{i+1}.jpg",
+                img_info['content_type'],
+                img_info['data'],
+                i + 1,
+                now.isoformat()
+            ))
+        
+        conn.commit()
+        print(f"  ✓ Created application: {app_id} ({flat_data.get('patient_name', 'Unknown')})")
+        print(f"    Confidence: {confidence:.0f}% | Status: {status}")
+        
+    except Exception as e:
+        conn.rollback()
+        print(f"  ⚠ Database error: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to save application: {str(e)}")
+    finally:
+        conn.close()
+    
+    return {
+        "status": "created",
+        "applicationId": app_id,
+        "patientName": flat_data.get('patient_name'),
+        "confidence": confidence,
+        "needsReview": status == 'review',
+        "pagesProcessed": len(image_data_list),
+        "extractionMethod": flat_data.get('_extraction_method', 'unknown')
+    }
+
+
+@app.get("/api/applications/{app_id}/documents")
+async def get_application_documents(app_id: str):
+    """Get list of documents for an application."""
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        SELECT id, document_type, filename, mime_type, page_number, created_at
+        FROM application_documents
+        WHERE application_id = ?
+        ORDER BY page_number
+    """, (app_id,))
+    
+    columns = ['id', 'document_type', 'filename', 'mime_type', 'page_number', 'created_at']
+    rows = cursor.fetchall()
+    conn.close()
+    
+    return [dict(zip(columns, row)) for row in rows]
+
+
+from fastapi.responses import Response
+
+@app.get("/api/documents/{doc_id}/image")
+async def get_document_image(doc_id: str):
+    """Get a document image by ID."""
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        SELECT image_data, mime_type, filename
+        FROM application_documents
+        WHERE id = ?
+    """, (doc_id,))
+    
+    row = cursor.fetchone()
+    conn.close()
+    
+    if not row:
+        raise HTTPException(status_code=404, detail="Document not found")
+    
+    image_data, mime_type, filename = row
+    
+    return Response(
+        content=image_data,
+        media_type=mime_type or "image/jpeg",
+        headers={
+            "Content-Disposition": f'inline; filename="{filename}"'
+        }
+    )
 
 
 # ============================================================
