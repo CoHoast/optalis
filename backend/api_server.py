@@ -589,35 +589,52 @@ async def get_extracted_document(app_id: str):
             except:
                 app[field] = []
     
-    def make_tags(items, color):
+    def make_tags(items, tag_class):
         if not items:
-            return '<span style="color: #999;">None recorded</span>'
-        return ' '.join([f'<span style="background: {color}; padding: 4px 10px; border-radius: 15px; margin: 2px; display: inline-block; font-size: 13px;">{item}</span>' for item in items])
+            return '<span class="tag">None recorded</span>'
+        return ''.join([f'<span class="tag {tag_class}">{item}</span>' for item in items])
     
     html = f"""<!DOCTYPE html>
 <html>
 <head>
     <style>
-        body {{ font-family: 'Segoe UI', Arial, sans-serif; padding: 40px; background: #f9f7f4; }}
-        .container {{ background: white; border-radius: 16px; max-width: 800px; margin: 0 auto; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }}
-        .header {{ background: linear-gradient(135deg, #275380 0%, #1e3f61 100%); color: white; padding: 30px; border-radius: 16px 16px 0 0; }}
-        .header h1 {{ margin: 0 0 10px 0; font-size: 24px; }}
-        .confidence {{ background: rgba(255,255,255,0.2); padding: 6px 14px; border-radius: 20px; font-size: 14px; display: inline-block; }}
-        .section {{ padding: 25px 30px; border-bottom: 1px solid #f0f0f0; }}
-        .section-title {{ font-size: 12px; text-transform: uppercase; color: #888; margin-bottom: 12px; letter-spacing: 1px; }}
-        .field {{ margin-bottom: 16px; }}
-        .field-label {{ font-size: 12px; color: #666; margin-bottom: 4px; }}
-        .field-value {{ font-size: 16px; font-weight: 500; }}
-        .grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }}
-        .ai-badge {{ background: #275380; color: white; padding: 4px 10px; border-radius: 4px; font-size: 11px; margin-left: 8px; }}
-        .summary {{ background: #f0f7ff; padding: 20px; border-radius: 8px; line-height: 1.7; }}
+        body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 40px; background: #f5f5f5; margin: 0; }}
+        .container {{ background: white; max-width: 800px; margin: 0 auto; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e0e0e0; }}
+        .header {{ background: #275380; color: white; padding: 24px 30px; }}
+        .header-top {{ display: flex; justify-content: space-between; align-items: center; }}
+        .header h1 {{ margin: 0; font-size: 18px; font-weight: 600; letter-spacing: 0.5px; }}
+        .header-badges {{ display: flex; gap: 8px; align-items: center; }}
+        .confidence {{ background: rgba(255,255,255,0.15); padding: 4px 12px; border-radius: 4px; font-size: 13px; }}
+        .ai-badge {{ background: rgba(255,255,255,0.25); padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }}
+        .patient-name {{ font-size: 28px; font-weight: 300; margin-top: 12px; }}
+        .section {{ padding: 24px 30px; border-bottom: 1px solid #eee; }}
+        .section-title {{ font-size: 11px; text-transform: uppercase; color: #275380; margin-bottom: 16px; letter-spacing: 1.5px; font-weight: 600; }}
+        .field {{ margin-bottom: 14px; }}
+        .field-label {{ font-size: 11px; color: #888; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.5px; }}
+        .field-value {{ font-size: 15px; color: #333; }}
+        .grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }}
+        .tags {{ display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }}
+        .tag {{ background: #f0f0f0; color: #333; padding: 5px 12px; border-radius: 3px; font-size: 13px; }}
+        .tag.diagnosis {{ background: #fef2f2; color: #991b1b; }}
+        .tag.medication {{ background: #eff6ff; color: #1e40af; }}
+        .tag.allergy {{ background: #fefce8; color: #854d0e; }}
+        .tag.service {{ background: #f0fdf4; color: #166534; }}
+        .summary-section {{ background: #fafafa; }}
+        .summary {{ font-size: 14px; line-height: 1.7; color: #555; }}
+        .footer {{ padding: 16px 30px; background: #fafafa; font-size: 11px; color: #999; text-align: center; }}
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🤖 AI-Extracted Patient Data <span class="ai-badge">GPT-4</span></h1>
-            <div class="confidence">Confidence: {app.get('confidence_score', 0):.0f}%</div>
+            <div class="header-top">
+                <h1>AI-EXTRACTED PATIENT DATA</h1>
+                <div class="header-badges">
+                    <span class="confidence">{app.get('confidence_score', 0):.0f}% Confidence</span>
+                    <span class="ai-badge">GPT-4</span>
+                </div>
+            </div>
+            <div class="patient-name">{app.get('patient_name') or 'Unknown Patient'}</div>
         </div>
         
         <div class="section">
@@ -660,15 +677,15 @@ async def get_extracted_document(app_id: str):
             <div class="section-title">Medical Information</div>
             <div class="field">
                 <div class="field-label">Diagnoses</div>
-                <div style="margin-top: 8px;">{make_tags(app.get('diagnosis', []), '#fee2e2')}</div>
+                <div class="tags">{make_tags(app.get('diagnosis', []), 'diagnosis')}</div>
             </div>
             <div class="field">
                 <div class="field-label">Medications</div>
-                <div style="margin-top: 8px;">{make_tags(app.get('medications', []), '#dbeafe')}</div>
+                <div class="tags">{make_tags(app.get('medications', []), 'medication')}</div>
             </div>
             <div class="field">
                 <div class="field-label">Allergies</div>
-                <div style="margin-top: 8px;">{make_tags(app.get('allergies', []), '#fef9c3')}</div>
+                <div class="tags">{make_tags(app.get('allergies', []), 'allergy')}</div>
             </div>
         </div>
         
@@ -686,13 +703,17 @@ async def get_extracted_document(app_id: str):
             </div>
             <div class="field">
                 <div class="field-label">Requested Services</div>
-                <div style="margin-top: 8px;">{make_tags(app.get('services', []), 'rgba(39,83,128,0.15)')}</div>
+                <div class="tags">{make_tags(app.get('services', []), 'service')}</div>
             </div>
         </div>
         
-        <div class="section" style="border-bottom: none;">
+        <div class="section summary-section">
             <div class="section-title">AI Summary</div>
             <div class="summary">{app.get('ai_summary') or 'No summary available'}</div>
+        </div>
+        
+        <div class="footer">
+            Extracted by Optalis AI • Application ID: {app.get('id')} • Generated {datetime.now().strftime('%B %d, %Y at %I:%M %p')}
         </div>
     </div>
 </body>
