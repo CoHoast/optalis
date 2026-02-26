@@ -101,6 +101,118 @@ export default function SecurityPage() {
           </div>
         </div>
 
+        {/* Data Retention Policy Section */}
+        <div className="card" style={{ marginBottom: '24px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
+            <div style={{ display: 'flex', gap: '16px' }}>
+              <div style={{
+                width: '48px',
+                height: '48px',
+                borderRadius: '12px',
+                background: '#dbeafe',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <svg width="24" height="24" fill="none" stroke="#1e40af" strokeWidth="2" viewBox="0 0 24 24">
+                  <path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="10"/>
+                </svg>
+              </div>
+              <div>
+                <h2 style={{ fontSize: '20px', marginBottom: '4px' }}>Data Retention Policy</h2>
+                <p style={{ color: '#666', fontSize: '14px' }}>HIPAA-compliant short-term data storage</p>
+              </div>
+            </div>
+            <span style={{
+              padding: '6px 12px',
+              borderRadius: '20px',
+              fontSize: '13px',
+              fontWeight: 500,
+              background: '#dcfce7',
+              color: '#166534'
+            }}>
+              Compliant
+            </span>
+          </div>
+
+          <div style={{ padding: '20px', background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '12px', marginBottom: '24px' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+              <svg width="24" height="24" fill="none" stroke="#1e40af" strokeWidth="2" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>
+              </svg>
+              <div>
+                <div style={{ fontWeight: 600, color: '#1e3a8a', marginBottom: '8px' }}>Short-Term Data Storage Model</div>
+                <div style={{ fontSize: '14px', color: '#1e40af', lineHeight: '1.6' }}>
+                  To minimize Protected Health Information (PHI) exposure and maintain HIPAA compliance, 
+                  this platform uses a short-term retention model. Application data is stored only as long 
+                  as necessary for processing, after which it is automatically and permanently deleted from our systems.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style={{ marginBottom: '24px' }}>
+            <h3 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '16px' }}>Retention Schedule</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', background: '#f9f7f4', borderRadius: '8px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div style={{ width: '40px', height: '40px', borderRadius: '8px', background: '#fef9c3', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <svg width="20" height="20" fill="none" stroke="#854d0e" strokeWidth="2" viewBox="0 0 24 24">
+                      <path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="10"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <div style={{ fontWeight: 500 }}>Pending & Review Applications</div>
+                    <div style={{ fontSize: '13px', color: '#888' }}>Applications awaiting decision</div>
+                  </div>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontSize: '24px', fontWeight: 700, color: '#275380' }}>30</div>
+                  <div style={{ fontSize: '12px', color: '#888' }}>days</div>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', background: '#f9f7f4', borderRadius: '8px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div style={{ width: '40px', height: '40px', borderRadius: '8px', background: '#dcfce7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <svg width="20" height="20" fill="none" stroke="#166534" strokeWidth="2" viewBox="0 0 24 24">
+                      <path d="M5 13l4 4L19 7"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <div style={{ fontWeight: 500 }}>Approved & Denied Applications</div>
+                    <div style={{ fontSize: '13px', color: '#888' }}>Applications synced to your CRM</div>
+                  </div>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontSize: '24px', fontWeight: 700, color: '#275380' }}>7</div>
+                  <div style={{ fontSize: '12px', color: '#888' }}>days</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style={{ padding: '16px', background: '#f9f7f4', borderRadius: '8px', marginBottom: '24px' }}>
+            <div style={{ fontSize: '13px', fontWeight: 500, marginBottom: '12px' }}>What Happens After Retention Period:</div>
+            <ul style={{ fontSize: '13px', color: '#666', margin: 0, paddingLeft: '20px', lineHeight: '1.8' }}>
+              <li><strong>Automatic deletion</strong> — All application data is permanently removed from our servers</li>
+              <li><strong>No recovery</strong> — Deleted data cannot be restored after the retention period</li>
+              <li><strong>Audit trail preserved</strong> — Basic audit logs (action, timestamp, user) are retained for compliance</li>
+              <li><strong>CRM sync</strong> — Approved applications are exported to your CRM before deletion</li>
+            </ul>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '16px', background: '#fef3c7', border: '1px solid #fde68a', borderRadius: '8px' }}>
+            <svg width="20" height="20" fill="none" stroke="#92400e" strokeWidth="2" viewBox="0 0 24 24">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+            <div style={{ fontSize: '13px', color: '#92400e' }}>
+              <strong>Important:</strong> Applications not processed within 30 days will be automatically deleted. 
+              Review the Applications page to see countdown timers for each application.
+            </div>
+          </div>
+        </div>
+
         {/* Password Section */}
         <div className="card" style={{ marginBottom: '24px' }}>
           <div style={{ display: 'flex', gap: '16px', marginBottom: '24px' }}>
