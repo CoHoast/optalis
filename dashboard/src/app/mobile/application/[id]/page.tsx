@@ -89,8 +89,10 @@ function ApplicationDetailContent() {
   const [isEditing, setIsEditing] = useState(false);
   const [editedFields, setEditedFields] = useState<Record<string, string>>({});
   const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
+  const [showDenyConfirm, setShowDenyConfirm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [confirmChecked, setConfirmChecked] = useState(false);
   const [activeTab, setActiveTab] = useState<'details' | 'document'>('details');
   const [showNewBanner, setShowNewBanner] = useState(isNewApplication || false);
 
@@ -205,6 +207,8 @@ function ApplicationDetailContent() {
   };
 
   const handleSubmitToCRM = async () => {
+    if (!confirmChecked) return;
+    
     setIsSubmitting(true);
     
     // Haptic feedback
@@ -241,10 +245,20 @@ function ApplicationDetailContent() {
   };
 
   const handleApprove = () => {
+    setConfirmChecked(false);
     setShowSubmitConfirm(true);
   };
 
-  const handleDeny = async () => {
+  const handleDeny = () => {
+    setConfirmChecked(false);
+    setShowDenyConfirm(true);
+  };
+
+  const handleConfirmDeny = async () => {
+    if (!confirmChecked) return;
+    
+    setIsSubmitting(true);
+    
     try {
       const response = await fetch(`${API_URL}/api/applications/${id}/decision`, {
         method: 'POST',
@@ -254,7 +268,7 @@ function ApplicationDetailContent() {
       
       if (response.ok) {
         if ('vibrate' in navigator) {
-          navigator.vibrate(10);
+          navigator.vibrate([10, 100, 10]);
         }
         router.push('/mobile');
       } else {
@@ -263,6 +277,9 @@ function ApplicationDetailContent() {
     } catch (error) {
       console.error('Error denying:', error);
       alert('Failed to deny. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+      setShowDenyConfirm(false);
     }
   };
 
@@ -596,34 +613,134 @@ function ApplicationDetailContent() {
         </div>
       )}
 
-      {/* Submit to CRM Confirmation Modal */}
+      {/* Approve Confirmation Modal */}
       {showSubmitConfirm && (
-        <div className="mobile-modal-overlay" onClick={() => setShowSubmitConfirm(false)}>
+        <div className="mobile-modal-overlay" onClick={() => { setShowSubmitConfirm(false); setConfirmChecked(false); }}>
           <div className="mobile-modal" onClick={(e) => e.stopPropagation()}>
-            <h3 className="mobile-modal-title">Submit to PointClickCare?</h3>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+              <div style={{ width: 48, height: 48, borderRadius: '50%', background: '#dcfce7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <CheckIcon className="w-6 h-6 text-green-600" />
+              </div>
+              <div>
+                <h3 className="mobile-modal-title" style={{ margin: 0 }}>Approve Application?</h3>
+                <p style={{ margin: 0, fontSize: 14, color: '#6b7280' }}>{app?.patient_name || 'Unknown Patient'}</p>
+              </div>
+            </div>
+            
             <p className="mobile-modal-text">
-              This will approve the application and sync patient data to your CRM.
+              This will approve the application and sync patient data to PointClickCare.
             </p>
+
+            {/* Confirmation Checkbox */}
+            <label style={{ 
+              display: 'flex', 
+              alignItems: 'flex-start', 
+              gap: 12, 
+              padding: '12px 16px',
+              background: '#f0fdf4',
+              borderRadius: 10,
+              marginBottom: 20,
+              cursor: 'pointer'
+            }}>
+              <input 
+                type="checkbox" 
+                checked={confirmChecked}
+                onChange={(e) => setConfirmChecked(e.target.checked)}
+                style={{ width: 20, height: 20, marginTop: 2, accentColor: '#16a34a' }}
+              />
+              <span style={{ fontSize: 14, color: '#374151' }}>
+                I confirm that I want to <strong>approve</strong> this application for <strong>{app?.patient_name || 'this patient'}</strong>.
+              </span>
+            </label>
             
             <div className="mobile-modal-actions">
               <button 
                 className="quick-action-btn review"
-                onClick={() => setShowSubmitConfirm(false)}
+                onClick={() => { setShowSubmitConfirm(false); setConfirmChecked(false); }}
                 disabled={isSubmitting}
               >
                 Cancel
               </button>
               <button 
-                className="quick-action-btn submit"
+                className="quick-action-btn approve"
                 onClick={handleSubmitToCRM}
-                disabled={isSubmitting}
+                disabled={isSubmitting || !confirmChecked}
+                style={{ opacity: confirmChecked ? 1 : 0.5 }}
               >
                 {isSubmitting ? (
                   <div className="btn-spinner" />
                 ) : (
                   <>
-                    <ArrowUpTrayIcon className="w-5 h-5" />
-                    Submit
+                    <CheckIcon className="w-5 h-5" />
+                    Approve
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Deny Confirmation Modal */}
+      {showDenyConfirm && (
+        <div className="mobile-modal-overlay" onClick={() => { setShowDenyConfirm(false); setConfirmChecked(false); }}>
+          <div className="mobile-modal" onClick={(e) => e.stopPropagation()}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+              <div style={{ width: 48, height: 48, borderRadius: '50%', background: '#fef2f2', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <XMarkIcon className="w-6 h-6 text-red-600" />
+              </div>
+              <div>
+                <h3 className="mobile-modal-title" style={{ margin: 0 }}>Deny Application?</h3>
+                <p style={{ margin: 0, fontSize: 14, color: '#6b7280' }}>{app?.patient_name || 'Unknown Patient'}</p>
+              </div>
+            </div>
+            
+            <p className="mobile-modal-text">
+              This will deny the application. This action cannot be undone.
+            </p>
+
+            {/* Confirmation Checkbox */}
+            <label style={{ 
+              display: 'flex', 
+              alignItems: 'flex-start', 
+              gap: 12, 
+              padding: '12px 16px',
+              background: '#fef2f2',
+              borderRadius: 10,
+              marginBottom: 20,
+              cursor: 'pointer'
+            }}>
+              <input 
+                type="checkbox" 
+                checked={confirmChecked}
+                onChange={(e) => setConfirmChecked(e.target.checked)}
+                style={{ width: 20, height: 20, marginTop: 2, accentColor: '#dc2626' }}
+              />
+              <span style={{ fontSize: 14, color: '#374151' }}>
+                I confirm that I want to <strong>deny</strong> this application for <strong>{app?.patient_name || 'this patient'}</strong>.
+              </span>
+            </label>
+            
+            <div className="mobile-modal-actions">
+              <button 
+                className="quick-action-btn review"
+                onClick={() => { setShowDenyConfirm(false); setConfirmChecked(false); }}
+                disabled={isSubmitting}
+              >
+                Cancel
+              </button>
+              <button 
+                className="quick-action-btn deny"
+                onClick={handleConfirmDeny}
+                disabled={isSubmitting || !confirmChecked}
+                style={{ opacity: confirmChecked ? 1 : 0.5 }}
+              >
+                {isSubmitting ? (
+                  <div className="btn-spinner" />
+                ) : (
+                  <>
+                    <XMarkIcon className="w-5 h-5" />
+                    Deny
                   </>
                 )}
               </button>

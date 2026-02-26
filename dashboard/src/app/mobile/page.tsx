@@ -10,6 +10,7 @@ import {
   BuildingOffice2Icon,
   UserIcon,
   ArrowPathIcon,
+  ExclamationTriangleIcon,
 } from '@heroicons/react/24/outline';
 import './mobile.css';
 
@@ -45,6 +46,12 @@ interface SwipeState {
   direction: 'left' | 'right' | null;
 }
 
+interface ConfirmAction {
+  id: string;
+  action: 'approved' | 'denied';
+  patientName: string;
+}
+
 export default function MobileInbox() {
   const router = useRouter();
   const [applications, setApplications] = useState<Application[]>([]);
@@ -52,6 +59,9 @@ export default function MobileInbox() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [swipeState, setSwipeState] = useState<SwipeState | null>(null);
   const [showHint, setShowHint] = useState(true);
+  const [confirmAction, setConfirmAction] = useState<ConfirmAction | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [confirmChecked, setConfirmChecked] = useState(false);
   const cardRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
   // Fetch applications from API
@@ -142,37 +152,64 @@ export default function MobileInbox() {
     
     const diff = swipeState.currentX - swipeState.startX;
     const threshold = 100;
+    const app = applications.find(a => a.id === swipeState.id);
     
-    if (diff > threshold) {
-      // Swipe right - Approve
-      handleQuickAction(swipeState.id, 'approved');
-    } else if (diff < -threshold) {
-      // Swipe left - Deny
-      handleQuickAction(swipeState.id, 'denied');
+    if (app) {
+      if (diff > threshold) {
+        // Swipe right - Show approve confirmation
+        setConfirmAction({
+          id: swipeState.id,
+          action: 'approved',
+          patientName: app.patient_name || 'Unknown Patient'
+        });
+        setConfirmChecked(false);
+      } else if (diff < -threshold) {
+        // Swipe left - Show deny confirmation
+        setConfirmAction({
+          id: swipeState.id,
+          action: 'denied',
+          patientName: app.patient_name || 'Unknown Patient'
+        });
+        setConfirmChecked(false);
+      }
     }
     
     setSwipeState(null);
   };
 
-  const handleQuickAction = async (id: string, action: 'approved' | 'denied') => {
+  const handleConfirmAction = async () => {
+    if (!confirmAction || !confirmChecked) return;
+    
+    setIsSubmitting(true);
+    
     // Haptic feedback
     if ('vibrate' in navigator) {
       navigator.vibrate(10);
     }
     
     try {
-      const response = await fetch(`${API_URL}/api/applications/${id}/decision`, {
+      const response = await fetch(`${API_URL}/api/applications/${confirmAction.id}/decision`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ decision: action })
+        body: JSON.stringify({ decision: confirmAction.action })
       });
       
       if (response.ok) {
+        // Success haptic
+        if ('vibrate' in navigator) {
+          navigator.vibrate([10, 100, 10]);
+        }
         // Remove from list
-        setApplications(prev => prev.filter(app => app.id !== id));
+        setApplications(prev => prev.filter(app => app.id !== confirmAction.id));
+        setConfirmAction(null);
+      } else {
+        alert('Failed to submit. Please try again.');
       }
     } catch (error) {
       console.error('Error updating application:', error);
+      alert('Failed to submit. Please try again.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -329,6 +366,179 @@ export default function MobileInbox() {
           );
         })}
       </div>
+
+      {/* Confirmation Modal */}
+      {confirmAction && (
+        <div 
+          className="mobile-modal-overlay" 
+          onClick={() => {
+            setConfirmAction(null);
+            setConfirmChecked(false);
+          }}
+        >
+          <div className="mobile-modal" onClick={(e) => e.stopPropagation()}>
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: 12, 
+              marginBottom: 16 
+            }}>
+              {confirmAction.action === 'approved' ? (
+                <div style={{ 
+                  width: 48, 
+                  height: 48, 
+                  borderRadius: '50%', 
+                  background: '#dcfce7', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center' 
+                }}>
+                  <CheckIcon className="w-6 h-6 text-green-600" />
+                </div>
+              ) : (
+                <div style={{ 
+                  width: 48, 
+                  height: 48, 
+                  borderRadius: '50%', 
+                  background: '#fef2f2', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center' 
+                }}>
+                  <XMarkIcon className="w-6 h-6 text-red-600" />
+                </div>
+              )}
+              <div>
+                <h3 className="mobile-modal-title" style={{ margin: 0 }}>
+                  {confirmAction.action === 'approved' ? 'Approve' : 'Deny'} Application?
+                </h3>
+                <p style={{ margin: 0, fontSize: 14, color: '#6b7280' }}>
+                  {confirmAction.patientName}
+                </p>
+              </div>
+            </div>
+            
+            <p className="mobile-modal-text">
+              {confirmAction.action === 'approved' 
+                ? 'This will approve the application and send it to PointClickCare.'
+                : 'This will deny the application. This action cannot be undone.'}
+            </p>
+
+            {/* Confirmation Checkbox */}
+            <label style={{ 
+              display: 'flex', 
+              alignItems: 'flex-start', 
+              gap: 12, 
+              padding: '12px 16px',
+              background: confirmAction.action === 'approved' ? '#f0fdf4' : '#fef2f2',
+              borderRadius: 10,
+              marginBottom: 20,
+              cursor: 'pointer'
+            }}>
+              <input 
+                type="checkbox" 
+                checked={confirmChecked}
+                onChange={(e) => setConfirmChecked(e.target.checked)}
+                style={{ 
+                  width: 20, 
+                  height: 20, 
+                  marginTop: 2,
+                  accentColor: confirmAction.action === 'approved' ? '#16a34a' : '#dc2626'
+                }}
+              />
+              <span style={{ fontSize: 14, color: '#374151' }}>
+                I confirm that I want to <strong>{confirmAction.action === 'approved' ? 'approve' : 'deny'}</strong> this application for <strong>{confirmAction.patientName}</strong>.
+              </span>
+            </label>
+            
+            <div className="mobile-modal-actions">
+              <button 
+                className="quick-action-btn review"
+                onClick={() => {
+                  setConfirmAction(null);
+                  setConfirmChecked(false);
+                }}
+                disabled={isSubmitting}
+              >
+                Cancel
+              </button>
+              <button 
+                className={`quick-action-btn ${confirmAction.action === 'approved' ? 'approve' : 'deny'}`}
+                onClick={handleConfirmAction}
+                disabled={isSubmitting || !confirmChecked}
+                style={{ opacity: confirmChecked ? 1 : 0.5 }}
+              >
+                {isSubmitting ? (
+                  <div className="btn-spinner" />
+                ) : (
+                  <>
+                    {confirmAction.action === 'approved' ? (
+                      <CheckIcon className="w-5 h-5" />
+                    ) : (
+                      <XMarkIcon className="w-5 h-5" />
+                    )}
+                    {confirmAction.action === 'approved' ? 'Approve' : 'Deny'}
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <style jsx>{`
+        .mobile-modal-overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(0,0,0,0.5);
+          display: flex;
+          align-items: flex-end;
+          justify-content: center;
+          z-index: 200;
+          padding: 16px;
+          padding-bottom: calc(16px + env(safe-area-inset-bottom));
+        }
+        
+        .mobile-modal {
+          width: 100%;
+          max-width: 400px;
+          background: white;
+          border-radius: 16px;
+          padding: 24px;
+        }
+        
+        .mobile-modal-title {
+          font-size: 18px;
+          font-weight: 600;
+          color: #1a1a1a;
+          margin: 0 0 8px 0;
+        }
+        
+        .mobile-modal-text {
+          font-size: 15px;
+          color: #6b7280;
+          margin: 0 0 16px 0;
+          line-height: 1.5;
+        }
+        
+        .mobile-modal-actions {
+          display: flex;
+          gap: 12px;
+        }
+        
+        .btn-spinner {
+          width: 20px;
+          height: 20px;
+          border: 2px solid rgba(255,255,255,0.3);
+          border-top-color: white;
+          border-radius: 50%;
+          animation: spin 0.8s linear infinite;
+        }
+        
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
     </MobileLayout>
   );
 }
