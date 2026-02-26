@@ -29,6 +29,7 @@ const mockApplications: Record<string, {
   notes: string;
   confidence: number;
   aiSummary: string;
+  extraData?: Record<string, any> | null;
 }> = {
   'APP-2026-004': {
     id: 'APP-2026-004', name: 'Mary Johnson', initials: 'MJ', facility: 'Optalis of Grand Rapids',
@@ -117,6 +118,7 @@ export default function ApplicationDetailPage() {
   
   const [apiApp, setApiApp] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [showExtraData, setShowExtraData] = useState(false);
 
   // Fetch from API first, fall back to mock data
   useEffect(() => {
@@ -167,7 +169,8 @@ export default function ApplicationDetailPage() {
     confidence: apiApp.confidence_score || mockApp.confidence,
     aiSummary: apiApp.ai_summary || mockApp.aiSummary,
     notes: apiApp.raw_text ? `Source: ${apiApp.source_email || 'Email'}\n\nOriginal content preview:\n${apiApp.raw_text.substring(0, 200)}...` : mockApp.notes,
-    documents: apiDocuments.length > 0 ? apiDocuments : mockApp.documents
+    documents: apiDocuments.length > 0 ? apiDocuments : mockApp.documents,
+    extraData: apiApp.extra_data ? (typeof apiApp.extra_data === 'string' ? JSON.parse(apiApp.extra_data) : apiApp.extra_data) : null
   } : mockApp;
 
   // Editable state for extracted data
@@ -796,6 +799,101 @@ export default function ApplicationDetailPage() {
               ))}
             </div>
           </div>
+
+          {/* Additional Extracted Data Section */}
+          {app.extraData && Object.keys(app.extraData).length > 0 && (
+            <div className="card">
+              <button
+                onClick={() => setShowExtraData(!showExtraData)}
+                style={{
+                  width: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: 0,
+                  textAlign: 'left'
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div style={{ 
+                    width: '32px', height: '32px', borderRadius: '8px', 
+                    background: 'rgba(39,83,128,0.1)', 
+                    display: 'flex', alignItems: 'center', justifyContent: 'center' 
+                  }}>
+                    <svg width="16" height="16" fill="none" stroke="#275380" strokeWidth="2" viewBox="0 0 24 24">
+                      <path d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 style={{ fontSize: '16px', margin: 0 }}>Additional Extracted Data</h3>
+                    <p style={{ fontSize: '13px', color: '#888', margin: '2px 0 0 0' }}>
+                      {Object.keys(app.extraData).length} additional field(s) found
+                    </p>
+                  </div>
+                </div>
+                <svg 
+                  width="20" height="20" fill="none" stroke="#666" strokeWidth="2" viewBox="0 0 24 24"
+                  style={{ transform: showExtraData ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}
+                >
+                  <path d="M19 9l-7 7-7-7"/>
+                </svg>
+              </button>
+              
+              {showExtraData && (
+                <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #eee' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px' }}>
+                    {Object.entries(app.extraData).map(([key, value]) => {
+                      if (!value || (Array.isArray(value) && value.length === 0) || (typeof value === 'object' && Object.keys(value).length === 0)) {
+                        return null;
+                      }
+                      
+                      const label = key
+                        .replace(/_/g, ' ')
+                        .replace(/([A-Z])/g, ' $1')
+                        .split(' ')
+                        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                        .join(' ')
+                        .trim();
+                      
+                      let displayValue: React.ReactNode = '';
+                      if (Array.isArray(value)) {
+                        displayValue = (
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                            {value.map((item, i) => (
+                              <span key={i} style={{ 
+                                background: '#f0f0f0', 
+                                padding: '4px 10px', 
+                                borderRadius: '4px', 
+                                fontSize: '13px' 
+                              }}>
+                                {String(item)}
+                              </span>
+                            ))}
+                          </div>
+                        );
+                      } else if (typeof value === 'object') {
+                        displayValue = <pre style={{ fontSize: '12px', margin: 0, whiteSpace: 'pre-wrap' }}>{JSON.stringify(value, null, 2)}</pre>;
+                      } else {
+                        displayValue = <span style={{ color: '#333' }}>{String(value)}</span>;
+                      }
+                      
+                      return (
+                        <div key={key} style={{ padding: '12px', background: '#f9f7f4', borderRadius: '8px' }}>
+                          <div style={{ fontSize: '12px', color: '#666', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                            {label}
+                          </div>
+                          <div style={{ fontSize: '14px' }}>{displayValue}</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Notes Section */}
           <div className="card">

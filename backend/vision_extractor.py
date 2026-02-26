@@ -86,7 +86,19 @@ Return a JSON object with these fields:
   "priority": {"value": "high"|"medium"|"normal", "confidence": 0-100},
   "ai_summary": string (2-3 sentence clinical summary for admissions review),
   "overall_confidence": number (0-100, weighted average of field confidences),
-  "extraction_notes": string (any issues, unclear areas, or fields that need human review)
+  "extraction_notes": string (any issues, unclear areas, or fields that need human review),
+  "extra_data": {
+    "emergency_contact": string or null (name and phone if present),
+    "secondary_insurance": string or null,
+    "admission_date": string or null,
+    "discharge_date": string or null,
+    "social_security": string or null (last 4 digits only for security),
+    "gender": string or null,
+    "marital_status": string or null,
+    "care_level": string or null (e.g., "skilled nursing", "assisted living"),
+    "special_requirements": [array of strings] or [],
+    "other": {} (any other relevant information found)
+  }
 }
 
 Important:
@@ -94,6 +106,7 @@ Important:
 - Read handwritten text carefully
 - Note any stamps, signatures, or dates
 - If a field is illegible, set confidence to 0-50 and note in extraction_notes
+- Capture ANY additional relevant information in extra_data
 - Return ONLY valid JSON, no markdown formatting"""
 
 
@@ -517,6 +530,15 @@ def flatten_extraction(result: Dict[str, Any]) -> Dict[str, Any]:
     flattened["ai_summary"] = result.get("ai_summary", "")
     flattened["confidence_score"] = result.get("overall_confidence", 0)
     flattened["extraction_notes"] = result.get("extraction_notes", "")
+    
+    # Extra data (additional extracted information)
+    extra_data = result.get("extra_data", {})
+    if extra_data:
+        # Filter out empty/null values
+        filtered_extra = {k: v for k, v in extra_data.items() if v and v != [] and v != {}}
+        flattened["extra_data"] = filtered_extra if filtered_extra else None
+    else:
+        flattened["extra_data"] = None
     
     # Ensure list fields are actual lists (not JSON strings)
     for field in ["diagnosis", "medications", "allergies", "services"]:

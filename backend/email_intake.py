@@ -480,6 +480,7 @@ def create_application(email_data: Dict, extracted: Dict) -> str:
         "confidence_score": extracted.get("confidence_score", 0),
         "raw_text": email_data.get("body", "")[:5000],
         "raw_email_subject": email_data.get("subject", ""),
+        "extra_data": extracted.get("extra_data"),
         "created_at": now,
         "updated_at": now
     }

@@ -71,6 +71,7 @@ def init_db():
             raw_text TEXT,
             raw_email_subject TEXT,
             notes TEXT,
+            extra_data TEXT,
             created_at TEXT,
             updated_at TEXT
         )
@@ -104,6 +105,12 @@ def init_db():
     # Migration: Add notes column if it doesn't exist
     try:
         cursor.execute("ALTER TABLE applications ADD COLUMN notes TEXT")
+    except:
+        pass  # Column already exists
+    
+    # Migration: Add extra_data column if it doesn't exist
+    try:
+        cursor.execute("ALTER TABLE applications ADD COLUMN extra_data TEXT")
     except:
         pass  # Column already exists
     
