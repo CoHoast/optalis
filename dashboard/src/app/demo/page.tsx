@@ -121,32 +121,24 @@ export default function DemoLauncherPage() {
             e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.08)';
           }}
         >
-          {/* Preview Mockup - Marketing */}
+          {/* Preview Screenshot - Marketing */}
           <div style={{
-            background: 'linear-gradient(135deg, #275380 0%, #1e3f61 100%)',
             borderRadius: '12px',
-            padding: '20px',
             marginBottom: '20px',
-            position: 'relative',
             overflow: 'hidden',
-            height: '140px',
+            height: '160px',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
           }}>
-            {/* Nav mockup */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
-              <div style={{ width: '60px', height: '14px', background: 'rgba(255,255,255,0.3)', borderRadius: '4px' }}></div>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <div style={{ width: '30px', height: '8px', background: 'rgba(255,255,255,0.2)', borderRadius: '2px' }}></div>
-                <div style={{ width: '30px', height: '8px', background: 'rgba(255,255,255,0.2)', borderRadius: '2px' }}></div>
-                <div style={{ width: '30px', height: '8px', background: 'rgba(255,255,255,0.2)', borderRadius: '2px' }}></div>
-              </div>
-            </div>
-            {/* Hero text mockup */}
-            <div style={{ width: '70%', height: '12px', background: 'rgba(255,255,255,0.9)', borderRadius: '3px', marginBottom: '8px' }}></div>
-            <div style={{ width: '50%', height: '12px', background: 'rgba(255,255,255,0.7)', borderRadius: '3px', marginBottom: '16px' }}></div>
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <div style={{ width: '60px', height: '20px', background: '#5a9fd4', borderRadius: '4px' }}></div>
-              <div style={{ width: '60px', height: '20px', background: 'rgba(255,255,255,0.2)', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.3)' }}></div>
-            </div>
+            <img 
+              src="/demo-previews/marketing-preview.jpg" 
+              alt="Marketing Website Preview"
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                objectPosition: 'top',
+              }}
+            />
           </div>
           
           <h2 style={{ fontSize: '20px', fontWeight: 600, marginBottom: '6px', color: '#1a1a1a' }}>
@@ -195,51 +187,24 @@ export default function DemoLauncherPage() {
             e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.08)';
           }}
         >
-          {/* Preview Mockup - Dashboard */}
+          {/* Preview Screenshot - Dashboard */}
           <div style={{
-            background: '#f9f7f4',
             borderRadius: '12px',
-            padding: '12px',
             marginBottom: '20px',
-            height: '140px',
-            display: 'flex',
-            gap: '8px',
+            overflow: 'hidden',
+            height: '160px',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
           }}>
-            {/* Sidebar mockup */}
-            <div style={{ width: '40px', background: '#275380', borderRadius: '8px', padding: '8px' }}>
-              <div style={{ width: '24px', height: '24px', background: 'rgba(255,255,255,0.3)', borderRadius: '6px', marginBottom: '8px' }}></div>
-              <div style={{ width: '24px', height: '4px', background: 'rgba(255,255,255,0.5)', borderRadius: '2px', marginBottom: '6px' }}></div>
-              <div style={{ width: '24px', height: '4px', background: 'rgba(255,255,255,0.2)', borderRadius: '2px', marginBottom: '6px' }}></div>
-              <div style={{ width: '24px', height: '4px', background: 'rgba(255,255,255,0.2)', borderRadius: '2px' }}></div>
-            </div>
-            {/* Main content mockup */}
-            <div style={{ flex: 1 }}>
-              {/* Stats row */}
-              <div style={{ display: 'flex', gap: '6px', marginBottom: '8px' }}>
-                <div style={{ flex: 1, height: '32px', background: 'white', borderRadius: '6px', border: '1px solid #e5e7eb' }}></div>
-                <div style={{ flex: 1, height: '32px', background: 'white', borderRadius: '6px', border: '1px solid #e5e7eb' }}></div>
-                <div style={{ flex: 1, height: '32px', background: 'white', borderRadius: '6px', border: '1px solid #e5e7eb' }}></div>
-              </div>
-              {/* Table mockup */}
-              <div style={{ background: 'white', borderRadius: '6px', padding: '8px', border: '1px solid #e5e7eb' }}>
-                <div style={{ display: 'flex', gap: '8px', marginBottom: '6px' }}>
-                  <div style={{ width: '20px', height: '20px', background: '#275380', borderRadius: '50%' }}></div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ width: '60%', height: '6px', background: '#e5e7eb', borderRadius: '2px', marginBottom: '4px' }}></div>
-                    <div style={{ width: '40%', height: '4px', background: '#f3f4f6', borderRadius: '2px' }}></div>
-                  </div>
-                  <div style={{ width: '40px', height: '16px', background: '#dcfce7', borderRadius: '8px' }}></div>
-                </div>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <div style={{ width: '20px', height: '20px', background: '#6b7280', borderRadius: '50%' }}></div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ width: '50%', height: '6px', background: '#e5e7eb', borderRadius: '2px', marginBottom: '4px' }}></div>
-                    <div style={{ width: '35%', height: '4px', background: '#f3f4f6', borderRadius: '2px' }}></div>
-                  </div>
-                  <div style={{ width: '40px', height: '16px', background: '#fef3c7', borderRadius: '8px' }}></div>
-                </div>
-              </div>
-            </div>
+            <img 
+              src="/demo-previews/dashboard-preview.jpg" 
+              alt="Dashboard Preview"
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                objectPosition: 'top left',
+              }}
+            />
           </div>
           
           <h2 style={{ fontSize: '20px', fontWeight: 600, marginBottom: '6px', color: '#1a1a1a' }}>
@@ -271,56 +236,6 @@ export default function DemoLauncherPage() {
           padding: '24px',
           boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
         }}>
-          {/* Preview Mockup - Mobile Phone */}
-          <div style={{
-            display: 'flex',
-            justifyContent: 'center',
-            marginBottom: '20px',
-          }}>
-            <div style={{
-              width: '90px',
-              height: '160px',
-              background: '#1a1a1a',
-              borderRadius: '16px',
-              padding: '6px',
-              boxShadow: '0 8px 24px rgba(0,0,0,0.2)',
-            }}>
-              <div style={{
-                width: '100%',
-                height: '100%',
-                background: '#f9f7f4',
-                borderRadius: '12px',
-                overflow: 'hidden',
-              }}>
-                {/* Phone header */}
-                <div style={{ height: '20px', background: 'white', borderBottom: '1px solid #e5e7eb', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <div style={{ width: '40px', height: '6px', background: '#e5e7eb', borderRadius: '3px' }}></div>
-                </div>
-                {/* App content */}
-                <div style={{ padding: '6px' }}>
-                  <div style={{ background: '#275380', borderRadius: '6px', padding: '8px', marginBottom: '6px' }}>
-                    <div style={{ width: '50%', height: '4px', background: 'rgba(255,255,255,0.6)', borderRadius: '2px', marginBottom: '4px' }}></div>
-                    <div style={{ width: '80%', height: '3px', background: 'rgba(255,255,255,0.4)', borderRadius: '2px' }}></div>
-                  </div>
-                  <div style={{ background: 'white', borderRadius: '4px', padding: '4px', marginBottom: '4px' }}>
-                    <div style={{ width: '60%', height: '3px', background: '#e5e7eb', borderRadius: '2px' }}></div>
-                  </div>
-                  <div style={{ background: 'white', borderRadius: '4px', padding: '4px' }}>
-                    <div style={{ width: '50%', height: '3px', background: '#e5e7eb', borderRadius: '2px' }}></div>
-                  </div>
-                </div>
-                {/* Bottom nav */}
-                <div style={{ position: 'absolute', bottom: '6px', left: '6px', right: '6px', height: '18px', background: 'white', borderTop: '1px solid #e5e7eb', display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
-                  <div style={{ width: '10px', height: '10px', background: '#275380', borderRadius: '2px' }}></div>
-                  <div style={{ width: '10px', height: '10px', background: '#e5e7eb', borderRadius: '2px' }}></div>
-                  <div style={{ width: '14px', height: '14px', background: '#275380', borderRadius: '50%' }}></div>
-                  <div style={{ width: '10px', height: '10px', background: '#e5e7eb', borderRadius: '2px' }}></div>
-                  <div style={{ width: '10px', height: '10px', background: '#e5e7eb', borderRadius: '2px' }}></div>
-                </div>
-              </div>
-            </div>
-          </div>
-          
           <h2 style={{ fontSize: '20px', fontWeight: 600, marginBottom: '6px', color: '#1a1a1a', textAlign: 'center' }}>
             Mobile Web App
           </h2>
