@@ -5,7 +5,7 @@ Serves applications to the dashboard.
 Usage:
     python api_server.py
     
-Runs on http://localhost:8080
+Runs on PORT from environment (Railway) or 8080 locally.
 """
 
 import os
@@ -23,7 +23,115 @@ from pydantic import BaseModel
 # Configuration
 # ============================================================
 
+# Load .env file if exists (local development)
+env_path = Path(__file__).parent / ".env"
+if env_path.exists():
+    with open(env_path) as f:
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith("#") and "=" in line:
+                key, value = line.split("=", 1)
+                os.environ.setdefault(key.strip(), value.strip())
+
 DB_PATH = Path(__file__).parent / "applications.db"
+PORT = int(os.getenv("PORT", 8080))
+
+
+def init_db():
+    """Initialize database with schema and seed data."""
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS applications (
+            id TEXT PRIMARY KEY,
+            status TEXT DEFAULT 'pending',
+            priority TEXT DEFAULT 'normal',
+            source TEXT,
+            source_email TEXT,
+            patient_name TEXT,
+            dob TEXT,
+            phone TEXT,
+            address TEXT,
+            insurance TEXT,
+            policy_number TEXT,
+            diagnosis TEXT,
+            medications TEXT,
+            allergies TEXT,
+            physician TEXT,
+            facility TEXT,
+            services TEXT,
+            ai_summary TEXT,
+            confidence_score REAL,
+            raw_text TEXT,
+            raw_email_subject TEXT,
+            created_at TEXT,
+            updated_at TEXT
+        )
+    """)
+    
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS processed_emails (
+            message_id TEXT PRIMARY KEY,
+            processed_at TEXT
+        )
+    """)
+    
+    # Seed with demo data if empty
+    cursor.execute("SELECT COUNT(*) FROM applications")
+    if cursor.fetchone()[0] == 0:
+        seed_data = [
+            ("APP-2026-001", "pending", "high", "Hospital Referral", "referrals@beaumont.org",
+             "Margaret Thompson", "03/15/1942", "(248) 555-0123", "1234 Oak Street, Bloomfield Hills, MI 48301",
+             "Medicare Part A & B", "1EG4-TE5-MK72",
+             '["Dementia", "Hypertension", "Type 2 Diabetes"]',
+             '["Metformin 500mg", "Lisinopril 10mg", "Donepezil 5mg"]',
+             '["Penicillin", "Sulfa"]',
+             "Dr. Robert Chen, MD", "Cranberry Park at West Bloomfield",
+             '["Memory Care", "Medication Management", "Physical Therapy"]',
+             "83-year-old female with progressive dementia, well-controlled hypertension, and Type 2 diabetes. Currently hospitalized at Beaumont, medically stable. Family seeking memory care placement with 24/7 supervision.",
+             94, "", "Patient Referral - Margaret Thompson", "2026-02-24T10:30:00", "2026-02-24T10:30:00"),
+            
+            ("APP-2026-002", "review", "medium", "Website", "family@email.com",
+             "Robert Williams", "07/22/1938", "(616) 555-0456", "567 Maple Ave, Grand Rapids, MI 49503",
+             "Blue Cross Blue Shield", "XYZ123456789",
+             '["COPD", "Congestive Heart Failure"]',
+             '["Lasix 40mg", "Metoprolol 25mg", "Spiriva"]',
+             '["None known"]',
+             "Dr. Sarah Johnson, MD", "Optalis of Grand Rapids",
+             '["Skilled Nursing", "Respiratory Therapy", "Cardiac Rehab"]',
+             "87-year-old male with chronic COPD and compensated CHF. Requires supplemental oxygen and nebulizer treatments. Insurance pre-authorization pending.",
+             87, "", "Application - Robert Williams", "2026-02-24T14:15:00", "2026-02-24T14:15:00"),
+            
+            ("APP-2026-003", "approved", "normal", "Email", "daughter@email.com",
+             "Dorothy Martinez", "11/08/1945", "(248) 555-0789", "890 Pine Road, Milford, MI 48381",
+             "Medicare Advantage - Humana", "H1234567890",
+             '["Mild Cognitive Impairment", "Osteoarthritis"]',
+             '["Celebrex 200mg", "Aricept 10mg", "Vitamin D 1000IU"]',
+             '["Aspirin"]',
+             "Dr. Michael Brown, DO", "Cranberry Park at Milford",
+             '["Assisted Living", "Memory Support", "Occupational Therapy"]',
+             "80-year-old female with mild cognitive impairment and moderate osteoarthritis. Independent with most ADLs but needs supervision for medication management. Move-in scheduled for 3/1.",
+             96, "", "Application - Dorothy Martinez", "2026-02-24T09:00:00", "2026-02-25T11:00:00"),
+        ]
+        
+        for row in seed_data:
+            cursor.execute("""
+                INSERT INTO applications (id, status, priority, source, source_email,
+                    patient_name, dob, phone, address, insurance, policy_number,
+                    diagnosis, medications, allergies, physician, facility, services,
+                    ai_summary, confidence_score, raw_text, raw_email_subject, created_at, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, row)
+        
+        print("✓ Seeded database with demo applications")
+    
+    conn.commit()
+    conn.close()
+
+
+# Initialize database on import
+init_db()
 
 # ============================================================
 # FastAPI App
@@ -268,7 +376,7 @@ async def health():
 
 if __name__ == "__main__":
     import uvicorn
-    print("\n🚀 Starting Optalis API Server...")
-    print("   http://localhost:8080")
-    print("   Docs: http://localhost:8080/docs\n")
-    uvicorn.run(app, host="0.0.0.0", port=8080)
+    print(f"\n🚀 Starting Optalis API Server...")
+    print(f"   http://0.0.0.0:{PORT}")
+    print(f"   Docs: http://0.0.0.0:{PORT}/docs\n")
+    uvicorn.run(app, host="0.0.0.0", port=PORT)
