@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
 const API_URL = 'https://optalis-api-production.up.railway.app';
@@ -57,11 +58,20 @@ function getRetentionColor(days: number, status: string): { bg: string; text: st
   }
 }
 
-export default function ApplicationsPage() {
+function ApplicationsContent() {
+  const searchParams = useSearchParams();
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
+
+  // Read status filter from URL params on mount
+  useEffect(() => {
+    const statusParam = searchParams.get('status');
+    if (statusParam && ['pending', 'review', 'approved', 'denied'].includes(statusParam)) {
+      setFilter(statusParam);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     fetch(`${API_URL}/api/applications`)
@@ -316,5 +326,22 @@ export default function ApplicationsPage() {
         }
       `}</style>
     </div>
+  );
+}
+
+// Wrap with Suspense for useSearchParams
+export default function ApplicationsPage() {
+  return (
+    <Suspense fallback={
+      <div className="main-content">
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px' }}>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '24px', marginBottom: '12px' }}>Loading applications...</div>
+          </div>
+        </div>
+      </div>
+    }>
+      <ApplicationsContent />
+    </Suspense>
   );
 }

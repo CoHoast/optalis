@@ -21,65 +21,73 @@ export default function DashboardPage() {
 
       {/* Stats */}
       <div className="stats-grid">
-        <div className="stat-card">
-          <div className="stat-card-header">
-            <div>
-              <div className="stat-label">Pending Review</div>
-              <div className="stat-value">3</div>
-              <div className="stat-change">+2 from yesterday</div>
-            </div>
-            <div className="stat-icon">
-              <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-              </svg>
+        <Link href="/dashboard/applications?status=pending" style={{ textDecoration: 'none', color: 'inherit' }}>
+          <div className="stat-card" style={{ cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s' }}>
+            <div className="stat-card-header">
+              <div>
+                <div className="stat-label">Pending Review</div>
+                <div className="stat-value">3</div>
+                <div className="stat-change">+2 from yesterday</div>
+              </div>
+              <div className="stat-icon">
+                <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                </svg>
+              </div>
             </div>
           </div>
-        </div>
+        </Link>
         
-        <div className="stat-card">
-          <div className="stat-card-header">
-            <div>
-              <div className="stat-label">Approved Today</div>
-              <div className="stat-value">2</div>
-              <div className="stat-change" style={{ color: '#16a34a' }}>On track</div>
-            </div>
-            <div className="stat-icon" style={{ background: 'rgba(22, 163, 74, 0.1)', color: '#16a34a' }}>
-              <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
-              </svg>
+        <Link href="/dashboard/applications?status=approved" style={{ textDecoration: 'none', color: 'inherit' }}>
+          <div className="stat-card" style={{ cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s' }}>
+            <div className="stat-card-header">
+              <div>
+                <div className="stat-label">Approved Today</div>
+                <div className="stat-value">2</div>
+                <div className="stat-change" style={{ color: '#16a34a' }}>On track</div>
+              </div>
+              <div className="stat-icon" style={{ background: 'rgba(22, 163, 74, 0.1)', color: '#16a34a' }}>
+                <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+              </div>
             </div>
           </div>
-        </div>
+        </Link>
         
-        <div className="stat-card">
-          <div className="stat-card-header">
-            <div>
-              <div className="stat-label">Needs Review</div>
-              <div className="stat-value">1</div>
-              <div className="stat-change" style={{ color: '#dc2626' }}>1 urgent</div>
-            </div>
-            <div className="stat-icon" style={{ background: 'rgba(220, 38, 38, 0.1)', color: '#dc2626' }}>
-              <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
-              </svg>
+        <Link href="/dashboard/applications?status=review" style={{ textDecoration: 'none', color: 'inherit' }}>
+          <div className="stat-card" style={{ cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s' }}>
+            <div className="stat-card-header">
+              <div>
+                <div className="stat-label">Needs Review</div>
+                <div className="stat-value">1</div>
+                <div className="stat-change" style={{ color: '#dc2626' }}>1 urgent</div>
+              </div>
+              <div className="stat-icon" style={{ background: 'rgba(220, 38, 38, 0.1)', color: '#dc2626' }}>
+                <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+              </div>
             </div>
           </div>
-        </div>
+        </Link>
         
-        <div className="stat-card">
-          <div className="stat-card-header">
-            <div>
-              <div className="stat-label">Approval Rate</div>
-              <div className="stat-value">78%</div>
-              <div className="stat-change">This week</div>
-            </div>
-            <div className="stat-icon">
-              <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>
-              </svg>
+        <Link href="/dashboard/reports" style={{ textDecoration: 'none', color: 'inherit' }}>
+          <div className="stat-card" style={{ cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s' }}>
+            <div className="stat-card-header">
+              <div>
+                <div className="stat-label">Approval Rate</div>
+                <div className="stat-value">78%</div>
+                <div className="stat-change">This week</div>
+              </div>
+              <div className="stat-icon">
+                <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>
+                </svg>
+              </div>
             </div>
           </div>
-        </div>
+        </Link>
       </div>
 
       {/* Intake Email Card */}
