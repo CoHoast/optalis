@@ -357,10 +357,58 @@ def generate_application_id() -> str:
 
 
 def create_application(email_data: Dict, extracted: Dict) -> str:
-    """Create application record in database."""
+    """Create application record via Railway API."""
+    import requests
+    
     app_id = generate_application_id()
     now = datetime.now().isoformat()
     
+    # Post to Railway API
+    api_url = "https://optalis-api-production.up.railway.app/api/applications"
+    
+    payload = {
+        "id": app_id,
+        "status": "pending",
+        "priority": extracted.get("priority", "normal"),
+        "source": "Email (AI Intake)",
+        "source_email": email_data.get("from", ""),
+        "patient_name": extracted.get("patient_name"),
+        "dob": extracted.get("dob"),
+        "phone": extracted.get("phone"),
+        "address": extracted.get("address"),
+        "insurance": extracted.get("insurance"),
+        "policy_number": extracted.get("policy_number"),
+        "diagnosis": extracted.get("diagnosis", []),
+        "medications": extracted.get("medications", []),
+        "allergies": extracted.get("allergies", []),
+        "physician": extracted.get("physician"),
+        "facility": extracted.get("facility"),
+        "services": extracted.get("services", []),
+        "ai_summary": extracted.get("ai_summary"),
+        "confidence_score": extracted.get("confidence_score", 0),
+        "raw_text": email_data.get("body", "")[:5000],
+        "raw_email_subject": email_data.get("subject", ""),
+        "created_at": now,
+        "updated_at": now
+    }
+    
+    try:
+        response = requests.post(api_url, json=payload, timeout=30)
+        if response.status_code in [200, 201]:
+            print(f"   ✓ Posted to Railway API")
+        else:
+            print(f"   ⚠ API returned {response.status_code}: {response.text[:100]}")
+            # Fall back to local DB
+            _save_to_local_db(app_id, email_data, extracted, now)
+    except Exception as e:
+        print(f"   ⚠ API error: {e}, saving locally")
+        _save_to_local_db(app_id, email_data, extracted, now)
+    
+    return app_id
+
+
+def _save_to_local_db(app_id: str, email_data: Dict, extracted: Dict, now: str):
+    """Fallback: save to local SQLite."""
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     
@@ -379,7 +427,7 @@ def create_application(email_data: Dict, extracted: Dict) -> str:
         app_id,
         "pending",
         extracted.get("priority", "normal"),
-        "email",
+        "Email (AI Intake)",
         email_data.get("from", ""),
         extracted.get("patient_name"),
         extracted.get("dob"),

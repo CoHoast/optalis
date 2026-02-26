@@ -273,6 +273,85 @@ async def get_application(app_id: str):
     return row_to_dict(row, columns)
 
 
+class CreateApplicationRequest(BaseModel):
+    id: str
+    status: str = "pending"
+    priority: str = "normal"
+    source: str = "email"
+    source_email: Optional[str] = None
+    patient_name: Optional[str] = None
+    dob: Optional[str] = None
+    phone: Optional[str] = None
+    address: Optional[str] = None
+    insurance: Optional[str] = None
+    policy_number: Optional[str] = None
+    diagnosis: Optional[List[str]] = []
+    medications: Optional[List[str]] = []
+    allergies: Optional[List[str]] = []
+    physician: Optional[str] = None
+    facility: Optional[str] = None
+    services: Optional[List[str]] = []
+    ai_summary: Optional[str] = None
+    confidence_score: Optional[float] = None
+    raw_text: Optional[str] = None
+    raw_email_subject: Optional[str] = None
+    created_at: Optional[str] = None
+    updated_at: Optional[str] = None
+
+
+@app.post("/api/applications")
+async def create_application(request: CreateApplicationRequest):
+    """Create a new application (from email intake)."""
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    now = datetime.now().isoformat()
+    
+    cursor.execute("""
+        INSERT INTO applications (
+            id, status, priority, source, source_email,
+            patient_name, dob, phone, address,
+            insurance, policy_number,
+            diagnosis, medications, allergies,
+            physician, facility, services,
+            ai_summary, confidence_score,
+            raw_text, raw_email_subject,
+            created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """, (
+        request.id,
+        request.status,
+        request.priority,
+        request.source,
+        request.source_email,
+        request.patient_name,
+        request.dob,
+        request.phone,
+        request.address,
+        request.insurance,
+        request.policy_number,
+        json.dumps(request.diagnosis or []),
+        json.dumps(request.medications or []),
+        json.dumps(request.allergies or []),
+        request.physician,
+        request.facility,
+        json.dumps(request.services or []),
+        request.ai_summary,
+        request.confidence_score,
+        request.raw_text,
+        request.raw_email_subject,
+        request.created_at or now,
+        request.updated_at or now
+    ))
+    
+    conn.commit()
+    conn.close()
+    
+    print(f"✓ Created application: {request.id} - {request.patient_name}")
+    
+    return {"status": "created", "id": request.id}
+
+
 @app.patch("/api/applications/{app_id}")
 async def update_application(app_id: str, update: ApplicationUpdate):
     """Update application fields."""
