@@ -146,28 +146,35 @@ export default function ApplicationDetailPage() {
     }
   ] : [];
   
+  // Helper: use API value if present, otherwise null (NOT mock data) for real apps
+  // This prevents fabricated data from appearing
+  const apiValue = <T,>(apiVal: T | null | undefined, mockVal: T): T | null => {
+    // For API apps, return API value (even if null) - don't fall back to mock
+    return apiVal !== undefined ? (apiVal as T | null) : null;
+  };
+
   const app = apiApp ? {
     ...mockApp,
     id: apiApp.id,
-    name: apiApp.patient_name || mockApp.name,
-    initials: (apiApp.patient_name || mockApp.name).split(' ').map((n: string) => n[0]).join('').toUpperCase(),
-    facility: apiApp.facility || mockApp.facility,
-    status: apiApp.status || mockApp.status,
+    name: apiApp.patient_name || 'Unknown Patient',
+    initials: (apiApp.patient_name || 'UP').split(' ').map((n: string) => n[0]).join('').toUpperCase(),
+    facility: apiApp.facility || 'Optalis Healthcare',
+    status: apiApp.status || 'pending',
     date: apiApp.created_at ? new Date(apiApp.created_at).toLocaleDateString() : mockApp.date,
-    priority: apiApp.priority || mockApp.priority,
-    source: apiApp.source || mockApp.source,
-    dob: apiApp.dob || mockApp.dob,
-    phone: apiApp.phone || mockApp.phone,
-    address: apiApp.address || mockApp.address,
-    insurance: apiApp.insurance || mockApp.insurance,
-    policyNumber: apiApp.policy_number || mockApp.policyNumber,
-    diagnosis: apiApp.diagnosis || mockApp.diagnosis,
-    medications: apiApp.medications || mockApp.medications,
-    allergies: apiApp.allergies || mockApp.allergies,
-    physician: apiApp.physician || mockApp.physician,
-    services: apiApp.services || mockApp.services,
-    confidence: apiApp.confidence_score || mockApp.confidence,
-    aiSummary: apiApp.ai_summary || mockApp.aiSummary,
+    priority: apiApp.priority || 'normal',
+    source: apiApp.source || 'Unknown',
+    dob: apiApp.dob || null,
+    phone: apiApp.phone || null,  // Don't fall back to mock - show null if not in original
+    address: apiApp.address || null,  // Don't fall back to mock - show null if not in original
+    insurance: apiApp.insurance || null,
+    policyNumber: apiApp.policy_number || null,
+    diagnosis: apiApp.diagnosis || [],
+    medications: apiApp.medications || [],
+    allergies: apiApp.allergies || [],
+    physician: apiApp.physician || null,
+    services: apiApp.services || [],
+    confidence: apiApp.confidence_score || 50,
+    aiSummary: apiApp.ai_summary || 'AI summary not available.',
     notes: apiApp.raw_text ? `Source: ${apiApp.source_email || 'Email'}\n\nOriginal content preview:\n${apiApp.raw_text.substring(0, 200)}...` : mockApp.notes,
     documents: apiDocuments.length > 0 ? apiDocuments : mockApp.documents,
     extraData: apiApp.extra_data ? (typeof apiApp.extra_data === 'string' ? JSON.parse(apiApp.extra_data) : apiApp.extra_data) : null
@@ -430,12 +437,15 @@ export default function ApplicationDetailPage() {
                 {isEditing ? (
                   <input 
                     type="text" 
-                    value={editedData.dob} 
+                    value={editedData.dob || ''} 
                     onChange={(e) => setEditedData({...editedData, dob: e.target.value})}
+                    placeholder="MM/DD/YYYY"
                     style={{ width: '100%', padding: '8px 12px', border: '1px solid #e0e0e0', borderRadius: '6px', fontSize: '15px', boxSizing: 'border-box' }}
                   />
                 ) : (
-                  <div style={{ fontWeight: 500 }}>{app.dob}</div>
+                  <div style={{ fontWeight: 500, color: app.dob ? 'inherit' : '#9ca3af', fontStyle: app.dob ? 'normal' : 'italic' }}>
+                    {app.dob || 'Not provided'}
+                  </div>
                 )}
               </div>
               <div>
@@ -443,12 +453,15 @@ export default function ApplicationDetailPage() {
                 {isEditing ? (
                   <input 
                     type="text" 
-                    value={editedData.phone} 
+                    value={editedData.phone || ''} 
                     onChange={(e) => setEditedData({...editedData, phone: e.target.value})}
+                    placeholder="Enter phone number"
                     style={{ width: '100%', padding: '8px 12px', border: '1px solid #e0e0e0', borderRadius: '6px', fontSize: '15px', boxSizing: 'border-box' }}
                   />
                 ) : (
-                  <div style={{ fontWeight: 500 }}>{app.phone}</div>
+                  <div style={{ fontWeight: 500, color: app.phone ? 'inherit' : '#9ca3af', fontStyle: app.phone ? 'normal' : 'italic' }}>
+                    {app.phone || 'Not provided'}
+                  </div>
                 )}
               </div>
               <div>
@@ -469,12 +482,15 @@ export default function ApplicationDetailPage() {
                 {isEditing ? (
                   <input 
                     type="text" 
-                    value={editedData.address} 
+                    value={editedData.address || ''} 
                     onChange={(e) => setEditedData({...editedData, address: e.target.value})}
+                    placeholder="Enter address"
                     style={{ width: '100%', padding: '8px 12px', border: '1px solid #e0e0e0', borderRadius: '6px', fontSize: '15px', boxSizing: 'border-box' }}
                   />
                 ) : (
-                  <div style={{ fontWeight: 500 }}>{app.address}</div>
+                  <div style={{ fontWeight: 500, color: app.address ? 'inherit' : '#9ca3af', fontStyle: app.address ? 'normal' : 'italic' }}>
+                    {app.address || 'Not provided'}
+                  </div>
                 )}
               </div>
             </div>
@@ -494,12 +510,15 @@ export default function ApplicationDetailPage() {
                 {isEditing ? (
                   <input 
                     type="text" 
-                    value={editedData.insurance} 
+                    value={editedData.insurance || ''} 
                     onChange={(e) => setEditedData({...editedData, insurance: e.target.value})}
+                    placeholder="Enter insurance provider"
                     style={{ width: '100%', padding: '8px 12px', border: '1px solid #e0e0e0', borderRadius: '6px', fontSize: '15px', boxSizing: 'border-box' }}
                   />
                 ) : (
-                  <div style={{ fontWeight: 500 }}>{app.insurance}</div>
+                  <div style={{ fontWeight: 500, color: app.insurance ? 'inherit' : '#9ca3af', fontStyle: app.insurance ? 'normal' : 'italic' }}>
+                    {app.insurance || 'Not provided'}
+                  </div>
                 )}
               </div>
               <div>
@@ -507,12 +526,15 @@ export default function ApplicationDetailPage() {
                 {isEditing ? (
                   <input 
                     type="text" 
-                    value={editedData.policyNumber} 
+                    value={editedData.policyNumber || ''} 
                     onChange={(e) => setEditedData({...editedData, policyNumber: e.target.value})}
+                    placeholder="Enter policy number"
                     style={{ width: '100%', padding: '8px 12px', border: '1px solid #e0e0e0', borderRadius: '6px', fontSize: '15px', boxSizing: 'border-box' }}
                   />
                 ) : (
-                  <div style={{ fontWeight: 500 }}>{app.policyNumber}</div>
+                  <div style={{ fontWeight: 500, color: app.policyNumber ? 'inherit' : '#9ca3af', fontStyle: app.policyNumber ? 'normal' : 'italic' }}>
+                    {app.policyNumber || 'Not provided'}
+                  </div>
                 )}
               </div>
             </div>
@@ -656,12 +678,15 @@ export default function ApplicationDetailPage() {
               {isEditing ? (
                 <input 
                   type="text" 
-                  value={editedData.physician} 
+                  value={editedData.physician || ''} 
                   onChange={(e) => setEditedData({...editedData, physician: e.target.value})}
+                  placeholder="Enter physician name"
                   style={{ width: '100%', padding: '8px 12px', border: '1px solid #e0e0e0', borderRadius: '6px', fontSize: '15px', boxSizing: 'border-box' }}
                 />
               ) : (
-                <div style={{ fontWeight: 500 }}>{app.physician}</div>
+                <div style={{ fontWeight: 500, color: app.physician ? 'inherit' : '#9ca3af', fontStyle: app.physician ? 'normal' : 'italic' }}>
+                  {app.physician || 'Not provided'}
+                </div>
               )}
             </div>
 

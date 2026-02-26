@@ -365,22 +365,28 @@ def extract_application_data(raw_text: str, subject: str = "") -> Dict[str, Any]
     prompt = f"""You are an expert healthcare admissions data extractor. 
 Extract patient and referral information from the following document text.
 
-Return a JSON object with these fields (use null if not found):
-- patient_name: string
-- dob: string (format: MM/DD/YYYY)
-- phone: string
-- address: string
-- insurance: string (insurance provider name)
-- policy_number: string
-- diagnosis: array of strings (medical diagnoses)
-- medications: array of strings (current medications with dosages)
-- allergies: array of strings
-- physician: string (referring physician name)
+CRITICAL: DO NOT FABRICATE OR INVENT DATA. If a field is not explicitly present in the document, 
+you MUST return null for that field. Never make up phone numbers, addresses, or any other information.
+This is for healthcare/HIPAA compliance - fabricated data is dangerous.
+
+Return a JSON object with these fields (use null if information is NOT explicitly in the document):
+- patient_name: string or null
+- dob: string (format: MM/DD/YYYY) or null
+- phone: string or null — ONLY if explicitly stated in the document
+- address: string or null — ONLY if explicitly stated in the document  
+- insurance: string (insurance provider name) or null
+- policy_number: string or null
+- diagnosis: array of strings (medical diagnoses) — empty array [] if none mentioned
+- medications: array of strings (current medications with dosages) — empty array [] if none mentioned
+- allergies: array of strings — empty array [] if none mentioned
+- physician: string (referring physician name) or null
 - facility: string (requested facility, default to "Optalis Healthcare" if not specified)
-- services: array of strings (requested services like "Skilled Nursing", "Physical Therapy", etc.)
+- services: array of strings (requested services like "Skilled Nursing", "Physical Therapy", etc.) — empty array [] if none mentioned
 - priority: string (one of: "high", "medium", "normal" - based on urgency indicators)
 - ai_summary: string (2-3 sentence clinical summary suitable for admissions review)
 - confidence_score: number (0-100, your confidence in the extraction accuracy)
+
+REMEMBER: Return null for any field not explicitly found. DO NOT invent placeholder data.
 
 Email Subject: {subject}
 
