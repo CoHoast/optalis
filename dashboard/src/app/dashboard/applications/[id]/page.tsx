@@ -133,6 +133,17 @@ export default function ApplicationDetailPage() {
 
   // Use API data if available, otherwise fall back to mock
   const mockApp = mockApplications[params.id as string] || mockApplications['APP-2026-001'];
+  
+  // For API-sourced applications, create documents pointing to API endpoints
+  const apiDocuments = apiApp ? [
+    { 
+      name: apiApp.raw_email_subject || 'Intake Document', 
+      type: 'Application', 
+      rawUrl: `${API_URL}/api/applications/${apiApp.id}/document/original`,
+      extractedUrl: `${API_URL}/api/applications/${apiApp.id}/document/extracted`
+    }
+  ] : [];
+  
   const app = apiApp ? {
     ...mockApp,
     id: apiApp.id,
@@ -155,8 +166,8 @@ export default function ApplicationDetailPage() {
     services: apiApp.services || mockApp.services,
     confidence: apiApp.confidence_score || mockApp.confidence,
     aiSummary: apiApp.ai_summary || mockApp.aiSummary,
-    notes: mockApp.notes,
-    documents: mockApp.documents
+    notes: apiApp.raw_text ? `Source: ${apiApp.source_email || 'Email'}\n\nOriginal content preview:\n${apiApp.raw_text.substring(0, 200)}...` : mockApp.notes,
+    documents: apiDocuments.length > 0 ? apiDocuments : mockApp.documents
   } : mockApp;
 
   // Editable state for extracted data

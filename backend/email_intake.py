@@ -236,7 +236,22 @@ def mark_email_processed(message_id: str):
 # ============================================================
 
 def extract_text_from_document(file_data: bytes, filename: str) -> str:
-    """Extract text from document using AWS Textract."""
+    """Extract text from document using AWS Textract or python-docx."""
+    ext = filename.lower().split(".")[-1]
+    
+    # Handle Word documents
+    if ext in ["docx", "doc"]:
+        try:
+            from docx import Document
+            import io
+            doc = Document(io.BytesIO(file_data))
+            text = "\n".join([para.text for para in doc.paragraphs])
+            return text
+        except Exception as e:
+            print(f"  ⚠ Word doc error for {filename}: {e}")
+            return ""
+    
+    # Handle PDF and images with Textract
     try:
         textract = boto3.client("textract", region_name=AWS_REGION)
         
@@ -474,7 +489,7 @@ def process_email(email_data: Dict) -> Optional[str]:
         
         # Only process supported file types
         ext = filename.lower().split(".")[-1]
-        if ext in ["pdf", "png", "jpg", "jpeg", "tiff"]:
+        if ext in ["pdf", "png", "jpg", "jpeg", "tiff", "docx", "doc"]:
             extracted_text = extract_text_from_document(
                 attachment["data"], 
                 filename

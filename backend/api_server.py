@@ -449,6 +449,189 @@ async def health():
     return {"status": "healthy", "timestamp": datetime.now().isoformat()}
 
 
+from fastapi.responses import HTMLResponse
+
+@app.get("/api/applications/{app_id}/document/original", response_class=HTMLResponse)
+async def get_original_document(app_id: str):
+    """Get the original document/email as HTML."""
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT raw_text, raw_email_subject, source_email, created_at FROM applications WHERE id = ?", (app_id,))
+    row = cursor.fetchone()
+    conn.close()
+    
+    if not row:
+        raise HTTPException(status_code=404, detail="Application not found")
+    
+    raw_text, subject, from_email, created_at = row
+    
+    html = f"""<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {{ font-family: 'Courier New', monospace; padding: 40px; background: #f5f5f5; }}
+        .email-container {{ background: white; border: 1px solid #ddd; border-radius: 8px; max-width: 800px; margin: 0 auto; }}
+        .email-header {{ background: #f0f0f0; padding: 20px; border-bottom: 1px solid #ddd; }}
+        .email-header div {{ margin-bottom: 8px; }}
+        .label {{ color: #666; font-weight: bold; }}
+        .email-body {{ padding: 30px; white-space: pre-wrap; line-height: 1.6; }}
+        .stamp {{ position: absolute; top: 20px; right: 20px; background: #e74c3c; color: white; padding: 8px 16px; 
+                  transform: rotate(12deg); font-weight: bold; border-radius: 4px; }}
+        .watermark {{ position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg);
+                     font-size: 100px; color: rgba(39, 83, 128, 0.05); pointer-events: none; z-index: -1; }}
+    </style>
+</head>
+<body>
+    <div class="watermark">ORIGINAL</div>
+    <div class="email-container" style="position: relative;">
+        <div class="stamp">RECEIVED</div>
+        <div class="email-header">
+            <div><span class="label">From:</span> {from_email or 'Unknown'}</div>
+            <div><span class="label">Subject:</span> {subject or 'No Subject'}</div>
+            <div><span class="label">Date:</span> {created_at or 'Unknown'}</div>
+            <div><span class="label">Application ID:</span> {app_id}</div>
+        </div>
+        <div class="email-body">{raw_text or 'No content available'}</div>
+    </div>
+</body>
+</html>"""
+    return HTMLResponse(content=html)
+
+
+@app.get("/api/applications/{app_id}/document/extracted", response_class=HTMLResponse)
+async def get_extracted_document(app_id: str):
+    """Get the AI-extracted data as a formatted HTML document."""
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM applications WHERE id = ?", (app_id,))
+    columns = [desc[0] for desc in cursor.description]
+    row = cursor.fetchone()
+    conn.close()
+    
+    if not row:
+        raise HTTPException(status_code=404, detail="Application not found")
+    
+    app = dict(zip(columns, row))
+    
+    # Parse JSON fields
+    for field in ["diagnosis", "medications", "allergies", "services"]:
+        if app.get(field):
+            try:
+                app[field] = json.loads(app[field])
+            except:
+                app[field] = []
+    
+    def make_tags(items, color):
+        if not items:
+            return '<span style="color: #999;">None recorded</span>'
+        return ' '.join([f'<span style="background: {color}; padding: 4px 10px; border-radius: 15px; margin: 2px; display: inline-block; font-size: 13px;">{item}</span>' for item in items])
+    
+    html = f"""<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {{ font-family: 'Segoe UI', Arial, sans-serif; padding: 40px; background: #f9f7f4; }}
+        .container {{ background: white; border-radius: 16px; max-width: 800px; margin: 0 auto; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }}
+        .header {{ background: linear-gradient(135deg, #275380 0%, #1e3f61 100%); color: white; padding: 30px; border-radius: 16px 16px 0 0; }}
+        .header h1 {{ margin: 0 0 10px 0; font-size: 24px; }}
+        .confidence {{ background: rgba(255,255,255,0.2); padding: 6px 14px; border-radius: 20px; font-size: 14px; display: inline-block; }}
+        .section {{ padding: 25px 30px; border-bottom: 1px solid #f0f0f0; }}
+        .section-title {{ font-size: 12px; text-transform: uppercase; color: #888; margin-bottom: 12px; letter-spacing: 1px; }}
+        .field {{ margin-bottom: 16px; }}
+        .field-label {{ font-size: 12px; color: #666; margin-bottom: 4px; }}
+        .field-value {{ font-size: 16px; font-weight: 500; }}
+        .grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }}
+        .ai-badge {{ background: #275380; color: white; padding: 4px 10px; border-radius: 4px; font-size: 11px; margin-left: 8px; }}
+        .summary {{ background: #f0f7ff; padding: 20px; border-radius: 8px; line-height: 1.7; }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 AI-Extracted Patient Data <span class="ai-badge">GPT-4</span></h1>
+            <div class="confidence">Confidence: {app.get('confidence_score', 0):.0f}%</div>
+        </div>
+        
+        <div class="section">
+            <div class="section-title">Patient Information</div>
+            <div class="grid">
+                <div class="field">
+                    <div class="field-label">Full Name</div>
+                    <div class="field-value">{app.get('patient_name') or 'N/A'}</div>
+                </div>
+                <div class="field">
+                    <div class="field-label">Date of Birth</div>
+                    <div class="field-value">{app.get('dob') or 'N/A'}</div>
+                </div>
+                <div class="field">
+                    <div class="field-label">Phone</div>
+                    <div class="field-value">{app.get('phone') or 'N/A'}</div>
+                </div>
+                <div class="field">
+                    <div class="field-label">Address</div>
+                    <div class="field-value">{app.get('address') or 'N/A'}</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <div class="section-title">Insurance</div>
+            <div class="grid">
+                <div class="field">
+                    <div class="field-label">Provider</div>
+                    <div class="field-value">{app.get('insurance') or 'N/A'}</div>
+                </div>
+                <div class="field">
+                    <div class="field-label">Policy Number</div>
+                    <div class="field-value">{app.get('policy_number') or 'N/A'}</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <div class="section-title">Medical Information</div>
+            <div class="field">
+                <div class="field-label">Diagnoses</div>
+                <div style="margin-top: 8px;">{make_tags(app.get('diagnosis', []), '#fee2e2')}</div>
+            </div>
+            <div class="field">
+                <div class="field-label">Medications</div>
+                <div style="margin-top: 8px;">{make_tags(app.get('medications', []), '#dbeafe')}</div>
+            </div>
+            <div class="field">
+                <div class="field-label">Allergies</div>
+                <div style="margin-top: 8px;">{make_tags(app.get('allergies', []), '#fef9c3')}</div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <div class="section-title">Referral Details</div>
+            <div class="grid">
+                <div class="field">
+                    <div class="field-label">Referring Physician</div>
+                    <div class="field-value">{app.get('physician') or 'N/A'}</div>
+                </div>
+                <div class="field">
+                    <div class="field-label">Requested Facility</div>
+                    <div class="field-value">{app.get('facility') or 'N/A'}</div>
+                </div>
+            </div>
+            <div class="field">
+                <div class="field-label">Requested Services</div>
+                <div style="margin-top: 8px;">{make_tags(app.get('services', []), 'rgba(39,83,128,0.15)')}</div>
+            </div>
+        </div>
+        
+        <div class="section" style="border-bottom: none;">
+            <div class="section-title">AI Summary</div>
+            <div class="summary">{app.get('ai_summary') or 'No summary available'}</div>
+        </div>
+    </div>
+</body>
+</html>"""
+    return HTMLResponse(content=html)
+
+
 # ============================================================
 # Run Server
 # ============================================================
