@@ -575,8 +575,8 @@ export default function DemoLauncherPage() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
             <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#275380', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '14px' }}>1</div>
             <div>
-              <strong>Vision AI Extraction</strong>
-              <p style={{ fontSize: '13px', color: '#666', margin: '4px 0 0' }}>GPT-4 Vision analyzes the document image and extracts all patient data fields</p>
+              <strong>AI Document Analysis</strong>
+              <p style={{ fontSize: '13px', color: '#666', margin: '4px 0 0' }}>Advanced AI analyzes the document image and extracts all patient data fields</p>
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
