@@ -90,6 +90,7 @@ function ApplicationDetailContent() {
   const [editedFields, setEditedFields] = useState<Record<string, string>>({});
   const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [activeTab, setActiveTab] = useState<'details' | 'document'>('details');
   const [showNewBanner, setShowNewBanner] = useState(isNewApplication || false);
 
@@ -165,8 +166,6 @@ function ApplicationDetailContent() {
   const handleFieldChange = (field: string, value: string) => {
     setEditedFields({ ...editedFields, [field]: value });
   };
-
-  const [isSaving, setIsSaving] = useState(false);
 
   const handleSave = async () => {
     if (Object.keys(editedFields).length === 0) {
