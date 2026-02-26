@@ -91,6 +91,7 @@ function ApplicationDetailContent() {
   const [newListItemInputs, setNewListItemInputs] = useState<Record<string, string>>({});
   const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
   const [showDenyConfirm, setShowDenyConfirm] = useState(false);
+  const [showReviewConfirm, setShowReviewConfirm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [confirmChecked, setConfirmChecked] = useState(false);
@@ -813,21 +814,7 @@ function ApplicationDetailContent() {
           {app.status === 'pending' && (
             <button 
               className="quick-action-btn"
-              onClick={async () => {
-                try {
-                  const response = await fetch(`${API_URL}/api/applications/${id}`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ status: 'review' })
-                  });
-                  if (response.ok) {
-                    setApp(prev => prev ? { ...prev, status: 'review' } : prev);
-                    if ('vibrate' in navigator) navigator.vibrate([10, 50, 10]);
-                  }
-                } catch (error) {
-                  console.error('Error updating status:', error);
-                }
-              }}
+              onClick={() => setShowReviewConfirm(true)}
               style={{
                 background: '#f59e0b',
                 color: 'white',
@@ -986,6 +973,77 @@ function ApplicationDetailContent() {
         </div>
       )}
 
+      {/* Review Confirmation Modal */}
+      {showReviewConfirm && (
+        <div className="mobile-modal-overlay" onClick={() => setShowReviewConfirm(false)}>
+          <div className="mobile-modal" onClick={(e) => e.stopPropagation()}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '12px' }}>
+              <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#fef3c7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg style={{ width: 20, height: 20, color: '#f59e0b' }} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="mobile-modal-title" style={{ margin: 0 }}>Send to Review?</h3>
+                <p style={{ margin: '4px 0 0', fontSize: '14px', color: '#6b7280' }}>{app?.patientName}</p>
+              </div>
+            </div>
+            <p className="mobile-modal-text">
+              This will move the application to the Review queue for further evaluation.
+            </p>
+            <div className="mobile-modal-actions">
+              <button 
+                className="quick-action-btn"
+                onClick={() => setShowReviewConfirm(false)}
+                disabled={isSubmitting}
+                style={{ background: '#f3f4f6', color: '#374151' }}
+              >
+                Cancel
+              </button>
+              <button 
+                className="quick-action-btn"
+                onClick={async () => {
+                  setIsSubmitting(true);
+                  try {
+                    const response = await fetch(`${API_URL}/api/applications/${id}`, {
+                      method: 'PATCH',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ status: 'review' })
+                    });
+                    if (response.ok) {
+                      setApp(prev => prev ? { ...prev, status: 'review' } : prev);
+                      if ('vibrate' in navigator) navigator.vibrate([10, 50, 10]);
+                      setShowReviewConfirm(false);
+                      router.push('/mobile/review');
+                    } else {
+                      alert('Failed to update. Please try again.');
+                    }
+                  } catch (error) {
+                    console.error('Error updating status:', error);
+                    alert('Failed to update. Please try again.');
+                  } finally {
+                    setIsSubmitting(false);
+                  }
+                }}
+                disabled={isSubmitting}
+                style={{ background: '#f59e0b', color: 'white' }}
+              >
+                {isSubmitting ? (
+                  <div className="btn-spinner" />
+                ) : (
+                  <>
+                    <svg style={{ width: 20, height: 20 }} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                    </svg>
+                    Send to Review
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <style jsx>{`
         .ai-summary-card {
           background: linear-gradient(135deg, #275380 0%, #1e3f61 100%);
@@ -1058,11 +1116,10 @@ function ApplicationDetailContent() {
           inset: 0;
           background: rgba(0,0,0,0.5);
           display: flex;
-          align-items: flex-end;
+          align-items: center;
           justify-content: center;
           z-index: 200;
-          padding: 16px;
-          padding-bottom: calc(16px + env(safe-area-inset-bottom));
+          padding: 20px;
         }
         
         .mobile-modal {
