@@ -694,14 +694,14 @@ export default function DemoLauncherPage() {
         onClose={() => setActiveModal(null)}
         title="Mobile Web App"
       >
-        {/* iPhone Mockups - Realistic Design */}
+        {/* iPhone Mockups - Using Real iPhone Frame */}
         <div style={{
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'flex-end',
-          gap: '20px',
+          gap: '16px',
           marginBottom: '28px',
-          padding: '32px 24px',
+          padding: '32px 16px',
           background: 'linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
           borderRadius: '16px',
           position: 'relative',
@@ -729,166 +729,103 @@ export default function DemoLauncherPage() {
           
           {/* iPhone 1 - Inbox */}
           <div style={{
-            width: '110px',
+            width: '120px',
             position: 'relative',
             zIndex: 1,
             transform: 'rotate(-5deg)',
           }}>
-            {/* Phone Frame */}
-            <div style={{
-              background: 'linear-gradient(145deg, #2d2d2d 0%, #1a1a1a 50%, #0d0d0d 100%)',
-              borderRadius: '28px',
-              padding: '10px 8px',
-              boxShadow: '0 25px 50px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.1)',
-              border: '1px solid #3a3a3a',
-            }}>
-              {/* Screen */}
+            <div style={{ position: 'relative' }}>
+              {/* Screenshot (behind frame) */}
               <div style={{
-                borderRadius: '20px',
+                position: 'absolute',
+                top: '2.8%',
+                left: '5.5%',
+                right: '5.5%',
+                bottom: '2.8%',
+                borderRadius: '12px',
                 overflow: 'hidden',
-                position: 'relative',
-                background: '#000',
               }}>
-                {/* Dynamic Island */}
-                <div style={{
-                  position: 'absolute',
-                  top: '8px',
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  width: '50px',
-                  height: '14px',
-                  background: '#000',
-                  borderRadius: '10px',
-                  zIndex: 10,
-                }}></div>
                 <img 
                   src="/demo-previews/mobile-inbox.jpg" 
                   alt="Inbox Screen"
-                  style={{ width: '100%', height: 'auto', display: 'block' }}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
               </div>
+              {/* iPhone Frame (on top) */}
+              <img 
+                src="/demo-previews/iphone-frame.png" 
+                alt=""
+                style={{ width: '100%', height: 'auto', display: 'block', position: 'relative', zIndex: 2 }}
+              />
             </div>
-            {/* Side button */}
-            <div style={{
-              position: 'absolute',
-              right: '-2px',
-              top: '70px',
-              width: '3px',
-              height: '30px',
-              background: 'linear-gradient(180deg, #3a3a3a 0%, #1a1a1a 100%)',
-              borderRadius: '0 2px 2px 0',
-            }}></div>
-            {/* Label */}
-            <p style={{ textAlign: 'center', color: 'rgba(255,255,255,0.7)', fontSize: '11px', marginTop: '12px', fontWeight: 500 }}>Inbox</p>
+            <p style={{ textAlign: 'center', color: 'rgba(255,255,255,0.7)', fontSize: '11px', marginTop: '10px', fontWeight: 500 }}>Inbox</p>
           </div>
           
           {/* iPhone 2 - Detail (Center, larger) */}
           <div style={{
-            width: '130px',
+            width: '140px',
             position: 'relative',
             zIndex: 2,
           }}>
-            {/* Phone Frame */}
-            <div style={{
-              background: 'linear-gradient(145deg, #2d2d2d 0%, #1a1a1a 50%, #0d0d0d 100%)',
-              borderRadius: '32px',
-              padding: '12px 10px',
-              boxShadow: '0 30px 60px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255,255,255,0.1)',
-              border: '1px solid #3a3a3a',
-            }}>
-              {/* Screen */}
+            <div style={{ position: 'relative' }}>
+              {/* Screenshot (behind frame) */}
               <div style={{
-                borderRadius: '24px',
+                position: 'absolute',
+                top: '2.8%',
+                left: '5.5%',
+                right: '5.5%',
+                bottom: '2.8%',
+                borderRadius: '14px',
                 overflow: 'hidden',
-                position: 'relative',
-                background: '#000',
               }}>
-                {/* Dynamic Island */}
-                <div style={{
-                  position: 'absolute',
-                  top: '10px',
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  width: '60px',
-                  height: '16px',
-                  background: '#000',
-                  borderRadius: '12px',
-                  zIndex: 10,
-                }}></div>
                 <img 
                   src="/demo-previews/mobile-detail.jpg" 
                   alt="Application Detail Screen"
-                  style={{ width: '100%', height: 'auto', display: 'block' }}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
               </div>
+              {/* iPhone Frame (on top) */}
+              <img 
+                src="/demo-previews/iphone-frame.png" 
+                alt=""
+                style={{ width: '100%', height: 'auto', display: 'block', position: 'relative', zIndex: 2 }}
+              />
             </div>
-            {/* Side button */}
-            <div style={{
-              position: 'absolute',
-              right: '-2px',
-              top: '80px',
-              width: '3px',
-              height: '35px',
-              background: 'linear-gradient(180deg, #3a3a3a 0%, #1a1a1a 100%)',
-              borderRadius: '0 2px 2px 0',
-            }}></div>
-            {/* Label */}
-            <p style={{ textAlign: 'center', color: 'rgba(255,255,255,0.9)', fontSize: '12px', marginTop: '12px', fontWeight: 600 }}>Application Detail</p>
+            <p style={{ textAlign: 'center', color: 'rgba(255,255,255,0.9)', fontSize: '12px', marginTop: '10px', fontWeight: 600 }}>Application Detail</p>
           </div>
           
           {/* iPhone 3 - Scan */}
           <div style={{
-            width: '110px',
+            width: '120px',
             position: 'relative',
             zIndex: 1,
             transform: 'rotate(5deg)',
           }}>
-            {/* Phone Frame */}
-            <div style={{
-              background: 'linear-gradient(145deg, #2d2d2d 0%, #1a1a1a 50%, #0d0d0d 100%)',
-              borderRadius: '28px',
-              padding: '10px 8px',
-              boxShadow: '0 25px 50px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.1)',
-              border: '1px solid #3a3a3a',
-            }}>
-              {/* Screen */}
+            <div style={{ position: 'relative' }}>
+              {/* Screenshot (behind frame) */}
               <div style={{
-                borderRadius: '20px',
+                position: 'absolute',
+                top: '2.8%',
+                left: '5.5%',
+                right: '5.5%',
+                bottom: '2.8%',
+                borderRadius: '12px',
                 overflow: 'hidden',
-                position: 'relative',
-                background: '#000',
               }}>
-                {/* Dynamic Island */}
-                <div style={{
-                  position: 'absolute',
-                  top: '8px',
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  width: '50px',
-                  height: '14px',
-                  background: '#000',
-                  borderRadius: '10px',
-                  zIndex: 10,
-                }}></div>
                 <img 
                   src="/demo-previews/mobile-scan.jpg" 
                   alt="Scan Document Screen"
-                  style={{ width: '100%', height: 'auto', display: 'block' }}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
               </div>
+              {/* iPhone Frame (on top) */}
+              <img 
+                src="/demo-previews/iphone-frame.png" 
+                alt=""
+                style={{ width: '100%', height: 'auto', display: 'block', position: 'relative', zIndex: 2 }}
+              />
             </div>
-            {/* Side button */}
-            <div style={{
-              position: 'absolute',
-              right: '-2px',
-              top: '70px',
-              width: '3px',
-              height: '30px',
-              background: 'linear-gradient(180deg, #3a3a3a 0%, #1a1a1a 100%)',
-              borderRadius: '0 2px 2px 0',
-            }}></div>
-            {/* Label */}
-            <p style={{ textAlign: 'center', color: 'rgba(255,255,255,0.7)', fontSize: '11px', marginTop: '12px', fontWeight: 500 }}>Scan</p>
+            <p style={{ textAlign: 'center', color: 'rgba(255,255,255,0.7)', fontSize: '11px', marginTop: '10px', fontWeight: 500 }}>Scan</p>
           </div>
         </div>
         
