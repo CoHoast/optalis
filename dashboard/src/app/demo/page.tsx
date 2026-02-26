@@ -215,44 +215,54 @@ export default function DemoLauncherPage() {
     }}>
       {/* Header */}
       <div style={{ textAlign: 'center', marginBottom: '48px' }}>
-        <div style={{ 
-          display: 'inline-flex', 
-          alignItems: 'center', 
-          justifyContent: 'center',
-          marginBottom: '20px'
-        }}>
-          <img 
-            src="https://www.optalishealthcare.com/wp-content/uploads/2023/03/optalis_logonav.webp" 
-            alt="Optalis Health & Rehabilitation"
-            style={{ height: '60px', width: 'auto' }}
-          />
-        </div>
+        <img 
+          src="https://www.optalishealthcare.com/wp-content/uploads/2023/03/optalis_logonav.webp" 
+          alt="Optalis Health & Rehabilitation"
+          style={{ height: '56px', width: 'auto', marginBottom: '16px' }}
+        />
         
         <div style={{
-          display: 'inline-block',
-          padding: '8px 20px',
-          background: '#275380',
-          color: 'white',
-          borderRadius: '20px',
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '8px',
+          padding: '6px 16px',
+          background: 'rgba(39, 83, 128, 0.08)',
+          border: '1px solid rgba(39, 83, 128, 0.15)',
+          borderRadius: '8px',
           fontSize: '13px',
           fontWeight: 500,
-          marginBottom: '16px'
+          color: '#275380',
+          marginBottom: '20px'
         }}>
-          🎯 Product Demo
+          <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+          </svg>
+          Product Demo
         </div>
         
-        <p style={{ 
-          fontSize: '18px', 
-          color: '#555',
+        <h1 style={{ 
+          fontSize: '24px', 
+          fontWeight: 600,
+          color: '#1a1a1a',
           maxWidth: '600px',
-          margin: '0 auto',
-          lineHeight: 1.6
+          margin: '0 auto 8px',
+          lineHeight: 1.4
         }}>
-          AI-Powered Admissions Document Processing Platform
+          AI-Powered Admissions Platform
+        </h1>
+        
+        <p style={{ 
+          fontSize: '16px', 
+          color: '#666',
+          maxWidth: '500px',
+          margin: '0 auto',
+          lineHeight: 1.5
+        }}>
+          Automated document intake and processing for healthcare admissions
         </p>
         
         {currentTime && (
-          <p style={{ fontSize: '14px', color: '#888', marginTop: '12px' }}>
+          <p style={{ fontSize: '13px', color: '#999', marginTop: '16px' }}>
             {currentTime}
           </p>
         )}
