@@ -90,8 +90,34 @@ const InfoModal = ({
   );
 };
 
+// SVG Icons for features
+const FeatureIcons = {
+  palette: <svg width="20" height="20" fill="none" stroke="#275380" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M4.098 19.902a3.75 3.75 0 0 0 5.304 0l6.401-6.402M6.75 21A3.75 3.75 0 0 1 3 17.25V4.125C3 3.504 3.504 3 4.125 3h5.25c.621 0 1.125.504 1.125 1.125v4.072M6.75 21a3.75 3.75 0 0 0 3.75-3.75V8.197M6.75 21h13.125c.621 0 1.125-.504 1.125-1.125v-5.25c0-.621-.504-1.125-1.125-1.125h-4.072M10.5 8.197l2.88-2.88c.438-.439 1.15-.439 1.59 0l3.712 3.713c.44.44.44 1.152 0 1.59l-2.879 2.88M6.75 17.25h.008v.008H6.75v-.008Z"/></svg>,
+  sparkles: <svg width="20" height="20" fill="none" stroke="#275380" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z"/></svg>,
+  mobile: <svg width="20" height="20" fill="none" stroke="#275380" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 0 0 6 3.75v16.5a2.25 2.25 0 0 0 2.25 2.25h7.5A2.25 2.25 0 0 0 18 20.25V3.75a2.25 2.25 0 0 0-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3"/></svg>,
+  bolt: <svg width="20" height="20" fill="none" stroke="#275380" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z"/></svg>,
+  email: <svg width="20" height="20" fill="none" stroke="#275380" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75"/></svg>,
+  upload: <svg width="20" height="20" fill="none" stroke="#275380" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"/></svg>,
+  camera: <svg width="20" height="20" fill="none" stroke="#275380" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z"/><path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM18.75 10.5h.008v.008h-.008V10.5Z"/></svg>,
+  chart: <svg width="20" height="20" fill="none" stroke="#275380" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z"/></svg>,
+  users: <svg width="20" height="20" fill="none" stroke="#275380" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z"/></svg>,
+  clipboard: <svg width="20" height="20" fill="none" stroke="#275380" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z"/></svg>,
+  link: <svg width="20" height="20" fill="none" stroke="#275380" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244"/></svg>,
+  document: <svg width="20" height="20" fill="none" stroke="#275380" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"/></svg>,
+  lock: <svg width="20" height="20" fill="none" stroke="#275380" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"/></svg>,
+  calendar: <svg width="20" height="20" fill="none" stroke="#275380" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"/></svg>,
+  cloud: <svg width="20" height="20" fill="none" stroke="#275380" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15a4.5 4.5 0 0 0 4.5 4.5H18a3.75 3.75 0 0 0 1.332-7.257 3 3 0 0 0-3.758-3.848 5.25 5.25 0 0 0-10.233 2.33A4.502 4.502 0 0 0 2.25 15Z"/></svg>,
+  phone: <svg width="20" height="20" fill="none" stroke="#275380" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 0 0 6 3.75v16.5a2.25 2.25 0 0 0 2.25 2.25h7.5A2.25 2.25 0 0 0 18 20.25V3.75a2.25 2.25 0 0 0-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3"/></svg>,
+  inbox: <svg width="20" height="20" fill="none" stroke="#275380" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 13.5h3.86a2.25 2.25 0 0 1 2.012 1.244l.256.512a2.25 2.25 0 0 0 2.013 1.244h3.218a2.25 2.25 0 0 0 2.013-1.244l.256-.512a2.25 2.25 0 0 1 2.013-1.244h3.859m-19.5.338V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 0 0-2.15-1.588H6.911a2.25 2.25 0 0 0-2.15 1.588L2.35 13.177a2.25 2.25 0 0 0-.1.661Z"/></svg>,
+  pencil: <svg width="20" height="20" fill="none" stroke="#275380" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"/></svg>,
+  check: <svg width="20" height="20" fill="none" stroke="#275380" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>,
+  shield: <svg width="20" height="20" fill="none" stroke="#275380" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z"/></svg>,
+  bell: <svg width="20" height="20" fill="none" stroke="#275380" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0"/></svg>,
+  user: <svg width="20" height="20" fill="none" stroke="#275380" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/></svg>,
+};
+
 // Feature list item
-const FeatureItem = ({ icon, title, description }: { icon: string; title: string; description: string }) => (
+const FeatureItem = ({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) => (
   <div style={{ display: 'flex', gap: '14px', marginBottom: '16px' }}>
     <div style={{
       width: '40px',
@@ -101,7 +127,6 @@ const FeatureItem = ({ icon, title, description }: { icon: string; title: string
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      fontSize: '20px',
       flexShrink: 0,
     }}>
       {icon}
@@ -462,25 +487,25 @@ export default function DemoLauncherPage() {
         <SectionTitle>What We&apos;ve Built</SectionTitle>
         
         <FeatureItem 
-          icon="🎨"
+          icon={FeatureIcons.palette}
           title="Modern Visual Design"
           description="Clean, professional layout with Optalis brand colors. High-quality imagery, intuitive navigation, and mobile-responsive design that looks beautiful on any device."
         />
         
         <FeatureItem 
-          icon="✨"
+          icon={FeatureIcons.sparkles}
           title="Enhanced User Experience"
           description="Streamlined navigation with clear calls-to-action. Visitors can easily find care services, locations, and contact information without confusion."
         />
         
         <FeatureItem 
-          icon="📱"
+          icon={FeatureIcons.mobile}
           title="Mobile-First Approach"
           description="Fully responsive design optimized for smartphones and tablets. Families researching care options on the go will have a seamless experience."
         />
         
         <FeatureItem 
-          icon="⚡"
+          icon={FeatureIcons.bolt}
           title="Fast & Accessible"
           description="Optimized for speed and accessibility compliance. Quick load times and clear typography ensure all visitors can access your information."
         />
@@ -522,19 +547,19 @@ export default function DemoLauncherPage() {
         <SectionTitle>AI Document Intake</SectionTitle>
         
         <FeatureItem 
-          icon="📧"
+          icon={FeatureIcons.email}
           title="Dedicated Email Intake"
           description="Forward referral documents to intake@optalis.dokit.ai. Our system automatically processes incoming emails, extracts attachments, and queues them for AI analysis—no manual uploading required."
         />
         
         <FeatureItem 
-          icon="📤"
+          icon={FeatureIcons.upload}
           title="Manual Upload Option"
           description="Drag and drop documents directly into the dashboard. Supports PDFs, images, faxes, and scanned documents in any common format."
         />
         
         <FeatureItem 
-          icon="📱"
+          icon={FeatureIcons.camera}
           title="Mobile Scan & Submit"
           description="Field staff can photograph documents with their phone and submit directly through the mobile app—perfect for intake coordinators on the go."
         />
@@ -573,31 +598,31 @@ export default function DemoLauncherPage() {
         <SectionTitle>Dashboard Features</SectionTitle>
         
         <FeatureItem 
-          icon="📊"
+          icon={FeatureIcons.chart}
           title="Real-Time Analytics"
           description="Track pending reviews, approvals, denials, and approval rates at a glance. Monitor application volume and team productivity."
         />
         
         <FeatureItem 
-          icon="👥"
+          icon={FeatureIcons.users}
           title="Role-Based Access Control"
           description="Administrators, Managers, and Reviewers each have tailored permissions. Control who can approve, edit, or view sensitive data."
         />
         
         <FeatureItem 
-          icon="📝"
+          icon={FeatureIcons.clipboard}
           title="Application Management"
           description="View, edit, approve, or deny applications. Side-by-side document viewer shows original document alongside extracted data."
         />
         
         <FeatureItem 
-          icon="🔗"
+          icon={FeatureIcons.link}
           title="PointClickCare Integration"
           description="One-click sync approved patient data directly to your PointClickCare system—eliminating double data entry."
         />
         
         <FeatureItem 
-          icon="📋"
+          icon={FeatureIcons.document}
           title="Audit Trail & Reports"
           description="Complete audit log of all actions for compliance. Generate reports on processing times, approval rates, and volume trends."
         />
@@ -605,19 +630,19 @@ export default function DemoLauncherPage() {
         <SectionTitle>Security & Compliance</SectionTitle>
         
         <FeatureItem 
-          icon="🔒"
+          icon={FeatureIcons.lock}
           title="HIPAA Compliant"
           description="End-to-end encryption, secure authentication, and comprehensive audit logging meet healthcare data protection requirements."
         />
         
         <FeatureItem 
-          icon="🗓️"
+          icon={FeatureIcons.calendar}
           title="30-Day Data Retention"
           description="Patient data is retained for 30 days for processing and review, then automatically purged. Export approved records to your systems before retention period ends."
         />
         
         <FeatureItem 
-          icon="☁️"
+          icon={FeatureIcons.cloud}
           title="Dedicated Infrastructure"
           description="Your Optalis instance runs on isolated, dedicated infrastructure—not shared with other organizations. Your data stays yours."
         />
@@ -648,19 +673,19 @@ export default function DemoLauncherPage() {
         <SectionTitle>Native-Like Experience</SectionTitle>
         
         <FeatureItem 
-          icon="📲"
+          icon={FeatureIcons.phone}
           title="Add to Home Screen"
           description="Users can save the app to their phone's home screen and launch it just like any native app. Full-screen experience with no browser chrome."
         />
         
         <FeatureItem 
-          icon="⚡"
+          icon={FeatureIcons.bolt}
           title="Instant Access"
           description="No app store downloads, no updates to install. Open the link once, add to home screen, and you're ready to go. Works offline for viewing cached data."
         />
         
         <FeatureItem 
-          icon="🎯"
+          icon={FeatureIcons.sparkles}
           title="Touch-Optimized Interface"
           description="Large touch targets, swipe gestures, and mobile-first design. Every interaction is optimized for fingertips, not mouse clicks."
         />
@@ -668,25 +693,25 @@ export default function DemoLauncherPage() {
         <SectionTitle>On-the-Go Features</SectionTitle>
         
         <FeatureItem 
-          icon="📥"
+          icon={FeatureIcons.inbox}
           title="Inbox & Review Queues"
           description="New applications appear in the Inbox. Once reviewed or edited, they move to the Review queue. Clear separation keeps work organized."
         />
         
         <FeatureItem 
-          icon="✏️"
+          icon={FeatureIcons.pencil}
           title="Full Editing Capabilities"
           description="Edit any field on an application—patient info, diagnoses, medications, allergies, insurance details. Add or remove items from lists."
         />
         
         <FeatureItem 
-          icon="📷"
+          icon={FeatureIcons.camera}
           title="Document Scanning"
           description="Use your phone's camera to scan new documents. Multi-page support for longer referrals. Scanned docs go straight to AI processing."
         />
         
         <FeatureItem 
-          icon="✅"
+          icon={FeatureIcons.check}
           title="Approve or Deny"
           description="Make decisions right from your phone. Approved applications sync to PointClickCare. Denied applications are logged with reasons."
         />
@@ -694,19 +719,19 @@ export default function DemoLauncherPage() {
         <SectionTitle>Access & Security</SectionTitle>
         
         <FeatureItem 
-          icon="👤"
+          icon={FeatureIcons.user}
           title="Role-Based Permissions"
           description="Same permission levels as the desktop dashboard. Reviewers can view and edit; Managers can approve; Admins have full access."
         />
         
         <FeatureItem 
-          icon="🔐"
+          icon={FeatureIcons.shield}
           title="Secure Authentication"
           description="Protected login with the same credentials as the desktop dashboard. Session timeouts for security on shared or lost devices."
         />
         
         <FeatureItem 
-          icon="🔔"
+          icon={FeatureIcons.bell}
           title="Push Notifications"
           description="Get notified when new applications arrive or when items need urgent attention. Stay responsive even when away from your desk."
         />
