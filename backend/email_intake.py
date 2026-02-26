@@ -37,6 +37,15 @@ from typing import Optional, Dict, List, Any
 import boto3
 from openai import OpenAI
 
+# Vision extractor for high-accuracy document processing
+try:
+    from vision_extractor import extract_document, flatten_extraction
+    VISION_ENABLED = True
+    print("✓ Vision extractor loaded")
+except ImportError as e:
+    VISION_ENABLED = False
+    print(f"⚠ Vision extractor not available: {e}")
+
 # ============================================================
 # Configuration
 # ============================================================
@@ -479,39 +488,108 @@ def process_email(email_data: Dict) -> Optional[str]:
     print(f"\n📧 Processing: {email_data['subject']}")
     print(f"   From: {email_data['from']}")
     
-    # Combine all text sources
+    extracted = None
     all_text = email_data.get("body", "")
     
-    # Process attachments with Textract
+    # Check for attachments that can use Vision extraction
+    vision_attachments = []
+    text_attachments = []
+    
     for attachment in email_data.get("attachments", []):
         filename = attachment["filename"]
-        print(f"   📎 Attachment: {filename}")
-        
-        # Only process supported file types
         ext = filename.lower().split(".")[-1]
-        if ext in ["pdf", "png", "jpg", "jpeg", "tiff", "docx", "doc"]:
-            extracted_text = extract_text_from_document(
-                attachment["data"], 
-                filename
+        
+        if ext in ["pdf", "png", "jpg", "jpeg", "tiff", "gif", "webp", "bmp"]:
+            vision_attachments.append(attachment)
+        elif ext in ["docx", "doc"]:
+            text_attachments.append(attachment)
+    
+    # ========================================
+    # Strategy 1: Use Vision Extractor (Best Accuracy)
+    # ========================================
+    if VISION_ENABLED and vision_attachments:
+        print(f"   📸 Using Vision extraction for {len(vision_attachments)} attachment(s)")
+        
+        # Process the first image/PDF attachment with Vision
+        attachment = vision_attachments[0]
+        filename = attachment["filename"]
+        print(f"   📎 Processing: {filename}")
+        
+        # Also get text for Turbo fallback
+        fallback_text = all_text
+        for att in vision_attachments + text_attachments:
+            try:
+                txt = extract_text_from_document(att["data"], att["filename"])
+                if txt:
+                    fallback_text += f"\n\n{txt}"
+            except:
+                pass
+        
+        try:
+            # Use Vision extractor
+            vision_result = extract_document(
+                file_data=attachment["data"],
+                filename=filename,
+                subject=email_data.get("subject", ""),
+                email_body=email_data.get("body", ""),
+                raw_text=fallback_text,
+                confidence_threshold=85
             )
-            if extracted_text:
-                all_text += f"\n\n--- Content from {filename} ---\n{extracted_text}"
-                print(f"      ✓ Extracted {len(extracted_text)} chars")
+            
+            # Flatten for database storage
+            extracted = flatten_extraction(vision_result)
+            
+            method = vision_result.get("_extraction_method", "unknown")
+            print(f"      ✓ Vision extraction complete (method: {method})")
+            
+        except Exception as e:
+            print(f"      ⚠ Vision extraction failed: {e}")
+            print(f"      → Falling back to text extraction")
     
-    if not all_text.strip():
-        print("   ⚠ No text content found, skipping")
-        return None
+    # ========================================
+    # Strategy 2: Text-based extraction (Fallback)
+    # ========================================
+    if extracted is None:
+        print("   📝 Using text-based extraction")
+        
+        # Process all attachments for text
+        for attachment in email_data.get("attachments", []):
+            filename = attachment["filename"]
+            print(f"   📎 Attachment: {filename}")
+            
+            ext = filename.lower().split(".")[-1]
+            if ext in ["pdf", "png", "jpg", "jpeg", "tiff", "docx", "doc"]:
+                extracted_text = extract_text_from_document(
+                    attachment["data"], 
+                    filename
+                )
+                if extracted_text:
+                    all_text += f"\n\n--- Content from {filename} ---\n{extracted_text}"
+                    print(f"      ✓ Extracted {len(extracted_text)} chars")
+        
+        if not all_text.strip():
+            print("   ⚠ No text content found, skipping")
+            return None
+        
+        # Extract structured data with GPT-4
+        print("   🤖 Running GPT-4 text extraction...")
+        extracted = extract_application_data(all_text, email_data.get("subject", ""))
     
-    # Extract structured data with GPT-4
-    print("   🤖 Running AI extraction...")
-    extracted = extract_application_data(all_text, email_data.get("subject", ""))
-    
-    if extracted.get("patient_name"):
+    # ========================================
+    # Create Application
+    # ========================================
+    if extracted and extracted.get("patient_name"):
         print(f"   ✓ Patient: {extracted['patient_name']}")
         print(f"   ✓ Confidence: {extracted.get('confidence_score', 0)}%")
+        
+        # Check if reprocessed by Turbo
+        if extracted.get("_reprocessed"):
+            print(f"   ℹ Auto-reprocessed by GPT-4 Turbo (low initial confidence)")
+    else:
+        print("   ⚠ No patient name extracted")
     
     # Create application
-    app_id = create_application(email_data, extracted)
+    app_id = create_application(email_data, extracted or {})
     print(f"   ✅ Created application: {app_id}")
     
     # Mark email as processed
