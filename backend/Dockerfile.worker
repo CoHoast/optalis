@@ -2,7 +2,13 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install dependencies
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    poppler-utils \
+    libmagic1 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
@@ -10,4 +16,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Run email intake in watch mode (polls every 2 minutes)
-CMD ["python", "email_intake.py", "--watch", "--interval", "120"]
+CMD ["python", "-u", "email_intake.py", "--watch", "--interval", "120"]
