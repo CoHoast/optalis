@@ -509,8 +509,84 @@ function ApplicationDetailContent() {
       {/* Details Tab */}
       {activeTab === 'details' && (
         <>
+          {/* Edit Mode Toggle Button - Always visible */}
+          {!isEditing && (
+            <div className="mobile-section" style={{ paddingTop: 12 }}>
+              <button 
+                onClick={() => setIsEditing(true)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 8,
+                  width: '100%',
+                  padding: '14px 20px',
+                  background: '#275380',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: 12,
+                  fontSize: 16,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                }}
+              >
+                <PencilIcon className="w-5 h-5" />
+                Edit Application
+              </button>
+            </div>
+          )}
+
+          {/* Save/Cancel buttons when editing */}
+          {isEditing && (
+            <div className="mobile-section" style={{ paddingTop: 12 }}>
+              <div style={{ display: 'flex', gap: 12 }}>
+                <button 
+                  onClick={() => {
+                    setIsEditing(false);
+                    setEditedFields({});
+                  }}
+                  style={{
+                    flex: 1,
+                    padding: '14px 20px',
+                    background: '#f3f4f6',
+                    color: '#374151',
+                    border: 'none',
+                    borderRadius: 12,
+                    fontSize: 16,
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                  }}
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={handleSave}
+                  disabled={isSaving}
+                  style={{
+                    flex: 1,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 8,
+                    padding: '14px 20px',
+                    background: '#16a34a',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: 12,
+                    fontSize: 16,
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    opacity: isSaving ? 0.7 : 1,
+                  }}
+                >
+                  {isSaving ? 'Saving...' : 'Save Changes'}
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* AI Summary Card */}
-          <div className="mobile-section" style={{ paddingTop: 16 }}>
+          <div className="mobile-section" style={{ paddingTop: 12 }}>
             <div className="ai-summary-card">
               <div className="ai-summary-header">
                 <DocumentTextIcon className="w-5 h-5" />
@@ -587,6 +663,34 @@ function ApplicationDetailContent() {
             {renderEditableField('Referring Physician', 'physician', app.physician || '')}
             {renderEditableField('Referring Facility', 'facility', app.facility || '')}
             {renderListField('Requested Services', app.services || [])}
+          </div>
+
+          {/* Notes Section */}
+          <div className="mobile-section">
+            <h3 className="mobile-section-title" style={{ fontSize: 15, color: '#6b7280', marginTop: 20 }}>
+              Notes
+            </h3>
+            
+            <div className="mobile-form-group">
+              {isEditing ? (
+                <textarea
+                  className="mobile-textarea"
+                  placeholder="Add notes about this application..."
+                  value={editedFields['notes'] ?? (app as any).notes ?? ''}
+                  onChange={(e) => handleFieldChange('notes', e.target.value)}
+                  rows={4}
+                  style={{ minHeight: 120 }}
+                />
+              ) : (
+                <div className="mobile-field-value" style={{ 
+                  minHeight: 60, 
+                  color: (app as any).notes ? '#1a1a1a' : '#9ca3af',
+                  fontStyle: (app as any).notes ? 'normal' : 'italic'
+                }}>
+                  {(app as any).notes || 'No notes added. Tap "Edit Application" to add notes.'}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Spacer for action bar */}

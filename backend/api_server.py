@@ -70,6 +70,7 @@ def init_db():
             confidence_score REAL,
             raw_text TEXT,
             raw_email_subject TEXT,
+            notes TEXT,
             created_at TEXT,
             updated_at TEXT
         )
@@ -99,6 +100,12 @@ def init_db():
     cursor.execute("""
         CREATE INDEX IF NOT EXISTS idx_app_docs ON application_documents(application_id)
     """)
+    
+    # Migration: Add notes column if it doesn't exist
+    try:
+        cursor.execute("ALTER TABLE applications ADD COLUMN notes TEXT")
+    except:
+        pass  # Column already exists
     
     # Seed with demo data if empty
     cursor.execute("SELECT COUNT(*) FROM applications")
@@ -254,6 +261,7 @@ class ApplicationUpdate(BaseModel):
     physician: Optional[str] = None
     facility: Optional[str] = None
     services: Optional[List[str]] = None
+    notes: Optional[str] = None
 
 
 # ============================================================
