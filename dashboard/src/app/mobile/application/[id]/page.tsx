@@ -166,14 +166,42 @@ export default function MobileApplicationDetail() {
     setEditedFields({ ...editedFields, [field]: value });
   };
 
-  const handleSave = () => {
-    // TODO: API call to save changes
-    console.log('Saving changes:', editedFields);
-    setIsEditing(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleSave = async () => {
+    if (Object.keys(editedFields).length === 0) {
+      setIsEditing(false);
+      return;
+    }
+
+    setIsSaving(true);
     
-    // Haptic feedback
-    if ('vibrate' in navigator) {
-      navigator.vibrate([10, 50, 10]);
+    try {
+      const response = await fetch(`${API_URL}/api/applications/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editedFields)
+      });
+      
+      if (response.ok) {
+        // Update local state with saved values
+        setApp(prev => prev ? { ...prev, ...editedFields } : prev);
+        setEditedFields({});
+        setIsEditing(false);
+        
+        // Haptic feedback
+        if ('vibrate' in navigator) {
+          navigator.vibrate([10, 50, 10]);
+        }
+      } else {
+        console.error('Failed to save changes');
+        alert('Failed to save changes. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error saving changes:', error);
+      alert('Failed to save changes. Please try again.');
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -185,29 +213,58 @@ export default function MobileApplicationDetail() {
       navigator.vibrate(10);
     }
     
-    // TODO: API call to submit to PointClickCare
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    setIsSubmitting(false);
-    setShowSubmitConfirm(false);
-    
-    // Success haptic
-    if ('vibrate' in navigator) {
-      navigator.vibrate([10, 100, 10, 100, 10]);
+    try {
+      // First approve the application
+      const response = await fetch(`${API_URL}/api/applications/${id}/decision`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ decision: 'approved' })
+      });
+      
+      if (response.ok) {
+        // Success haptic
+        if ('vibrate' in navigator) {
+          navigator.vibrate([10, 100, 10, 100, 10]);
+        }
+        
+        // Navigate back
+        router.push('/mobile');
+      } else {
+        alert('Failed to submit. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error submitting:', error);
+      alert('Failed to submit. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+      setShowSubmitConfirm(false);
     }
-    
-    // Navigate back
-    router.push('/mobile');
   };
 
   const handleApprove = () => {
     setShowSubmitConfirm(true);
   };
 
-  const handleDeny = () => {
-    // TODO: Show denial reason modal
-    console.log('Deny application');
-    router.push('/mobile');
+  const handleDeny = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/applications/${id}/decision`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ decision: 'denied' })
+      });
+      
+      if (response.ok) {
+        if ('vibrate' in navigator) {
+          navigator.vibrate(10);
+        }
+        router.push('/mobile');
+      } else {
+        alert('Failed to deny. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error denying:', error);
+      alert('Failed to deny. Please try again.');
+    }
   };
 
   const renderEditableField = (label: string, field: string, value: string, multiline = false) => {
@@ -257,8 +314,16 @@ export default function MobileApplicationDetail() {
       rightAction={
         activeTab === 'details' ? (
           isEditing ? (
-            <button className="mobile-icon-btn" onClick={handleSave}>
-              <CheckIcon className="w-6 h-6 text-green-600" />
+            <button 
+              className="mobile-icon-btn" 
+              onClick={handleSave}
+              disabled={isSaving}
+            >
+              {isSaving ? (
+                <div className="w-5 h-5 border-2 border-gray-300 border-t-green-600 rounded-full animate-spin" />
+              ) : (
+                <CheckIcon className="w-6 h-6 text-green-600" />
+              )}
             </button>
           ) : (
             <button className="mobile-icon-btn" onClick={() => setIsEditing(true)}>

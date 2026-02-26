@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, TouchEvent } from 'react';
+import { useState, useRef, useEffect, TouchEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import MobileLayout from '@/components/MobileLayout';
 import { 
@@ -9,72 +9,34 @@ import {
   ClockIcon,
   BuildingOffice2Icon,
   UserIcon,
+  ArrowPathIcon,
 } from '@heroicons/react/24/outline';
 import './mobile.css';
 
-// Mock data - would come from API
-const applications = [
-  {
-    id: 'APP-2026-001',
-    patientName: 'Margaret Thompson',
-    age: 83,
-    gender: 'F',
-    insurance: 'Medicare',
-    diagnosis: ['Dementia', 'Hypertension', 'Diabetes'],
-    physician: 'Dr. Sarah Chen',
-    facility: 'Beaumont Health',
-    priority: 'high',
-    source: 'Hospital Referral',
-    createdAt: '2 hours ago',
-    confidence: 95,
-    summary: 'Post-acute rehabilitation following hip replacement surgery. Patient requires PT/OT and skilled nursing care.',
-  },
-  {
-    id: 'APP-2026-004',
-    patientName: 'James Wilson',
-    age: 76,
-    gender: 'M',
-    insurance: 'Blue Cross',
-    diagnosis: ['COPD', 'CHF'],
-    physician: 'Dr. Michael Brown',
-    facility: 'Henry Ford Hospital',
-    priority: 'high',
-    source: 'Email',
-    createdAt: '3 hours ago',
-    confidence: 88,
-    summary: 'Respiratory therapy and cardiac rehabilitation needed. Patient on supplemental oxygen.',
-  },
-  {
-    id: 'APP-2026-005',
-    patientName: 'Dorothy Martinez',
-    age: 80,
-    gender: 'F',
-    insurance: 'Medicaid',
-    diagnosis: ['Stroke', 'Dysphagia'],
-    physician: 'Dr. Lisa Park',
-    facility: 'DMC',
-    priority: 'medium',
-    source: 'Fax',
-    createdAt: '5 hours ago',
-    confidence: 72,
-    summary: 'Speech therapy and swallowing evaluation required. Left-sided weakness.',
-  },
-  {
-    id: 'APP-2026-006',
-    patientName: 'Robert Williams',
-    age: 87,
-    gender: 'M',
-    insurance: 'Medicare Advantage',
-    diagnosis: ['Parkinson\'s', 'Falls risk'],
-    physician: 'Dr. James Lee',
-    facility: 'Providence Hospital',
-    priority: 'normal',
-    source: 'Website',
-    createdAt: '1 day ago',
-    confidence: 91,
-    summary: 'Long-term care placement. Requires assistance with ADLs and mobility.',
-  },
-];
+// API URL
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://optalis-api-production.up.railway.app';
+
+interface Application {
+  id: string;
+  patient_name: string;
+  dob: string;
+  phone: string;
+  address: string;
+  insurance: string;
+  policy_number: string;
+  diagnosis: string[];
+  medications: string[];
+  allergies: string[];
+  physician: string;
+  facility: string;
+  services: string[];
+  priority: string;
+  source: string;
+  status: string;
+  created_at: string;
+  confidence_score: number;
+  ai_summary: string;
+}
 
 interface SwipeState {
   id: string;
@@ -85,9 +47,71 @@ interface SwipeState {
 
 export default function MobileInbox() {
   const router = useRouter();
+  const [applications, setApplications] = useState<Application[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [swipeState, setSwipeState] = useState<SwipeState | null>(null);
   const [showHint, setShowHint] = useState(true);
   const cardRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+
+  // Fetch applications from API
+  const fetchApplications = async (showRefresh = false) => {
+    if (showRefresh) setIsRefreshing(true);
+    
+    try {
+      const response = await fetch(`${API_URL}/api/applications?status=pending&limit=50`);
+      if (response.ok) {
+        const data = await response.json();
+        setApplications(data);
+      }
+    } catch (error) {
+      console.error('Error fetching applications:', error);
+    } finally {
+      setIsLoading(false);
+      setIsRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchApplications();
+  }, []);
+
+  // Calculate age from DOB
+  const calculateAge = (dob: string) => {
+    if (!dob) return null;
+    try {
+      const birthDate = new Date(dob);
+      const today = new Date();
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
+      return age;
+    } catch {
+      return null;
+    }
+  };
+
+  // Format relative time
+  const formatTime = (dateStr: string) => {
+    try {
+      const date = new Date(dateStr);
+      const now = new Date();
+      const diffMs = now.getTime() - date.getTime();
+      const diffMins = Math.floor(diffMs / (1000 * 60));
+      const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+      const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+      
+      if (diffMins < 1) return 'Just now';
+      if (diffMins < 60) return `${diffMins} min ago`;
+      if (diffHours < 24) return `${diffHours} hours ago`;
+      if (diffDays === 1) return 'Yesterday';
+      return `${diffDays} days ago`;
+    } catch {
+      return dateStr;
+    }
+  };
 
   const handleTouchStart = (e: TouchEvent, id: string) => {
     setSwipeState({
@@ -121,23 +145,35 @@ export default function MobileInbox() {
     
     if (diff > threshold) {
       // Swipe right - Approve
-      handleQuickAction(swipeState.id, 'approve');
+      handleQuickAction(swipeState.id, 'approved');
     } else if (diff < -threshold) {
       // Swipe left - Deny
-      handleQuickAction(swipeState.id, 'deny');
+      handleQuickAction(swipeState.id, 'denied');
     }
     
     setSwipeState(null);
   };
 
-  const handleQuickAction = (id: string, action: 'approve' | 'deny') => {
+  const handleQuickAction = async (id: string, action: 'approved' | 'denied') => {
     // Haptic feedback
     if ('vibrate' in navigator) {
       navigator.vibrate(10);
     }
     
-    console.log(`${action} application ${id}`);
-    // TODO: API call to update status
+    try {
+      const response = await fetch(`${API_URL}/api/applications/${id}/decision`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ decision: action })
+      });
+      
+      if (response.ok) {
+        // Remove from list
+        setApplications(prev => prev.filter(app => app.id !== id));
+      }
+    } catch (error) {
+      console.error('Error updating application:', error);
+    }
   };
 
   const getSwipeOffset = (id: string) => {
@@ -153,18 +189,48 @@ export default function MobileInbox() {
     router.push(`/mobile/application/${id}`);
   };
 
+  // Loading state
+  if (isLoading) {
+    return (
+      <MobileLayout>
+        <div className="mobile-section" style={{ paddingTop: 60, textAlign: 'center' }}>
+          <div className="scan-processing-spinner" style={{ margin: '0 auto 16px' }} />
+          <p style={{ color: '#6b7280' }}>Loading applications...</p>
+        </div>
+      </MobileLayout>
+    );
+  }
+
   return (
     <MobileLayout>
       {/* Section Header */}
       <div className="mobile-section">
         <div className="mobile-section-header">
           <h2 className="mobile-section-title">Pending Review</h2>
-          <button className="mobile-section-action">Filter</button>
+          <button 
+            className="mobile-section-action"
+            onClick={() => fetchApplications(true)}
+            disabled={isRefreshing}
+          >
+            <ArrowPathIcon 
+              className={`w-5 h-5 inline mr-1 ${isRefreshing ? 'animate-spin' : ''}`} 
+            />
+            {isRefreshing ? 'Refreshing...' : 'Refresh'}
+          </button>
         </div>
       </div>
 
+      {/* Empty state */}
+      {applications.length === 0 && (
+        <div className="mobile-empty">
+          <CheckIcon className="mobile-empty-icon" />
+          <h3 className="mobile-empty-title">All caught up!</h3>
+          <p className="mobile-empty-text">No pending applications to review.</p>
+        </div>
+      )}
+
       {/* Swipe Hint */}
-      {showHint && (
+      {showHint && applications.length > 0 && (
         <div className="swipe-hint">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M7 16l-4-4m0 0l4-4m-4 4h18" />
@@ -180,8 +246,7 @@ export default function MobileInbox() {
       <div className="app-list">
         {applications.map((app) => {
           const offset = getSwipeOffset(app.id);
-          const showApprove = offset > 30;
-          const showDeny = offset < -30;
+          const age = calculateAge(app.dob);
           
           return (
             <div key={app.id} className="app-card-container">
@@ -218,45 +283,45 @@ export default function MobileInbox() {
                 onClick={() => openApplication(app.id)}
               >
                 <div className="app-card-header">
-                  <h3 className="app-card-patient">{app.patientName}</h3>
-                  <span className={`app-card-priority ${app.priority}`}>
-                    {app.priority}
+                  <h3 className="app-card-patient">{app.patient_name || 'Unknown Patient'}</h3>
+                  <span className={`app-card-priority ${app.priority || 'normal'}`}>
+                    {app.priority || 'normal'}
                   </span>
                 </div>
                 
                 <div className="app-card-meta">
                   <span className="app-card-meta-item">
                     <UserIcon className="w-4 h-4" />
-                    {app.age}{app.gender} • {app.insurance}
+                    {age ? `${age}` : '?'} • {app.insurance || 'Unknown'}
                   </span>
                   <span className="app-card-meta-item">
                     <BuildingOffice2Icon className="w-4 h-4" />
-                    {app.facility}
+                    {app.facility || 'Unknown Facility'}
                   </span>
                 </div>
                 
-                <p className="app-card-summary">{app.summary}</p>
+                <p className="app-card-summary">{app.ai_summary || 'No summary available'}</p>
                 
                 {/* Confidence Bar */}
                 <div className="confidence-bar">
                   <div 
                     className={`confidence-fill ${
-                      app.confidence >= 85 ? 'high' : 
-                      app.confidence >= 70 ? 'medium' : 'low'
+                      (app.confidence_score || 0) >= 85 ? 'high' : 
+                      (app.confidence_score || 0) >= 70 ? 'medium' : 'low'
                     }`}
-                    style={{ width: `${app.confidence}%` }}
+                    style={{ width: `${app.confidence_score || 0}%` }}
                   />
                 </div>
                 <div className="confidence-label">
                   <span>AI Confidence</span>
-                  <span>{app.confidence}%</span>
+                  <span>{app.confidence_score || 0}%</span>
                 </div>
                 
                 <div className="app-card-footer">
-                  <span className="app-card-source">{app.source}</span>
+                  <span className="app-card-source">{app.source || 'Unknown'}</span>
                   <span className="app-card-time">
                     <ClockIcon className="w-3 h-3 inline mr-1" />
-                    {app.createdAt}
+                    {formatTime(app.created_at)}
                   </span>
                 </div>
               </div>
