@@ -1,8 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+
+const API_URL = 'https://optalis-api-production.up.railway.app';
 
 const mockApplications: Record<string, {
   id: string;
@@ -112,8 +114,50 @@ export default function ApplicationDetailPage() {
   const [showDocViewer, setShowDocViewer] = useState(false);
   const [selectedDoc, setSelectedDoc] = useState<{name: string; type: string; rawUrl: string; extractedUrl: string} | null>(null);
   const [docViewTab, setDocViewTab] = useState<'original' | 'extracted'>('original');
+  
+  const [apiApp, setApiApp] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-  const app = mockApplications[params.id as string] || mockApplications['APP-2026-001'];
+  // Fetch from API first, fall back to mock data
+  useEffect(() => {
+    fetch(`${API_URL}/api/applications/${params.id}`)
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (data) {
+          setApiApp(data);
+        }
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, [params.id]);
+
+  // Use API data if available, otherwise fall back to mock
+  const mockApp = mockApplications[params.id as string] || mockApplications['APP-2026-001'];
+  const app = apiApp ? {
+    ...mockApp,
+    id: apiApp.id,
+    name: apiApp.patient_name || mockApp.name,
+    initials: (apiApp.patient_name || mockApp.name).split(' ').map((n: string) => n[0]).join('').toUpperCase(),
+    facility: apiApp.facility || mockApp.facility,
+    status: apiApp.status || mockApp.status,
+    date: apiApp.created_at ? new Date(apiApp.created_at).toLocaleDateString() : mockApp.date,
+    priority: apiApp.priority || mockApp.priority,
+    source: apiApp.source || mockApp.source,
+    dob: apiApp.dob || mockApp.dob,
+    phone: apiApp.phone || mockApp.phone,
+    address: apiApp.address || mockApp.address,
+    insurance: apiApp.insurance || mockApp.insurance,
+    policyNumber: apiApp.policy_number || mockApp.policyNumber,
+    diagnosis: apiApp.diagnosis || mockApp.diagnosis,
+    medications: apiApp.medications || mockApp.medications,
+    allergies: apiApp.allergies || mockApp.allergies,
+    physician: apiApp.physician || mockApp.physician,
+    services: apiApp.services || mockApp.services,
+    confidence: apiApp.confidence_score || mockApp.confidence,
+    aiSummary: apiApp.ai_summary || mockApp.aiSummary,
+    notes: mockApp.notes,
+    documents: mockApp.documents
+  } : mockApp;
 
   // Editable state for extracted data
   const [editedData, setEditedData] = useState({
@@ -473,7 +517,7 @@ export default function ApplicationDetailPage() {
             <div style={{ marginBottom: '20px' }}>
               <div style={{ fontSize: '13px', color: '#888', marginBottom: '8px' }}>Diagnosis</div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                {(isEditing ? editedData.diagnosis : app.diagnosis).map((d, i) => (
+                {(isEditing ? editedData.diagnosis : app.diagnosis).map((d: string, i: number) => (
                   <span key={i} style={{ 
                     padding: '6px 12px', 
                     background: '#fee2e2', 
@@ -514,7 +558,7 @@ export default function ApplicationDetailPage() {
             <div style={{ marginBottom: '20px' }}>
               <div style={{ fontSize: '13px', color: '#888', marginBottom: '8px' }}>Medications</div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                {(isEditing ? editedData.medications : app.medications).map((m, i) => (
+                {(isEditing ? editedData.medications : app.medications).map((m: string, i: number) => (
                   <span key={i} style={{ 
                     padding: '6px 12px', 
                     background: '#dbeafe', 
@@ -555,7 +599,7 @@ export default function ApplicationDetailPage() {
             <div style={{ marginBottom: '20px' }}>
               <div style={{ fontSize: '13px', color: '#888', marginBottom: '8px' }}>Allergies</div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                {(isEditing ? editedData.allergies : app.allergies).map((a, i) => (
+                {(isEditing ? editedData.allergies : app.allergies).map((a: string, i: number) => (
                   <span key={i} style={{ 
                     padding: '6px 12px', 
                     background: '#fef9c3', 
@@ -611,7 +655,7 @@ export default function ApplicationDetailPage() {
             <div style={{ marginTop: '20px' }}>
               <div style={{ fontSize: '13px', color: '#888', marginBottom: '8px' }}>Requested Services</div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                {(isEditing ? editedData.services : app.services).map((s, i) => (
+                {(isEditing ? editedData.services : app.services).map((s: string, i: number) => (
                   <span key={i} style={{ 
                     padding: '6px 12px', 
                     background: 'rgba(39,83,128,0.1)', 
