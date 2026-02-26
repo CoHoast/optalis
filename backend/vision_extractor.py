@@ -518,10 +518,28 @@ def flatten_extraction(result: Dict[str, Any]) -> Dict[str, Any]:
     flattened["confidence_score"] = result.get("overall_confidence", 0)
     flattened["extraction_notes"] = result.get("extraction_notes", "")
     
-    # Convert lists to JSON strings for storage
+    # Ensure list fields are actual lists (not JSON strings)
     for field in ["diagnosis", "medications", "allergies", "services"]:
-        if field in flattened and isinstance(flattened[field], list):
-            flattened[field] = json.dumps(flattened[field])
+        if field in flattened:
+            val = flattened[field]
+            # If it's a string that looks like JSON, parse it
+            if isinstance(val, str):
+                try:
+                    parsed = json.loads(val)
+                    if isinstance(parsed, list):
+                        flattened[field] = parsed
+                except:
+                    # If not valid JSON, wrap in a list
+                    flattened[field] = [val] if val else []
+            elif not isinstance(val, list):
+                flattened[field] = [val] if val else []
+    
+    # Ensure priority is a string
+    if "priority" in flattened:
+        if isinstance(flattened["priority"], dict):
+            flattened["priority"] = flattened["priority"].get("value", "normal")
+        if not isinstance(flattened["priority"], str):
+            flattened["priority"] = str(flattened["priority"]) if flattened["priority"] else "normal"
     
     # Metadata
     flattened["_extraction_method"] = result.get("_extraction_method", "unknown")
