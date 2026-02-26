@@ -14,15 +14,16 @@ interface TeamMember {
   status: Status;
   lastActive: string;
   twoFactorEnabled: boolean;
+  mobileAccess: boolean;
 }
 
 const teamMembers: TeamMember[] = [
-  { id: '1', name: 'Jennifer Walsh', email: 'jennifer.walsh@optalis.com', initials: 'JW', role: 'admin', status: 'active', lastActive: 'Now', twoFactorEnabled: true },
-  { id: '2', name: 'Michael Chen', email: 'michael.chen@optalis.com', initials: 'MC', role: 'manager', status: 'active', lastActive: '2 hours ago', twoFactorEnabled: true },
-  { id: '3', name: 'Sarah Johnson', email: 'sarah.johnson@optalis.com', initials: 'SJ', role: 'reviewer', status: 'active', lastActive: '1 day ago', twoFactorEnabled: false },
-  { id: '4', name: 'David Kim', email: 'david.kim@optalis.com', initials: 'DK', role: 'reviewer', status: 'active', lastActive: '3 hours ago', twoFactorEnabled: true },
-  { id: '5', name: 'Emily Rodriguez', email: 'emily.rodriguez@optalis.com', initials: 'ER', role: 'viewer', status: 'pending', lastActive: 'Never', twoFactorEnabled: false },
-  { id: '6', name: 'James Wilson', email: 'james.wilson@optalis.com', initials: 'JW', role: 'viewer', status: 'disabled', lastActive: '30 days ago', twoFactorEnabled: false },
+  { id: '1', name: 'Jennifer Walsh', email: 'jennifer.walsh@optalis.com', initials: 'JW', role: 'admin', status: 'active', lastActive: 'Now', twoFactorEnabled: true, mobileAccess: true },
+  { id: '2', name: 'Michael Chen', email: 'michael.chen@optalis.com', initials: 'MC', role: 'manager', status: 'active', lastActive: '2 hours ago', twoFactorEnabled: true, mobileAccess: true },
+  { id: '3', name: 'Sarah Johnson', email: 'sarah.johnson@optalis.com', initials: 'SJ', role: 'reviewer', status: 'active', lastActive: '1 day ago', twoFactorEnabled: false, mobileAccess: true },
+  { id: '4', name: 'David Kim', email: 'david.kim@optalis.com', initials: 'DK', role: 'reviewer', status: 'active', lastActive: '3 hours ago', twoFactorEnabled: true, mobileAccess: true },
+  { id: '5', name: 'Emily Rodriguez', email: 'emily.rodriguez@optalis.com', initials: 'ER', role: 'viewer', status: 'pending', lastActive: 'Never', twoFactorEnabled: false, mobileAccess: false },
+  { id: '6', name: 'James Wilson', email: 'james.wilson@optalis.com', initials: 'JW', role: 'viewer', status: 'disabled', lastActive: '30 days ago', twoFactorEnabled: false, mobileAccess: false },
 ];
 
 const rolePermissions = {
@@ -168,6 +169,7 @@ export default function TeamPage() {
               <th style={{ padding: '16px 24px', textAlign: 'left', fontWeight: 600, fontSize: '13px', color: '#666', textTransform: 'uppercase' }}>Role</th>
               <th style={{ padding: '16px 24px', textAlign: 'left', fontWeight: 600, fontSize: '13px', color: '#666', textTransform: 'uppercase' }}>Status</th>
               <th style={{ padding: '16px 24px', textAlign: 'left', fontWeight: 600, fontSize: '13px', color: '#666', textTransform: 'uppercase' }}>2FA</th>
+              <th style={{ padding: '16px 24px', textAlign: 'center', fontWeight: 600, fontSize: '13px', color: '#666', textTransform: 'uppercase' }}>Mobile App</th>
               <th style={{ padding: '16px 24px', textAlign: 'left', fontWeight: 600, fontSize: '13px', color: '#666', textTransform: 'uppercase' }}>Last Active</th>
               <th style={{ padding: '16px 24px', textAlign: 'right', fontWeight: 600, fontSize: '13px', color: '#666', textTransform: 'uppercase' }}>Actions</th>
             </tr>
@@ -243,6 +245,39 @@ export default function TeamPage() {
                       Disabled
                     </span>
                   )}
+                </td>
+                <td style={{ padding: '16px 24px', textAlign: 'center' }}>
+                  <button
+                    onClick={() => {
+                      // Toggle mobile access - in real app, this would call an API
+                      alert(`Mobile access ${member.mobileAccess ? 'disabled' : 'enabled'} for ${member.name}`);
+                    }}
+                    style={{
+                      position: 'relative',
+                      width: '51px',
+                      height: '31px',
+                      background: member.mobileAccess ? '#16a34a' : '#e5e7eb',
+                      borderRadius: '16px',
+                      border: 'none',
+                      cursor: member.status === 'disabled' ? 'not-allowed' : 'pointer',
+                      opacity: member.status === 'disabled' ? 0.5 : 1,
+                      transition: 'background 0.2s',
+                    }}
+                    disabled={member.status === 'disabled'}
+                    title={member.mobileAccess ? 'Mobile access enabled - click to disable' : 'Mobile access disabled - click to enable'}
+                  >
+                    <span style={{
+                      position: 'absolute',
+                      top: '2px',
+                      left: member.mobileAccess ? '22px' : '2px',
+                      width: '27px',
+                      height: '27px',
+                      background: 'white',
+                      borderRadius: '50%',
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                      transition: 'left 0.2s',
+                    }} />
+                  </button>
                 </td>
                 <td style={{ padding: '16px 24px', color: '#666', fontSize: '14px' }}>{member.lastActive}</td>
                 <td style={{ padding: '16px 24px', textAlign: 'right' }}>
@@ -352,6 +387,40 @@ export default function TeamPage() {
                 <option value="active">Active</option>
                 <option value="disabled">Disabled</option>
               </select>
+            </div>
+
+            <div style={{ marginBottom: '24px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '4px' }}>Mobile App Access</label>
+                  <p style={{ fontSize: '13px', color: '#666', margin: 0 }}>Allow this user to access the mobile reviewer app</p>
+                </div>
+                <button
+                  style={{
+                    position: 'relative',
+                    width: '51px',
+                    height: '31px',
+                    background: selectedMember.mobileAccess ? '#16a34a' : '#e5e7eb',
+                    borderRadius: '16px',
+                    border: 'none',
+                    cursor: 'pointer',
+                    transition: 'background 0.2s',
+                    flexShrink: 0,
+                  }}
+                >
+                  <span style={{
+                    position: 'absolute',
+                    top: '2px',
+                    left: selectedMember.mobileAccess ? '22px' : '2px',
+                    width: '27px',
+                    height: '27px',
+                    background: 'white',
+                    borderRadius: '50%',
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                    transition: 'left 0.2s',
+                  }} />
+                </button>
+              </div>
             </div>
 
             {!selectedMember.twoFactorEnabled && (
