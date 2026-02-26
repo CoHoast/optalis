@@ -694,12 +694,12 @@ export default function DemoLauncherPage() {
         onClose={() => setActiveModal(null)}
         title="Mobile Web App"
       >
-        {/* iPhone Mockups - Using Real iPhone Frame */}
+        {/* iPhone Mockups - Pre-made images */}
         <div style={{
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'flex-end',
-          gap: '16px',
+          gap: '12px',
           marginBottom: '28px',
           padding: '32px 16px',
           background: 'linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
@@ -728,107 +728,33 @@ export default function DemoLauncherPage() {
           }}></div>
           
           {/* iPhone 1 - Inbox */}
-          <div style={{
-            width: '120px',
-            position: 'relative',
-            zIndex: 1,
-            transform: 'rotate(-5deg)',
-          }}>
-            <div style={{ position: 'relative' }}>
-              {/* Screenshot (behind frame) */}
-              <div style={{
-                position: 'absolute',
-                top: '1.5%',
-                left: '4%',
-                right: '4%',
-                bottom: '1.5%',
-                borderRadius: '24px',
-                overflow: 'hidden',
-                background: '#000',
-              }}>
-                <img 
-                  src="/demo-previews/mobile-inbox.jpg" 
-                  alt="Inbox Screen"
-                  style={{ width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'top' }}
-                />
-              </div>
-              {/* iPhone Frame (on top) */}
-              <img 
-                src="/demo-previews/iphone-frame.png" 
-                alt=""
-                style={{ width: '100%', height: 'auto', display: 'block', position: 'relative', zIndex: 2 }}
-              />
-            </div>
-            <p style={{ textAlign: 'center', color: 'rgba(255,255,255,0.7)', fontSize: '11px', marginTop: '10px', fontWeight: 500 }}>Inbox</p>
+          <div style={{ textAlign: 'center', position: 'relative', zIndex: 1, transform: 'rotate(-3deg)' }}>
+            <img 
+              src="/demo-previews/mockup-inbox.png" 
+              alt="Inbox Screen"
+              style={{ width: '130px', height: 'auto', filter: 'drop-shadow(0 20px 40px rgba(0,0,0,0.4))' }}
+            />
+            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '11px', marginTop: '12px', fontWeight: 500 }}>Inbox</p>
           </div>
           
           {/* iPhone 2 - Detail (Center, larger) */}
-          <div style={{
-            width: '140px',
-            position: 'relative',
-            zIndex: 2,
-          }}>
-            <div style={{ position: 'relative' }}>
-              {/* Screenshot (behind frame) */}
-              <div style={{
-                position: 'absolute',
-                top: '1.5%',
-                left: '4%',
-                right: '4%',
-                bottom: '1.5%',
-                borderRadius: '28px',
-                overflow: 'hidden',
-                background: '#000',
-              }}>
-                <img 
-                  src="/demo-previews/mobile-detail.jpg" 
-                  alt="Application Detail Screen"
-                  style={{ width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'top' }}
-                />
-              </div>
-              {/* iPhone Frame (on top) */}
-              <img 
-                src="/demo-previews/iphone-frame.png" 
-                alt=""
-                style={{ width: '100%', height: 'auto', display: 'block', position: 'relative', zIndex: 2 }}
-              />
-            </div>
-            <p style={{ textAlign: 'center', color: 'rgba(255,255,255,0.9)', fontSize: '12px', marginTop: '10px', fontWeight: 600 }}>Application Detail</p>
+          <div style={{ textAlign: 'center', position: 'relative', zIndex: 2 }}>
+            <img 
+              src="/demo-previews/mockup-detail.png" 
+              alt="Application Detail Screen"
+              style={{ width: '150px', height: 'auto', filter: 'drop-shadow(0 25px 50px rgba(0,0,0,0.5))' }}
+            />
+            <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: '12px', marginTop: '12px', fontWeight: 600 }}>Application Detail</p>
           </div>
           
           {/* iPhone 3 - Scan */}
-          <div style={{
-            width: '120px',
-            position: 'relative',
-            zIndex: 1,
-            transform: 'rotate(5deg)',
-          }}>
-            <div style={{ position: 'relative' }}>
-              {/* Screenshot (behind frame) */}
-              <div style={{
-                position: 'absolute',
-                top: '1.5%',
-                left: '4%',
-                right: '4%',
-                bottom: '1.5%',
-                borderRadius: '24px',
-                overflow: 'hidden',
-                background: '#000',
-              }}>
-                <img 
-                  src="/demo-previews/mobile-scan.jpg" 
-                  alt="Scan Document Screen"
-                  style={{ width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'top' }}
-                />
-              </div>
-              {/* iPhone Frame (on top) */}
-              <img 
-                src="/demo-previews/iphone-frame.png" 
-                alt=""
-                style={{ width: '100%', height: 'auto', display: 'block', position: 'relative', zIndex: 2 }}
-              />
-            </div>
-            <p style={{ textAlign: 'center', color: 'rgba(255,255,255,0.7)', fontSize: '11px', marginTop: '10px', fontWeight: 500 }}>Scan</p>
+          <div style={{ textAlign: 'center', position: 'relative', zIndex: 1, transform: 'rotate(3deg)' }}>
+            <img 
+              src="/demo-previews/mockup-scan.png" 
+              alt="Scan Document Screen"
+              style={{ width: '130px', height: 'auto', filter: 'drop-shadow(0 20px 40px rgba(0,0,0,0.4))' }}
+            />
+            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '11px', marginTop: '12px', fontWeight: 500 }}>Scan</p>
           </div>
         </div>
         
