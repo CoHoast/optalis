@@ -205,15 +205,55 @@ export default function ApplicationDetailPage() {
     setShowModal(true);
   };
 
-  const submitDecision = () => {
-    alert(`Decision: ${decision}\nNotes: ${decisionNotes}`);
+  const submitDecision = async () => {
+    try {
+      // Update status via API
+      const response = await fetch(`${API_URL}/api/applications/${params.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          status: decision,
+          decision_notes: decisionNotes
+        })
+      });
+      
+      if (response.ok && apiApp) {
+        setApiApp({ ...apiApp, status: decision });
+      }
+    } catch (error) {
+      console.error('Error updating decision:', error);
+    }
+    
     setShowModal(false);
     router.push('/dashboard/applications');
   };
 
-  const handleSaveEdits = () => {
-    setIsEditing(false);
-    alert('Changes saved successfully!');
+  const handleSaveEdits = async () => {
+    try {
+      // Save edits to API and auto-move to review status
+      const response = await fetch(`${API_URL}/api/applications/${params.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...editedData,
+          status: 'review' // Auto-move to Review tab after editing
+        })
+      });
+      
+      if (response.ok) {
+        // Update local state
+        if (apiApp) {
+          setApiApp({ ...apiApp, status: 'review' });
+        }
+        setIsEditing(false);
+      } else {
+        // Still close editing even if API fails (mock data)
+        setIsEditing(false);
+      }
+    } catch (error) {
+      console.error('Error saving edits:', error);
+      setIsEditing(false);
+    }
   };
 
   const addCustomField = () => {
