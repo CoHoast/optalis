@@ -575,15 +575,32 @@ function ApplicationDetailContent() {
 
           {/* AI Summary Card */}
           <div className="mobile-section" style={{ paddingTop: 20 }}>
-            <div className="ai-summary-card" style={{ background: '#275380', borderRadius: 16, padding: 20 }}>
-              <div className="ai-summary-header" style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-                <svg style={{ width: 20, height: 20, flexShrink: 0, color: 'white' }} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+            <div style={{ 
+              background: 'linear-gradient(135deg, #275380 0%, #1e3f61 100%)', 
+              borderRadius: 16, 
+              padding: 20,
+              color: 'white'
+            }}>
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: 10, 
+                marginBottom: 12 
+              }}>
+                <svg style={{ width: 20, height: 20, flexShrink: 0 }} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
                 </svg>
-                <span style={{ fontWeight: 600, fontSize: 16, color: 'white' }}>AI Summary</span>
-                <span style={{ marginLeft: 'auto', background: 'rgba(255,255,255,0.2)', padding: '4px 10px', borderRadius: 12, fontSize: 12, fontWeight: 500, color: 'white' }}>{app.confidence_score}% confidence</span>
+                <span style={{ fontWeight: 600, fontSize: 16 }}>AI Summary</span>
+                <span style={{ 
+                  marginLeft: 'auto', 
+                  background: 'rgba(255,255,255,0.2)', 
+                  padding: '4px 10px', 
+                  borderRadius: 12, 
+                  fontSize: 12, 
+                  fontWeight: 500 
+                }}>{app.confidence_score}% confidence</span>
               </div>
-              <p style={{ fontSize: 15, lineHeight: 1.6, color: 'rgba(255,255,255,0.95)', margin: 0 }}>{app.ai_summary || 'No summary available'}</p>
+              <p style={{ fontSize: 15, lineHeight: 1.6, margin: 0, opacity: 0.95 }}>{app.ai_summary || 'No summary available'}</p>
             </div>
           </div>
 
