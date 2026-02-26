@@ -28,6 +28,22 @@ const mockApplications: Record<string, {
   confidence: number;
   aiSummary: string;
 }> = {
+  'APP-2026-004': {
+    id: 'APP-2026-004', name: 'Mary Johnson', initials: 'MJ', facility: 'Optalis of Grand Rapids',
+    status: 'pending', date: '2/25/2026', priority: 'high', source: 'Email (AI Intake)',
+    dob: '06/15/1941', phone: '(248) 555-0188', address: '456 Oak Lane, Troy, MI 48084',
+    insurance: 'Medicare Part A & B', policyNumber: '1AB2-CD3-EF45',
+    diagnosis: ['CHF', 'COPD', 'Type 2 Diabetes'],
+    medications: ['Lasix 40mg', 'Metformin 500mg', 'Spiriva'],
+    allergies: ['Penicillin'],
+    physician: 'Dr. Smith (Dr. Guiher\'s Office)', services: ['Skilled Nursing', 'Respiratory Therapy'],
+    documents: [
+      { name: 'Email_Referral.pdf', type: 'Application', rawUrl: '/documents/raw-intake-scan.html', extractedUrl: '/documents/intake-form-APP-2026-001.html' }
+    ],
+    notes: 'URGENT: Patient discharging tomorrow. Received via AI email intake from rewindtriviagames@gmail.com.',
+    confidence: 95,
+    aiSummary: 'Mary Johnson, a patient with CHF, COPD, and Type 2 Diabetes, is being referred for Skilled Nursing and Respiratory Therapy from Dr. Guiher\'s Office. The patient is discharging tomorrow and requires immediate processing. Insurance verified - Medicare Part A & B coverage confirmed.'
+  },
   'APP-2026-001': {
     id: 'APP-2026-001', name: 'Margaret Thompson', initials: 'MT', facility: 'Cranberry Park at West Bloomfield',
     status: 'pending', date: '2/24/2026', priority: 'high', source: 'Hospital Referral',

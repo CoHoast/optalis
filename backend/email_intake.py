@@ -1,0 +1,590 @@
+"""
+Optalis Email Intake Service
+Polls Yahoo inbox, extracts documents, runs AI pipeline, creates applications.
+
+Usage:
+    python email_intake.py              # Run once
+    python email_intake.py --watch      # Poll continuously
+    python email_intake.py --test       # Test with sample data
+"""
+
+import os
+import sys
+
+# Load .env file
+from pathlib import Path
+env_path = Path(__file__).parent / ".env"
+if env_path.exists():
+    with open(env_path) as f:
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith("#") and "=" in line:
+                key, value = line.split("=", 1)
+                os.environ.setdefault(key.strip(), value.strip())
+import json
+import imaplib
+import email
+from email.header import decode_header
+import time
+import base64
+import tempfile
+from datetime import datetime
+from pathlib import Path
+import sqlite3
+import argparse
+from typing import Optional, Dict, List, Any
+
+import boto3
+from openai import OpenAI
+
+# ============================================================
+# Configuration
+# ============================================================
+
+GMAIL_EMAIL = os.getenv("GMAIL_EMAIL", "rewindtriviagames@gmail.com")
+GMAIL_APP_PASSWORD = os.getenv("GMAIL_APP_PASSWORD", "")  # Generate at https://myaccount.google.com/apppasswords
+IMAP_SERVER = "imap.gmail.com"
+IMAP_PORT = 993
+
+AWS_REGION = os.getenv("AWS_REGION", "us-east-1")
+S3_BUCKET = os.getenv("S3_BUCKET", "optalis-intake-documents")
+
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
+OPENAI_MODEL = "gpt-4o"
+
+DB_PATH = Path(__file__).parent / "applications.db"
+POLL_INTERVAL = 60  # seconds
+
+# ============================================================
+# Database Setup
+# ============================================================
+
+def init_db():
+    """Initialize SQLite database."""
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS applications (
+            id TEXT PRIMARY KEY,
+            status TEXT DEFAULT 'pending',
+            priority TEXT DEFAULT 'normal',
+            source TEXT,
+            source_email TEXT,
+            
+            patient_name TEXT,
+            dob TEXT,
+            phone TEXT,
+            address TEXT,
+            
+            insurance TEXT,
+            policy_number TEXT,
+            
+            diagnosis TEXT,  -- JSON array
+            medications TEXT,  -- JSON array
+            allergies TEXT,  -- JSON array
+            
+            physician TEXT,
+            facility TEXT,
+            services TEXT,  -- JSON array
+            
+            ai_summary TEXT,
+            confidence_score REAL,
+            
+            raw_text TEXT,
+            raw_email_subject TEXT,
+            
+            created_at TEXT,
+            updated_at TEXT
+        )
+    """)
+    
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS documents (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            application_id TEXT,
+            filename TEXT,
+            file_type TEXT,
+            s3_key TEXT,
+            textract_text TEXT,
+            created_at TEXT,
+            FOREIGN KEY (application_id) REFERENCES applications(id)
+        )
+    """)
+    
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS processed_emails (
+            message_id TEXT PRIMARY KEY,
+            processed_at TEXT
+        )
+    """)
+    
+    conn.commit()
+    conn.close()
+    print(f"✓ Database initialized: {DB_PATH}")
+
+
+# ============================================================
+# Email Fetching
+# ============================================================
+
+def connect_imap():
+    """Connect to Gmail IMAP."""
+    if not GMAIL_APP_PASSWORD:
+        raise ValueError("GMAIL_APP_PASSWORD not set. Generate one at https://myaccount.google.com/apppasswords")
+    
+    mail = imaplib.IMAP4_SSL(IMAP_SERVER, IMAP_PORT)
+    mail.login(GMAIL_EMAIL, GMAIL_APP_PASSWORD)
+    return mail
+
+
+def fetch_unprocessed_emails(mail) -> List[Dict]:
+    """Fetch emails that haven't been processed yet."""
+    mail.select("INBOX")
+    
+    # Search for all emails (could filter by date, sender, etc.)
+    status, messages = mail.search(None, "ALL")
+    if status != "OK":
+        return []
+    
+    email_ids = messages[0].split()
+    
+    # Get already processed message IDs
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("SELECT message_id FROM processed_emails")
+    processed = set(row[0] for row in cursor.fetchall())
+    conn.close()
+    
+    emails = []
+    
+    for email_id in email_ids[-20:]:  # Check last 20 emails
+        status, msg_data = mail.fetch(email_id, "(RFC822)")
+        if status != "OK":
+            continue
+            
+        raw_email = msg_data[0][1]
+        msg = email.message_from_bytes(raw_email)
+        
+        # Get message ID
+        message_id = msg.get("Message-ID", str(email_id))
+        
+        if message_id in processed:
+            continue
+        
+        # Decode subject
+        subject, encoding = decode_header(msg["Subject"])[0]
+        if isinstance(subject, bytes):
+            subject = subject.decode(encoding or "utf-8")
+        
+        # Get sender
+        from_addr = msg.get("From", "")
+        
+        # Get date
+        date_str = msg.get("Date", "")
+        
+        # Extract body and attachments
+        body = ""
+        attachments = []
+        
+        if msg.is_multipart():
+            for part in msg.walk():
+                content_type = part.get_content_type()
+                content_disposition = str(part.get("Content-Disposition", ""))
+                
+                if "attachment" in content_disposition:
+                    filename = part.get_filename()
+                    if filename:
+                        attachments.append({
+                            "filename": filename,
+                            "content_type": content_type,
+                            "data": part.get_payload(decode=True)
+                        })
+                elif content_type == "text/plain":
+                    payload = part.get_payload(decode=True)
+                    if payload:
+                        body += payload.decode("utf-8", errors="ignore")
+        else:
+            body = msg.get_payload(decode=True).decode("utf-8", errors="ignore")
+        
+        emails.append({
+            "message_id": message_id,
+            "subject": subject,
+            "from": from_addr,
+            "date": date_str,
+            "body": body,
+            "attachments": attachments
+        })
+    
+    return emails
+
+
+def mark_email_processed(message_id: str):
+    """Mark an email as processed."""
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute(
+        "INSERT OR REPLACE INTO processed_emails (message_id, processed_at) VALUES (?, ?)",
+        (message_id, datetime.now().isoformat())
+    )
+    conn.commit()
+    conn.close()
+
+
+# ============================================================
+# Document Processing (Textract)
+# ============================================================
+
+def extract_text_from_document(file_data: bytes, filename: str) -> str:
+    """Extract text from document using AWS Textract."""
+    try:
+        textract = boto3.client("textract", region_name=AWS_REGION)
+        
+        # Textract accepts PNG, JPEG, TIFF, PDF
+        response = textract.detect_document_text(
+            Document={"Bytes": file_data}
+        )
+        
+        # Extract all text blocks
+        text_blocks = []
+        for block in response.get("Blocks", []):
+            if block["BlockType"] == "LINE":
+                text_blocks.append(block.get("Text", ""))
+        
+        return "\n".join(text_blocks)
+    
+    except Exception as e:
+        print(f"  ⚠ Textract error for {filename}: {e}")
+        return ""
+
+
+# ============================================================
+# AI Extraction (GPT-4)
+# ============================================================
+
+def extract_application_data(raw_text: str, subject: str = "") -> Dict[str, Any]:
+    """Use GPT-4 to extract structured application data."""
+    if not OPENAI_API_KEY:
+        print("  ⚠ OpenAI API key not set, using mock data")
+        return generate_mock_extraction()
+    
+    client = OpenAI(api_key=OPENAI_API_KEY)
+    
+    prompt = f"""You are an expert healthcare admissions data extractor. 
+Extract patient and referral information from the following document text.
+
+Return a JSON object with these fields (use null if not found):
+- patient_name: string
+- dob: string (format: MM/DD/YYYY)
+- phone: string
+- address: string
+- insurance: string (insurance provider name)
+- policy_number: string
+- diagnosis: array of strings (medical diagnoses)
+- medications: array of strings (current medications with dosages)
+- allergies: array of strings
+- physician: string (referring physician name)
+- facility: string (requested facility, default to "Optalis Healthcare" if not specified)
+- services: array of strings (requested services like "Skilled Nursing", "Physical Therapy", etc.)
+- priority: string (one of: "high", "medium", "normal" - based on urgency indicators)
+- ai_summary: string (2-3 sentence clinical summary suitable for admissions review)
+- confidence_score: number (0-100, your confidence in the extraction accuracy)
+
+Email Subject: {subject}
+
+Document Text:
+{raw_text[:8000]}
+
+Return only valid JSON, no markdown formatting."""
+
+    try:
+        response = client.chat.completions.create(
+            model=OPENAI_MODEL,
+            messages=[
+                {"role": "system", "content": "You extract healthcare admissions data into structured JSON."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.1,
+            max_tokens=2000
+        )
+        
+        result_text = response.choices[0].message.content.strip()
+        
+        # Clean up potential markdown formatting
+        if result_text.startswith("```"):
+            result_text = result_text.split("```")[1]
+            if result_text.startswith("json"):
+                result_text = result_text[4:]
+        
+        return json.loads(result_text)
+    
+    except Exception as e:
+        print(f"  ⚠ GPT-4 extraction error: {e}")
+        return generate_mock_extraction()
+
+
+def generate_mock_extraction() -> Dict[str, Any]:
+    """Generate mock extraction for testing."""
+    return {
+        "patient_name": "Test Patient",
+        "dob": "01/01/1940",
+        "phone": "(248) 555-0100",
+        "address": "123 Test St, Detroit, MI 48201",
+        "insurance": "Medicare",
+        "policy_number": "TEST123456",
+        "diagnosis": ["Diagnosis pending extraction"],
+        "medications": ["Pending extraction"],
+        "allergies": ["Unknown"],
+        "physician": "Dr. Test",
+        "facility": "Optalis Healthcare",
+        "services": ["Skilled Nursing"],
+        "priority": "normal",
+        "ai_summary": "Patient referral received. Details pending full AI extraction.",
+        "confidence_score": 50
+    }
+
+
+# ============================================================
+# Application Creation
+# ============================================================
+
+def generate_application_id() -> str:
+    """Generate unique application ID."""
+    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+    import random
+    suffix = random.randint(100, 999)
+    return f"APP-{timestamp}-{suffix}"
+
+
+def create_application(email_data: Dict, extracted: Dict) -> str:
+    """Create application record in database."""
+    app_id = generate_application_id()
+    now = datetime.now().isoformat()
+    
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        INSERT INTO applications (
+            id, status, priority, source, source_email,
+            patient_name, dob, phone, address,
+            insurance, policy_number,
+            diagnosis, medications, allergies,
+            physician, facility, services,
+            ai_summary, confidence_score,
+            raw_text, raw_email_subject,
+            created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """, (
+        app_id,
+        "pending",
+        extracted.get("priority", "normal"),
+        "email",
+        email_data.get("from", ""),
+        extracted.get("patient_name"),
+        extracted.get("dob"),
+        extracted.get("phone"),
+        extracted.get("address"),
+        extracted.get("insurance"),
+        extracted.get("policy_number"),
+        json.dumps(extracted.get("diagnosis", [])),
+        json.dumps(extracted.get("medications", [])),
+        json.dumps(extracted.get("allergies", [])),
+        extracted.get("physician"),
+        extracted.get("facility"),
+        json.dumps(extracted.get("services", [])),
+        extracted.get("ai_summary"),
+        extracted.get("confidence_score", 0),
+        email_data.get("body", "")[:5000],
+        email_data.get("subject", ""),
+        now,
+        now
+    ))
+    
+    conn.commit()
+    conn.close()
+    
+    return app_id
+
+
+# ============================================================
+# Main Processing Loop
+# ============================================================
+
+def process_email(email_data: Dict) -> Optional[str]:
+    """Process a single email and create application."""
+    print(f"\n📧 Processing: {email_data['subject']}")
+    print(f"   From: {email_data['from']}")
+    
+    # Combine all text sources
+    all_text = email_data.get("body", "")
+    
+    # Process attachments with Textract
+    for attachment in email_data.get("attachments", []):
+        filename = attachment["filename"]
+        print(f"   📎 Attachment: {filename}")
+        
+        # Only process supported file types
+        ext = filename.lower().split(".")[-1]
+        if ext in ["pdf", "png", "jpg", "jpeg", "tiff"]:
+            extracted_text = extract_text_from_document(
+                attachment["data"], 
+                filename
+            )
+            if extracted_text:
+                all_text += f"\n\n--- Content from {filename} ---\n{extracted_text}"
+                print(f"      ✓ Extracted {len(extracted_text)} chars")
+    
+    if not all_text.strip():
+        print("   ⚠ No text content found, skipping")
+        return None
+    
+    # Extract structured data with GPT-4
+    print("   🤖 Running AI extraction...")
+    extracted = extract_application_data(all_text, email_data.get("subject", ""))
+    
+    if extracted.get("patient_name"):
+        print(f"   ✓ Patient: {extracted['patient_name']}")
+        print(f"   ✓ Confidence: {extracted.get('confidence_score', 0)}%")
+    
+    # Create application
+    app_id = create_application(email_data, extracted)
+    print(f"   ✅ Created application: {app_id}")
+    
+    # Mark email as processed
+    mark_email_processed(email_data["message_id"])
+    
+    return app_id
+
+
+def run_intake(watch: bool = False):
+    """Main intake loop."""
+    init_db()
+    
+    print("\n" + "="*60)
+    print("🏥 Optalis Email Intake Service")
+    print(f"📧 Monitoring: {GMAIL_EMAIL}")
+    print("="*60)
+    
+    while True:
+        try:
+            print(f"\n🔍 Checking for new emails... ({datetime.now().strftime('%H:%M:%S')})")
+            
+            mail = connect_imap()
+            emails = fetch_unprocessed_emails(mail)
+            mail.logout()
+            
+            if emails:
+                print(f"   Found {len(emails)} new email(s)")
+                for email_data in emails:
+                    process_email(email_data)
+            else:
+                print("   No new emails")
+            
+        except Exception as e:
+            print(f"❌ Error: {e}")
+        
+        if not watch:
+            break
+            
+        print(f"\n💤 Sleeping {POLL_INTERVAL}s...")
+        time.sleep(POLL_INTERVAL)
+
+
+def run_test():
+    """Run with test data."""
+    init_db()
+    
+    print("\n🧪 Running test with sample data...")
+    
+    test_email = {
+        "message_id": f"test-{datetime.now().timestamp()}",
+        "subject": "Patient Referral - Eleanor Mitchell",
+        "from": "dr.wilson@beaumonthealth.com",
+        "date": datetime.now().isoformat(),
+        "body": """
+From: Dr. Sarah Wilson
+Beaumont Health System
+Date: February 25, 2026
+
+RE: Patient Referral for Skilled Nursing Facility Placement
+
+Patient Information:
+Name: Eleanor Mitchell  
+DOB: 08/14/1938 (Age 87)
+Phone: (248) 555-0142
+Address: 789 Maple Drive, Troy, MI 48098
+
+Medical Information:
+Primary Diagnosis: Hip fracture s/p ORIF, Type 2 Diabetes, Hypertension
+Current Medications: 
+- Metformin 500mg BID
+- Lisinopril 20mg daily
+- Aspirin 81mg daily
+- Calcium + Vitamin D
+Allergies: Sulfa drugs, Latex
+
+Insurance: Medicare Part A & B
+Member ID: 3KT9-WQ2-JL58
+
+Referring Physician: Dr. Sarah Wilson, MD
+Contact: (248) 555-7700
+
+Requested Services: Skilled Nursing, Physical Therapy, Occupational Therapy
+Preferred Facility: Optalis of Troy or Cranberry Park
+
+Clinical Summary:
+87-year-old female admitted following fall at home resulting in left hip fracture.
+ORIF performed 2/22/26 without complications. Patient is weight-bearing as tolerated.
+Requires SNF placement for PT/OT rehabilitation. Diabetes well-controlled, A1c 7.1%.
+Family involved and supportive. Estimated rehab duration 3-4 weeks.
+
+URGENT - Family requesting placement by 2/28/26.
+
+Please contact the family directly:
+Daughter: Susan Mitchell (248) 555-0199
+
+Thank you,
+Dr. Sarah Wilson
+        """,
+        "attachments": []
+    }
+    
+    app_id = process_email(test_email)
+    
+    if app_id:
+        # Show the created application
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM applications WHERE id = ?", (app_id,))
+        row = cursor.fetchone()
+        conn.close()
+        
+        if row:
+            print("\n" + "="*60)
+            print("📋 APPLICATION CREATED")
+            print("="*60)
+            columns = ["id", "status", "priority", "source", "source_email",
+                      "patient_name", "dob", "phone", "address",
+                      "insurance", "policy_number", "diagnosis", "medications", 
+                      "allergies", "physician", "facility", "services",
+                      "ai_summary", "confidence_score"]
+            for i, col in enumerate(columns):
+                if i < len(row):
+                    print(f"{col}: {row[i]}")
+
+
+# ============================================================
+# CLI Entry Point  
+# ============================================================
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Optalis Email Intake Service")
+    parser.add_argument("--watch", action="store_true", help="Poll continuously")
+    parser.add_argument("--test", action="store_true", help="Run with test data")
+    args = parser.parse_args()
+    
+    if args.test:
+        run_test()
+    else:
+        run_intake(watch=args.watch)

@@ -3,10 +3,10 @@
 import Link from 'next/link';
 
 const recentApplications = [
+  { id: 'APP-2026-004', name: 'Mary Johnson', initials: 'MJ', facility: 'Optalis of Grand Rapids', status: 'pending', date: '2/25/2026' },
   { id: 'APP-2026-001', name: 'Margaret Thompson', initials: 'MT', facility: 'Cranberry Park at West Bloomfield', status: 'pending', date: '2/24/2026' },
   { id: 'APP-2026-002', name: 'Robert Williams', initials: 'RW', facility: 'Optalis of Grand Rapids', status: 'review', date: '2/24/2026' },
   { id: 'APP-2026-003', name: 'Dorothy Martinez', initials: 'DM', facility: 'Cranberry Park at Milford', status: 'approved', date: '2/24/2026' },
-  { id: 'APP-2026-004', name: 'Harold Johnson', initials: 'HJ', facility: 'Optalis of ShorePointe', status: 'denied', date: '2/23/2026' },
   { id: 'APP-2026-005', name: 'Betty Anderson', initials: 'BA', facility: 'The Cottages at Grand Rapids', status: 'approved', date: '2/23/2026' },
 ];
 
