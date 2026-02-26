@@ -44,35 +44,18 @@ export default function DemoLauncherPage() {
         <div style={{ 
           display: 'inline-flex', 
           alignItems: 'center', 
-          gap: '16px',
-          marginBottom: '16px'
+          justifyContent: 'center',
+          marginBottom: '20px'
         }}>
-          {/* Optalis Logo */}
-          <svg width="56" height="56" viewBox="0 0 100 100" fill="none">
-            <circle cx="50" cy="50" r="45" stroke="#275380" strokeWidth="6" fill="none"/>
-            <path d="M30 50 Q50 25 70 50 Q50 75 30 50" stroke="#275380" strokeWidth="4" fill="none"/>
-            <circle cx="50" cy="50" r="8" fill="#275380"/>
-          </svg>
-          <div>
-            <h1 style={{ 
-              fontSize: '42px', 
-              fontWeight: 700, 
-              color: '#275380',
-              margin: 0,
-              letterSpacing: '-1px'
-            }}>
-              OPTALIS
-            </h1>
-            <p style={{ 
-              fontSize: '14px', 
-              color: '#666',
-              margin: 0,
-              letterSpacing: '2px',
-              textTransform: 'uppercase'
-            }}>
-              Health & Rehabilitation
-            </p>
-          </div>
+          {/* Optalis Logo from official site */}
+          <img 
+            src="https://www.optalishealthcare.com/wp-content/uploads/2023/03/optalis_logonav.webp" 
+            alt="Optalis Health & Rehabilitation"
+            style={{
+              height: '60px',
+              width: 'auto',
+            }}
+          />
         </div>
         
         <div style={{
