@@ -985,7 +985,7 @@ function ApplicationDetailContent() {
               </div>
               <div>
                 <h3 className="mobile-modal-title" style={{ margin: 0 }}>Send to Review?</h3>
-                <p style={{ margin: '4px 0 0', fontSize: '14px', color: '#6b7280' }}>{app?.patientName}</p>
+                <p style={{ margin: '4px 0 0', fontSize: '14px', color: '#6b7280' }}>{app?.patient_name}</p>
               </div>
             </div>
             <p className="mobile-modal-text">
