@@ -385,6 +385,9 @@ Return a JSON object with these fields (use null if information is NOT explicitl
 - priority: string (one of: "high", "medium", "normal" - based on urgency indicators)
 - ai_summary: string (2-3 sentence clinical summary suitable for admissions review)
 - confidence_score: number (0-100, your confidence in the extraction accuracy)
+- extra_data: object — Any additional relevant data found in the document that doesn't fit the fields above. 
+  Use descriptive keys like "emergency_contact", "mobility_status", "diet_restrictions", "admission_date", "discharge_date", "room_preference", etc.
+  Return empty object {{}} if no additional relevant data found. Only include clearly stated information, never fabricate.
 
 REMEMBER: Return null for any field not explicitly found. DO NOT invent placeholder data.
 
