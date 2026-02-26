@@ -809,10 +809,10 @@ function ApplicationDetailContent() {
           left: 0,
           right: 0,
         }}>
-          {/* Show "Send to Review" button for pending apps (in Inbox) */}
+          {/* Show "Review" button for pending apps (in Inbox) */}
           {app.status === 'pending' && (
             <button 
-              className="quick-action-btn review"
+              className="quick-action-btn"
               onClick={async () => {
                 try {
                   const response = await fetch(`${API_URL}/api/applications/${id}`, {
@@ -836,7 +836,7 @@ function ApplicationDetailContent() {
               <svg style={{ width: 20, height: 20 }} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
               </svg>
-              Send to Review
+              Review
             </button>
           )}
           <button className="quick-action-btn deny" onClick={handleDeny}>
