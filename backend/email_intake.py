@@ -65,6 +65,74 @@ DB_PATH = Path(__file__).parent / "applications.db"
 POLL_INTERVAL = 60  # seconds
 
 # ============================================================
+# Email Filtering (Spam/Non-Application Detection)
+# ============================================================
+
+# Keywords that indicate a legitimate healthcare application
+HEALTHCARE_KEYWORDS = [
+    "patient", "referral", "admission", "admit", "discharge",
+    "dob", "date of birth", "birthdate", "birth date",
+    "insurance", "medicare", "medicaid", "aetna", "bcbs", "blue cross",
+    "diagnosis", "diagnoses", "dx", "icd",
+    "physician", "doctor", "dr.", "md", "nurse", "rn",
+    "medication", "medications", "meds", "rx", "prescription",
+    "allergies", "allergy", "nkda",
+    "facility", "hospital", "clinic", "nursing", "rehab", "rehabilitation",
+    "skilled nursing", "snf", "ltc", "long term care",
+    "therapy", "pt", "ot", "physical therapy", "occupational therapy",
+    "referral form", "intake form", "application form",
+    "cms", "authorization", "prior auth",
+]
+
+# Minimum keywords required to consider email as potential application
+MIN_KEYWORD_MATCHES = 2
+
+def is_healthcare_email(subject: str, body: str, attachments: list = None) -> tuple[bool, int]:
+    """
+    Check if email appears to be a healthcare application.
+    Returns (is_healthcare, keyword_count)
+    """
+    # Combine all text for scanning
+    text = f"{subject} {body}".lower()
+    
+    # Also check attachment filenames
+    if attachments:
+        for att in attachments:
+            text += f" {att.get('filename', '').lower()}"
+    
+    # Count keyword matches
+    matched_keywords = []
+    for keyword in HEALTHCARE_KEYWORDS:
+        if keyword.lower() in text:
+            matched_keywords.append(keyword)
+    
+    keyword_count = len(matched_keywords)
+    is_healthcare = keyword_count >= MIN_KEYWORD_MATCHES
+    
+    return is_healthcare, keyword_count
+
+
+def has_required_fields(extracted: dict) -> tuple[bool, list]:
+    """
+    Check if extracted data has required fields.
+    Required: patient_name AND dob
+    Returns (has_required, missing_fields)
+    """
+    missing = []
+    
+    patient_name = extracted.get("patient_name", "").strip() if extracted.get("patient_name") else ""
+    dob = extracted.get("dob", "").strip() if extracted.get("dob") else ""
+    
+    if not patient_name:
+        missing.append("patient_name")
+    if not dob:
+        missing.append("dob")
+    
+    has_required = len(missing) == 0
+    return has_required, missing
+
+
+# ============================================================
 # Database Setup
 # ============================================================
 
@@ -485,11 +553,29 @@ def _save_to_local_db(app_id: str, email_data: Dict, extracted: Dict, now: str):
 
 def process_email(email_data: Dict) -> Optional[str]:
     """Process a single email and create application."""
-    print(f"\n📧 Processing: {email_data['subject']}")
-    print(f"   From: {email_data['from']}")
+    subject = email_data.get('subject', '')
+    sender = email_data.get('from', '')
+    body = email_data.get('body', '')
+    attachments = email_data.get('attachments', [])
+    
+    print(f"\n📧 Processing: {subject}")
+    print(f"   From: {sender}")
+    
+    # ========================================
+    # FILTER 1: Healthcare Keyword Check
+    # ========================================
+    is_healthcare, keyword_count = is_healthcare_email(subject, body, attachments)
+    
+    if not is_healthcare:
+        print(f"   ⏭️  Skipping: Not a healthcare application (only {keyword_count} keyword matches)")
+        # Mark as processed so we don't keep retrying spam
+        mark_email_processed(email_data["message_id"])
+        return None
+    
+    print(f"   ✓ Healthcare keywords found: {keyword_count} matches")
     
     extracted = None
-    all_text = email_data.get("body", "")
+    all_text = body
     
     # Check for attachments that can use Vision extraction
     vision_attachments = []
@@ -578,15 +664,24 @@ def process_email(email_data: Dict) -> Optional[str]:
     # ========================================
     # Create Application
     # ========================================
-    if extracted and extracted.get("patient_name"):
-        print(f"   ✓ Patient: {extracted['patient_name']}")
-        print(f"   ✓ Confidence: {extracted.get('confidence_score', 0)}%")
-        
-        # Check if reprocessed by Turbo
-        if extracted.get("_reprocessed"):
-            print(f"   ℹ Auto-reprocessed by GPT-4 Turbo (low initial confidence)")
-    else:
-        print("   ⚠ No patient name extracted")
+    # ========================================
+    # FILTER 2: Required Fields Check
+    # ========================================
+    has_required, missing_fields = has_required_fields(extracted or {})
+    
+    if not has_required:
+        print(f"   ⏭️  Skipping: Missing required fields: {', '.join(missing_fields)}")
+        # Still mark as processed so we don't keep retrying
+        mark_email_processed(email_data["message_id"])
+        return None
+    
+    print(f"   ✓ Patient: {extracted['patient_name']}")
+    print(f"   ✓ DOB: {extracted.get('dob', 'N/A')}")
+    print(f"   ✓ Confidence: {extracted.get('confidence_score', 0)}%")
+    
+    # Check if reprocessed by Turbo
+    if extracted.get("_reprocessed"):
+        print(f"   ℹ Auto-reprocessed by GPT-4 Turbo (low initial confidence)")
     
     # Create application
     app_id = create_application(email_data, extracted or {})
