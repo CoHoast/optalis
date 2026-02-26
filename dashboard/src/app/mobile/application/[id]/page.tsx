@@ -87,7 +87,8 @@ function ApplicationDetailContent() {
   const [currentDocPage, setCurrentDocPage] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
-  const [editedFields, setEditedFields] = useState<Record<string, string>>({});
+  const [editedFields, setEditedFields] = useState<Record<string, string | string[]>>({});
+  const [newListItemInputs, setNewListItemInputs] = useState<Record<string, string>>({});
   const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
   const [showDenyConfirm, setShowDenyConfirm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -165,7 +166,7 @@ function ApplicationDetailContent() {
     }
   };
 
-  const handleFieldChange = (field: string, value: string) => {
+  const handleFieldChange = (field: string, value: string | string[]) => {
     setEditedFields({ ...editedFields, [field]: value });
   };
 
@@ -194,6 +195,7 @@ function ApplicationDetailContent() {
         // Update local state with saved values
         setApp(prev => prev ? { ...prev, ...editedFields, status: 'review' } : prev);
         setEditedFields({});
+        setNewListItemInputs({});
         setIsEditing(false);
         
         // Haptic feedback
@@ -318,16 +320,97 @@ function ApplicationDetailContent() {
     );
   };
 
-  const renderListField = (label: string, items: string[]) => (
-    <div className="mobile-form-group">
-      <label className="mobile-label">{label}</label>
-      <div className="mobile-tags">
-        {items.map((item, i) => (
-          <span key={i} className="mobile-tag">{item}</span>
-        ))}
+  const renderListField = (label: string, field: string, items: string[]) => {
+    const currentItems: string[] = (editedFields[field] as string[]) ?? items;
+    const newItemValue = newListItemInputs[field] || '';
+    
+    const handleAddItem = () => {
+      if (newItemValue.trim()) {
+        const updatedItems = [...currentItems, newItemValue.trim()];
+        handleFieldChange(field, updatedItems);
+        setNewListItemInputs(prev => ({ ...prev, [field]: '' }));
+      }
+    };
+    
+    const handleRemoveItem = (index: number) => {
+      const updatedItems = currentItems.filter((_, i) => i !== index);
+      handleFieldChange(field, updatedItems);
+    };
+    
+    return (
+      <div className="mobile-form-group">
+        <label className="mobile-label">{label}</label>
+        {isEditing ? (
+          <>
+            <div className="mobile-tags" style={{ marginBottom: currentItems.length > 0 ? 10 : 0 }}>
+              {currentItems.map((item, i) => (
+                <span key={i} className="mobile-tag" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  {item}
+                  <button
+                    onClick={() => handleRemoveItem(i)}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      padding: 0,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <svg style={{ width: 14, height: 14, color: '#ef4444' }} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </span>
+              ))}
+            </div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <input
+                type="text"
+                className="mobile-input"
+                placeholder={`Add ${label.toLowerCase().replace('ies', 'y').replace(/s$/, '')}...`}
+                value={newItemValue}
+                onChange={(e) => setNewListItemInputs(prev => ({ ...prev, [field]: e.target.value }))}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleAddItem();
+                  }
+                }}
+                style={{ flex: 1 }}
+              />
+              <button
+                onClick={handleAddItem}
+                disabled={!newItemValue.trim()}
+                style={{
+                  padding: '12px 16px',
+                  background: newItemValue.trim() ? '#275380' : '#e5e7eb',
+                  color: newItemValue.trim() ? 'white' : '#9ca3af',
+                  border: 'none',
+                  borderRadius: 10,
+                  fontSize: 14,
+                  fontWeight: 600,
+                  cursor: newItemValue.trim() ? 'pointer' : 'default',
+                }}
+              >
+                Add
+              </button>
+            </div>
+          </>
+        ) : (
+          <div className="mobile-tags">
+            {currentItems.length > 0 ? (
+              currentItems.map((item, i) => (
+                <span key={i} className="mobile-tag">{item}</span>
+              ))
+            ) : (
+              <span style={{ color: '#9ca3af', fontStyle: 'italic', fontSize: 14 }}>None listed</span>
+            )}
+          </div>
+        )}
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <MobileLayout 
@@ -540,6 +623,7 @@ function ApplicationDetailContent() {
                   onClick={() => {
                     setIsEditing(false);
                     setEditedFields({});
+                    setNewListItemInputs({});
                   }}
                   style={{
                     flex: 1,
@@ -668,9 +752,9 @@ function ApplicationDetailContent() {
               Medical Information
             </h3>
             
-            {renderListField('Diagnosis', app.diagnosis || [])}
-            {renderListField('Medications', app.medications || [])}
-            {renderListField('Allergies', app.allergies || [])}
+            {renderListField('Diagnosis', 'diagnosis', app.diagnosis || [])}
+            {renderListField('Medications', 'medications', app.medications || [])}
+            {renderListField('Allergies', 'allergies', app.allergies || [])}
           </div>
 
           {/* Referral Information */}
@@ -681,7 +765,7 @@ function ApplicationDetailContent() {
             
             {renderEditableField('Referring Physician', 'physician', app.physician || '')}
             {renderEditableField('Referring Facility', 'facility', app.facility || '')}
-            {renderListField('Requested Services', app.services || [])}
+            {renderListField('Requested Services', 'services', app.services || [])}
           </div>
 
           {/* Notes Section */}
