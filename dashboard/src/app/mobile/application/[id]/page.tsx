@@ -509,34 +509,7 @@ function ApplicationDetailContent() {
       {/* Details Tab */}
       {activeTab === 'details' && (
         <>
-          {/* Edit Mode Toggle Button - Always visible */}
-          {!isEditing && (
-            <div className="mobile-section" style={{ paddingTop: 12 }}>
-              <button 
-                onClick={() => setIsEditing(true)}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 8,
-                  width: '100%',
-                  padding: '14px 20px',
-                  background: '#275380',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: 12,
-                  fontSize: 16,
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                }}
-              >
-                <PencilIcon className="w-5 h-5" />
-                Edit Application
-              </button>
-            </div>
-          )}
-
-          {/* Save/Cancel buttons when editing */}
+          {/* Save/Cancel buttons when editing - appears at top */}
           {isEditing && (
             <div className="mobile-section" style={{ paddingTop: 12 }}>
               <div style={{ display: 'flex', gap: 12 }}>
@@ -693,7 +666,7 @@ function ApplicationDetailContent() {
                   color: (app as any).notes ? '#1a1a1a' : '#9ca3af',
                   fontStyle: (app as any).notes ? 'normal' : 'italic'
                 }}>
-                  {(app as any).notes || 'No notes added. Tap "Edit Application" to add notes.'}
+                  {(app as any).notes || 'No notes added. Tap the pencil icon to edit.'}
                 </div>
               )}
             </div>
