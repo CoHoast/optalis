@@ -676,9 +676,6 @@
   display: flex;
   background: white;
   border-bottom: 1px solid #e5e7eb;
-  position: sticky;
-  top: 56px;
-  z-index: 50;
 }
 
 .mobile-tab-inline {

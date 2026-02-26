@@ -666,7 +666,7 @@ function ApplicationDetailContent() {
           )}
 
           {/* AI Summary Card */}
-          <div className="mobile-section" style={{ paddingTop: 16, marginTop: 8 }}>
+          <div className="mobile-section" style={{ paddingTop: 12 }}>
             <div style={{ 
               background: 'linear-gradient(135deg, #275380 0%, #1e3f61 100%)', 
               borderRadius: 16, 
