@@ -37,6 +37,21 @@ export default function MobileScan() {
   const [processingStep, setProcessingStep] = useState<ProcessingStep>('uploading');
   const [error, setError] = useState<string | null>(null);
   const [newApplicationId, setNewApplicationId] = useState<string | null>(null);
+  const [showManualEntry, setShowManualEntry] = useState(false);
+  const [manualData, setManualData] = useState({
+    name: '',
+    dob: '',
+    phone: '',
+    address: '',
+    insurance: '',
+    policyNumber: '',
+    diagnosis: '',
+    medications: '',
+    allergies: '',
+    physician: '',
+    facility: '',
+    notes: ''
+  });
 
   const handleCapture = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -214,6 +229,235 @@ export default function MobileScan() {
     );
   }
 
+  // Manual Entry Form
+  if (showManualEntry) {
+    return (
+      <MobileLayout title="Manual Entry" showBack>
+        <div className="mobile-section" style={{ paddingTop: 8 }}>
+          {/* Info Banner */}
+          <div style={{
+            background: '#fef3c7',
+            borderRadius: '12px',
+            padding: '14px 16px',
+            marginBottom: '20px',
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: '10px'
+          }}>
+            <svg width="20" height="20" fill="none" stroke="#92400e" strokeWidth="2" viewBox="0 0 24 24" style={{ flexShrink: 0, marginTop: 2 }}>
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+            <div style={{ fontSize: '13px', color: '#92400e' }}>
+              <strong>Manual Entry Mode</strong><br/>
+              Enter patient information directly without AI processing.
+            </div>
+          </div>
+
+          {/* Form */}
+          <div style={{ background: 'white', borderRadius: '12px', padding: '20px' }}>
+            <h3 style={{ fontSize: '15px', fontWeight: 600, marginBottom: '16px', color: '#374151' }}>Patient Information</h3>
+            
+            <div className="mobile-form-group">
+              <label className="mobile-label">Patient Name *</label>
+              <input
+                type="text"
+                className="mobile-input"
+                value={manualData.name}
+                onChange={(e) => setManualData({...manualData, name: e.target.value})}
+                placeholder="Full name"
+              />
+            </div>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+              <div className="mobile-form-group">
+                <label className="mobile-label">Date of Birth *</label>
+                <input
+                  type="text"
+                  className="mobile-input"
+                  value={manualData.dob}
+                  onChange={(e) => setManualData({...manualData, dob: e.target.value})}
+                  placeholder="MM/DD/YYYY"
+                />
+              </div>
+              <div className="mobile-form-group">
+                <label className="mobile-label">Phone</label>
+                <input
+                  type="text"
+                  className="mobile-input"
+                  value={manualData.phone}
+                  onChange={(e) => setManualData({...manualData, phone: e.target.value})}
+                  placeholder="Phone"
+                />
+              </div>
+            </div>
+
+            <div className="mobile-form-group">
+              <label className="mobile-label">Address</label>
+              <input
+                type="text"
+                className="mobile-input"
+                value={manualData.address}
+                onChange={(e) => setManualData({...manualData, address: e.target.value})}
+                placeholder="Full address"
+              />
+            </div>
+
+            <h3 style={{ fontSize: '15px', fontWeight: 600, marginTop: '24px', marginBottom: '16px', paddingTop: '16px', borderTop: '1px solid #e5e7eb', color: '#374151' }}>Insurance</h3>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+              <div className="mobile-form-group">
+                <label className="mobile-label">Insurance</label>
+                <input
+                  type="text"
+                  className="mobile-input"
+                  value={manualData.insurance}
+                  onChange={(e) => setManualData({...manualData, insurance: e.target.value})}
+                  placeholder="Provider"
+                />
+              </div>
+              <div className="mobile-form-group">
+                <label className="mobile-label">Policy Number</label>
+                <input
+                  type="text"
+                  className="mobile-input"
+                  value={manualData.policyNumber}
+                  onChange={(e) => setManualData({...manualData, policyNumber: e.target.value})}
+                  placeholder="Policy #"
+                />
+              </div>
+            </div>
+
+            <h3 style={{ fontSize: '15px', fontWeight: 600, marginTop: '24px', marginBottom: '16px', paddingTop: '16px', borderTop: '1px solid #e5e7eb', color: '#374151' }}>Medical</h3>
+            
+            <div className="mobile-form-group">
+              <label className="mobile-label">Diagnosis</label>
+              <input
+                type="text"
+                className="mobile-input"
+                value={manualData.diagnosis}
+                onChange={(e) => setManualData({...manualData, diagnosis: e.target.value})}
+                placeholder="Separate with commas"
+              />
+            </div>
+
+            <div className="mobile-form-group">
+              <label className="mobile-label">Medications</label>
+              <input
+                type="text"
+                className="mobile-input"
+                value={manualData.medications}
+                onChange={(e) => setManualData({...manualData, medications: e.target.value})}
+                placeholder="Separate with commas"
+              />
+            </div>
+
+            <div className="mobile-form-group">
+              <label className="mobile-label">Allergies</label>
+              <input
+                type="text"
+                className="mobile-input"
+                value={manualData.allergies}
+                onChange={(e) => setManualData({...manualData, allergies: e.target.value})}
+                placeholder="Separate with commas"
+              />
+            </div>
+
+            <h3 style={{ fontSize: '15px', fontWeight: 600, marginTop: '24px', marginBottom: '16px', paddingTop: '16px', borderTop: '1px solid #e5e7eb', color: '#374151' }}>Referral</h3>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+              <div className="mobile-form-group">
+                <label className="mobile-label">Physician</label>
+                <input
+                  type="text"
+                  className="mobile-input"
+                  value={manualData.physician}
+                  onChange={(e) => setManualData({...manualData, physician: e.target.value})}
+                  placeholder="Dr. name"
+                />
+              </div>
+              <div className="mobile-form-group">
+                <label className="mobile-label">Facility</label>
+                <input
+                  type="text"
+                  className="mobile-input"
+                  value={manualData.facility}
+                  onChange={(e) => setManualData({...manualData, facility: e.target.value})}
+                  placeholder="Facility"
+                />
+              </div>
+            </div>
+
+            <div className="mobile-form-group">
+              <label className="mobile-label">Notes</label>
+              <textarea
+                className="mobile-input"
+                value={manualData.notes}
+                onChange={(e) => setManualData({...manualData, notes: e.target.value})}
+                placeholder="Additional notes..."
+                style={{ minHeight: '80px', resize: 'vertical' }}
+              />
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div style={{ display: 'flex', gap: '12px', marginTop: '20px', marginBottom: '100px' }}>
+            <button
+              onClick={() => {
+                setShowManualEntry(false);
+                setManualData({
+                  name: '', dob: '', phone: '', address: '',
+                  insurance: '', policyNumber: '',
+                  diagnosis: '', medications: '', allergies: '',
+                  physician: '', facility: '', notes: ''
+                });
+              }}
+              style={{
+                flex: 1,
+                padding: '14px',
+                background: 'white',
+                border: '1px solid #e5e7eb',
+                borderRadius: '10px',
+                fontSize: '15px',
+                fontWeight: 500,
+                cursor: 'pointer'
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              onClick={() => {
+                alert('Application saved successfully!');
+                router.push('/mobile');
+              }}
+              disabled={!manualData.name.trim() || !manualData.dob.trim()}
+              style={{
+                flex: 1,
+                padding: '14px',
+                background: (manualData.name.trim() && manualData.dob.trim()) ? '#16a34a' : '#e5e7eb',
+                color: (manualData.name.trim() && manualData.dob.trim()) ? 'white' : '#9ca3af',
+                border: 'none',
+                borderRadius: '10px',
+                fontSize: '15px',
+                fontWeight: 600,
+                cursor: (manualData.name.trim() && manualData.dob.trim()) ? 'pointer' : 'not-allowed',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px'
+              }}
+            >
+              <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              Save
+            </button>
+          </div>
+        </div>
+      </MobileLayout>
+    );
+  }
+
   return (
     <MobileLayout title="Scan Document" showBack>
       <div className="scan-container">
@@ -310,6 +554,37 @@ export default function MobileScan() {
                 <PhotoIcon />
                 Choose from Library
               </button>
+              
+              {/* Manual Entry Option */}
+              <div style={{ 
+                width: '100%', 
+                textAlign: 'center', 
+                marginTop: '16px', 
+                paddingTop: '16px', 
+                borderTop: '1px solid #e5e7eb' 
+              }}>
+                <button
+                  onClick={() => setShowManualEntry(true)}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    color: '#f59e0b',
+                    fontSize: '14px',
+                    fontWeight: 500,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    margin: '0 auto'
+                  }}
+                >
+                  <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                  </svg>
+                  Manual Entry (No AI)
+                </button>
+              </div>
             </>
           ) : (
             <>

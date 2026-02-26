@@ -4,7 +4,7 @@ import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
-type UploadMethod = 'upload' | 'paste' | null;
+type UploadMethod = 'upload' | 'paste' | 'manual' | null;
 type ProcessingStatus = 'idle' | 'uploading' | 'processing' | 'complete' | 'error';
 
 interface ExtractedData {
@@ -36,6 +36,23 @@ export default function NewApplicationPage() {
   const [pastedText, setPastedText] = useState('');
   const [extractedData, setExtractedData] = useState<ExtractedData | null>(null);
   const [processingStep, setProcessingStep] = useState('');
+  
+  // Manual Entry Form State
+  const [manualData, setManualData] = useState({
+    name: '',
+    dob: '',
+    phone: '',
+    address: '',
+    insurance: '',
+    policyNumber: '',
+    diagnosis: '',
+    medications: '',
+    allergies: '',
+    physician: '',
+    facility: '',
+    services: '',
+    notes: ''
+  });
 
   // Simulated AI extraction (in production, this would call DOKit API)
   const simulateAIExtraction = async () => {
@@ -141,12 +158,12 @@ export default function NewApplicationPage() {
 
       {/* Status: Idle - Show method selection */}
       {status === 'idle' && !method && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', maxWidth: '900px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '24px', maxWidth: '1100px' }}>
           {/* Upload Option */}
           <button
             onClick={() => setMethod('upload')}
             style={{
-              padding: '40px',
+              padding: '32px',
               background: 'white',
               border: '2px dashed #e0e0e0',
               borderRadius: '16px',
@@ -164,28 +181,28 @@ export default function NewApplicationPage() {
             }}
           >
             <div style={{
-              width: '64px', height: '64px', borderRadius: '16px',
+              width: '56px', height: '56px', borderRadius: '14px',
               background: 'rgba(39,83,128,0.1)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              margin: '0 auto 20px'
+              margin: '0 auto 16px'
             }}>
-              <svg width="32" height="32" fill="none" stroke="#275380" strokeWidth="2" viewBox="0 0 24 24">
+              <svg width="28" height="28" fill="none" stroke="#275380" strokeWidth="2" viewBox="0 0 24 24">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                 <polyline points="17 8 12 3 7 8"/>
                 <line x1="12" y1="3" x2="12" y2="15"/>
               </svg>
             </div>
-            <h3 style={{ fontSize: '20px', fontWeight: 600, marginBottom: '8px', color: '#1a1a1a' }}>Upload Documents</h3>
-            <p style={{ color: '#666', fontSize: '14px', marginBottom: '16px' }}>
+            <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '6px', color: '#1a1a1a' }}>Upload Documents</h3>
+            <p style={{ color: '#666', fontSize: '13px', marginBottom: '12px' }}>
               Upload PDF, Word, or image files
             </p>
-            <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: '6px', justifyContent: 'center', flexWrap: 'wrap' }}>
               {['PDF', 'DOCX', 'JPG', 'PNG'].map(fmt => (
                 <span key={fmt} style={{
-                  padding: '4px 10px',
+                  padding: '3px 8px',
                   background: '#f0f0f0',
-                  borderRadius: '6px',
-                  fontSize: '12px',
+                  borderRadius: '4px',
+                  fontSize: '11px',
                   fontWeight: 500,
                   color: '#666'
                 }}>{fmt}</span>
@@ -197,7 +214,7 @@ export default function NewApplicationPage() {
           <button
             onClick={() => setMethod('paste')}
             style={{
-              padding: '40px',
+              padding: '32px',
               background: 'white',
               border: '2px dashed #e0e0e0',
               borderRadius: '16px',
@@ -215,29 +232,79 @@ export default function NewApplicationPage() {
             }}
           >
             <div style={{
-              width: '64px', height: '64px', borderRadius: '16px',
+              width: '56px', height: '56px', borderRadius: '14px',
               background: 'rgba(39,83,128,0.1)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              margin: '0 auto 20px'
+              margin: '0 auto 16px'
             }}>
-              <svg width="32" height="32" fill="none" stroke="#275380" strokeWidth="2" viewBox="0 0 24 24">
+              <svg width="28" height="28" fill="none" stroke="#275380" strokeWidth="2" viewBox="0 0 24 24">
                 <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
                 <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
               </svg>
             </div>
-            <h3 style={{ fontSize: '20px', fontWeight: 600, marginBottom: '8px', color: '#1a1a1a' }}>Paste Text</h3>
-            <p style={{ color: '#666', fontSize: '14px', marginBottom: '16px' }}>
+            <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '6px', color: '#1a1a1a' }}>Paste Text</h3>
+            <p style={{ color: '#666', fontSize: '13px', marginBottom: '12px' }}>
               Copy & paste from email, fax, or notes
             </p>
-            <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: '6px', justifyContent: 'center', flexWrap: 'wrap' }}>
               {['Email', 'Fax', 'Notes'].map(fmt => (
                 <span key={fmt} style={{
-                  padding: '4px 10px',
+                  padding: '3px 8px',
                   background: '#f0f0f0',
-                  borderRadius: '6px',
-                  fontSize: '12px',
+                  borderRadius: '4px',
+                  fontSize: '11px',
                   fontWeight: 500,
                   color: '#666'
+                }}>{fmt}</span>
+              ))}
+            </div>
+          </button>
+
+          {/* Manual Entry Option */}
+          <button
+            onClick={() => setMethod('manual')}
+            style={{
+              padding: '32px',
+              background: 'white',
+              border: '2px dashed #e0e0e0',
+              borderRadius: '16px',
+              cursor: 'pointer',
+              textAlign: 'center',
+              transition: 'all 0.2s'
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.borderColor = '#f59e0b';
+              e.currentTarget.style.background = '#fffbeb';
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.borderColor = '#e0e0e0';
+              e.currentTarget.style.background = 'white';
+            }}
+          >
+            <div style={{
+              width: '56px', height: '56px', borderRadius: '14px',
+              background: 'rgba(245,158,11,0.1)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              margin: '0 auto 16px'
+            }}>
+              <svg width="28" height="28" fill="none" stroke="#f59e0b" strokeWidth="2" viewBox="0 0 24 24">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+              </svg>
+            </div>
+            <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '6px', color: '#1a1a1a' }}>Manual Entry</h3>
+            <p style={{ color: '#666', fontSize: '13px', marginBottom: '12px' }}>
+              Enter patient info directly
+            </p>
+            <div style={{ display: 'flex', gap: '6px', justifyContent: 'center', flexWrap: 'wrap' }}>
+              {['No AI', 'Fallback'].map(fmt => (
+                <span key={fmt} style={{
+                  padding: '3px 8px',
+                  background: '#fef3c7',
+                  borderRadius: '4px',
+                  fontSize: '11px',
+                  fontWeight: 500,
+                  color: '#92400e'
                 }}>{fmt}</span>
               ))}
             </div>
@@ -465,6 +532,362 @@ Please contact family at (248) 555-0123..."
                 <path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2"/>
               </svg>
               Process with AI
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Manual Entry Method Selected */}
+      {status === 'idle' && method === 'manual' && (
+        <div style={{ maxWidth: '900px' }}>
+          {/* Info Banner */}
+          <div style={{
+            background: '#fef3c7',
+            border: '1px solid #fcd34d',
+            borderRadius: '12px',
+            padding: '16px 20px',
+            marginBottom: '24px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px'
+          }}>
+            <svg width="24" height="24" fill="none" stroke="#92400e" strokeWidth="2" viewBox="0 0 24 24">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+            <div>
+              <div style={{ fontWeight: 600, color: '#92400e' }}>Manual Entry Mode</div>
+              <div style={{ fontSize: '14px', color: '#a16207' }}>
+                Enter patient information directly without AI processing. This is a fallback option when AI is unavailable.
+              </div>
+            </div>
+          </div>
+
+          <div style={{
+            background: 'white',
+            borderRadius: '16px',
+            padding: '32px',
+            border: '1px solid #e0e0e0'
+          }}>
+            <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '24px' }}>Patient Information</h3>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '24px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>
+                  Patient Name *
+                </label>
+                <input
+                  type="text"
+                  value={manualData.name}
+                  onChange={(e) => setManualData({...manualData, name: e.target.value})}
+                  placeholder="Full name"
+                  style={{
+                    width: '100%',
+                    padding: '12px 14px',
+                    border: '1px solid #e0e0e0',
+                    borderRadius: '8px',
+                    fontSize: '15px',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>
+                  Date of Birth *
+                </label>
+                <input
+                  type="text"
+                  value={manualData.dob}
+                  onChange={(e) => setManualData({...manualData, dob: e.target.value})}
+                  placeholder="MM/DD/YYYY"
+                  style={{
+                    width: '100%',
+                    padding: '12px 14px',
+                    border: '1px solid #e0e0e0',
+                    borderRadius: '8px',
+                    fontSize: '15px',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>
+                  Phone
+                </label>
+                <input
+                  type="text"
+                  value={manualData.phone}
+                  onChange={(e) => setManualData({...manualData, phone: e.target.value})}
+                  placeholder="(XXX) XXX-XXXX"
+                  style={{
+                    width: '100%',
+                    padding: '12px 14px',
+                    border: '1px solid #e0e0e0',
+                    borderRadius: '8px',
+                    fontSize: '15px',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>
+                  Address
+                </label>
+                <input
+                  type="text"
+                  value={manualData.address}
+                  onChange={(e) => setManualData({...manualData, address: e.target.value})}
+                  placeholder="Full address"
+                  style={{
+                    width: '100%',
+                    padding: '12px 14px',
+                    border: '1px solid #e0e0e0',
+                    borderRadius: '8px',
+                    fontSize: '15px',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+            </div>
+
+            <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '24px', marginTop: '32px', paddingTop: '24px', borderTop: '1px solid #e0e0e0' }}>Insurance Information</h3>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '24px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>
+                  Insurance Provider
+                </label>
+                <input
+                  type="text"
+                  value={manualData.insurance}
+                  onChange={(e) => setManualData({...manualData, insurance: e.target.value})}
+                  placeholder="e.g., Medicare, Blue Cross"
+                  style={{
+                    width: '100%',
+                    padding: '12px 14px',
+                    border: '1px solid #e0e0e0',
+                    borderRadius: '8px',
+                    fontSize: '15px',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>
+                  Policy Number
+                </label>
+                <input
+                  type="text"
+                  value={manualData.policyNumber}
+                  onChange={(e) => setManualData({...manualData, policyNumber: e.target.value})}
+                  placeholder="Policy/Member ID"
+                  style={{
+                    width: '100%',
+                    padding: '12px 14px',
+                    border: '1px solid #e0e0e0',
+                    borderRadius: '8px',
+                    fontSize: '15px',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+            </div>
+
+            <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '24px', marginTop: '32px', paddingTop: '24px', borderTop: '1px solid #e0e0e0' }}>Medical Information</h3>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '20px', marginBottom: '24px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>
+                  Diagnosis (separate with commas)
+                </label>
+                <input
+                  type="text"
+                  value={manualData.diagnosis}
+                  onChange={(e) => setManualData({...manualData, diagnosis: e.target.value})}
+                  placeholder="e.g., CHF, Diabetes, Hypertension"
+                  style={{
+                    width: '100%',
+                    padding: '12px 14px',
+                    border: '1px solid #e0e0e0',
+                    borderRadius: '8px',
+                    fontSize: '15px',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>
+                  Medications (separate with commas)
+                </label>
+                <input
+                  type="text"
+                  value={manualData.medications}
+                  onChange={(e) => setManualData({...manualData, medications: e.target.value})}
+                  placeholder="e.g., Metformin 500mg, Lasix 40mg"
+                  style={{
+                    width: '100%',
+                    padding: '12px 14px',
+                    border: '1px solid #e0e0e0',
+                    borderRadius: '8px',
+                    fontSize: '15px',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>
+                  Allergies (separate with commas)
+                </label>
+                <input
+                  type="text"
+                  value={manualData.allergies}
+                  onChange={(e) => setManualData({...manualData, allergies: e.target.value})}
+                  placeholder="e.g., Penicillin, Sulfa"
+                  style={{
+                    width: '100%',
+                    padding: '12px 14px',
+                    border: '1px solid #e0e0e0',
+                    borderRadius: '8px',
+                    fontSize: '15px',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+            </div>
+
+            <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '24px', marginTop: '32px', paddingTop: '24px', borderTop: '1px solid #e0e0e0' }}>Referral Information</h3>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '24px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>
+                  Referring Physician
+                </label>
+                <input
+                  type="text"
+                  value={manualData.physician}
+                  onChange={(e) => setManualData({...manualData, physician: e.target.value})}
+                  placeholder="Dr. name"
+                  style={{
+                    width: '100%',
+                    padding: '12px 14px',
+                    border: '1px solid #e0e0e0',
+                    borderRadius: '8px',
+                    fontSize: '15px',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>
+                  Facility
+                </label>
+                <input
+                  type="text"
+                  value={manualData.facility}
+                  onChange={(e) => setManualData({...manualData, facility: e.target.value})}
+                  placeholder="Requested facility"
+                  style={{
+                    width: '100%',
+                    padding: '12px 14px',
+                    border: '1px solid #e0e0e0',
+                    borderRadius: '8px',
+                    fontSize: '15px',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+            </div>
+
+            <div style={{ marginBottom: '24px' }}>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>
+                Requested Services (separate with commas)
+              </label>
+              <input
+                type="text"
+                value={manualData.services}
+                onChange={(e) => setManualData({...manualData, services: e.target.value})}
+                placeholder="e.g., Skilled Nursing, Physical Therapy, Occupational Therapy"
+                style={{
+                  width: '100%',
+                  padding: '12px 14px',
+                  border: '1px solid #e0e0e0',
+                  borderRadius: '8px',
+                  fontSize: '15px',
+                  boxSizing: 'border-box'
+                }}
+              />
+            </div>
+
+            <div style={{ marginBottom: '24px' }}>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>
+                Notes
+              </label>
+              <textarea
+                value={manualData.notes}
+                onChange={(e) => setManualData({...manualData, notes: e.target.value})}
+                placeholder="Additional notes or information..."
+                style={{
+                  width: '100%',
+                  minHeight: '100px',
+                  padding: '12px 14px',
+                  border: '1px solid #e0e0e0',
+                  borderRadius: '8px',
+                  fontSize: '15px',
+                  resize: 'vertical',
+                  fontFamily: 'inherit',
+                  boxSizing: 'border-box'
+                }}
+              />
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
+            <button
+              onClick={() => { 
+                setMethod(null); 
+                setManualData({
+                  name: '', dob: '', phone: '', address: '',
+                  insurance: '', policyNumber: '',
+                  diagnosis: '', medications: '', allergies: '',
+                  physician: '', facility: '', services: '', notes: ''
+                });
+              }}
+              style={{
+                padding: '14px 28px',
+                background: 'white',
+                border: '1px solid #e0e0e0',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontSize: '15px'
+              }}
+            >
+              Back
+            </button>
+            <button
+              onClick={() => {
+                // Save manual entry as new application
+                alert('Application saved successfully!');
+                router.push('/dashboard/applications');
+              }}
+              disabled={!manualData.name.trim() || !manualData.dob.trim()}
+              style={{
+                padding: '14px 32px',
+                background: (manualData.name.trim() && manualData.dob.trim()) ? '#16a34a' : '#e0e0e0',
+                color: (manualData.name.trim() && manualData.dob.trim()) ? 'white' : '#888',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: (manualData.name.trim() && manualData.dob.trim()) ? 'pointer' : 'not-allowed',
+                fontSize: '15px',
+                fontWeight: 600,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}
+            >
+              <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              Save to Applications
             </button>
           </div>
         </div>
