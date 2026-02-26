@@ -694,6 +694,117 @@ export default function DemoLauncherPage() {
         onClose={() => setActiveModal(null)}
         title="Mobile Web App"
       >
+        {/* iPhone Mockups */}
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          gap: '16px',
+          marginBottom: '28px',
+          padding: '24px',
+          background: 'linear-gradient(135deg, #f8f6f3 0%, #e8e4df 100%)',
+          borderRadius: '16px',
+        }}>
+          {/* iPhone 1 - Inbox */}
+          <div style={{
+            width: '120px',
+            background: '#1a1a1a',
+            borderRadius: '24px',
+            padding: '8px',
+            boxShadow: '0 10px 40px rgba(0,0,0,0.3)',
+          }}>
+            <div style={{
+              width: '100%',
+              borderRadius: '18px',
+              overflow: 'hidden',
+              position: 'relative',
+            }}>
+              <div style={{
+                position: 'absolute',
+                top: '6px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                width: '40px',
+                height: '6px',
+                background: '#1a1a1a',
+                borderRadius: '3px',
+                zIndex: 10,
+              }}></div>
+              <img 
+                src="/demo-previews/mobile-inbox.jpg" 
+                alt="Inbox Screen"
+                style={{ width: '100%', height: 'auto', display: 'block' }}
+              />
+            </div>
+          </div>
+          
+          {/* iPhone 2 - Detail */}
+          <div style={{
+            width: '120px',
+            background: '#1a1a1a',
+            borderRadius: '24px',
+            padding: '8px',
+            boxShadow: '0 10px 40px rgba(0,0,0,0.3)',
+            transform: 'scale(1.05)',
+          }}>
+            <div style={{
+              width: '100%',
+              borderRadius: '18px',
+              overflow: 'hidden',
+              position: 'relative',
+            }}>
+              <div style={{
+                position: 'absolute',
+                top: '6px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                width: '40px',
+                height: '6px',
+                background: '#1a1a1a',
+                borderRadius: '3px',
+                zIndex: 10,
+              }}></div>
+              <img 
+                src="/demo-previews/mobile-detail.jpg" 
+                alt="Application Detail Screen"
+                style={{ width: '100%', height: 'auto', display: 'block' }}
+              />
+            </div>
+          </div>
+          
+          {/* iPhone 3 - Scan */}
+          <div style={{
+            width: '120px',
+            background: '#1a1a1a',
+            borderRadius: '24px',
+            padding: '8px',
+            boxShadow: '0 10px 40px rgba(0,0,0,0.3)',
+          }}>
+            <div style={{
+              width: '100%',
+              borderRadius: '18px',
+              overflow: 'hidden',
+              position: 'relative',
+            }}>
+              <div style={{
+                position: 'absolute',
+                top: '6px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                width: '40px',
+                height: '6px',
+                background: '#1a1a1a',
+                borderRadius: '3px',
+                zIndex: 10,
+              }}></div>
+              <img 
+                src="/demo-previews/mobile-scan.jpg" 
+                alt="Scan Document Screen"
+                style={{ width: '100%', height: 'auto', display: 'block' }}
+              />
+            </div>
+          </div>
+        </div>
+        
         <p style={{ fontSize: '16px', color: '#444', lineHeight: 1.7, marginBottom: '20px' }}>
           The Optalis Mobile App is a <strong>Progressive Web App (PWA)</strong> that works just like a native iOS or Android app—without requiring app store downloads. Perfect for field staff, intake coordinators on the move, and anyone who needs to review applications away from their desk.
         </p>
