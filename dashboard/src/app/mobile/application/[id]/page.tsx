@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import MobileLayout from '@/components/MobileLayout';
 import { 
@@ -75,12 +75,12 @@ const getMockApplication = (id: string): Application => ({
   status: 'pending',
 });
 
-export default function MobileApplicationDetail() {
+function ApplicationDetailContent() {
   const router = useRouter();
   const params = useParams();
   const searchParams = useSearchParams();
   const id = params.id as string;
-  const isNewApplication = searchParams.get('new') === 'true';
+  const isNewApplication = searchParams?.get('new') === 'true';
   
   const [app, setApp] = useState<Application | null>(null);
   const [documents, setDocuments] = useState<DocumentInfo[]>([]);
@@ -91,7 +91,7 @@ export default function MobileApplicationDetail() {
   const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeTab, setActiveTab] = useState<'details' | 'document'>('details');
-  const [showNewBanner, setShowNewBanner] = useState(isNewApplication);
+  const [showNewBanner, setShowNewBanner] = useState(isNewApplication || false);
 
   // Fetch application data
   useEffect(() => {
@@ -753,5 +753,21 @@ export default function MobileApplicationDetail() {
         }
       `}</style>
     </MobileLayout>
+  );
+}
+
+// Wrapper component with Suspense for useSearchParams
+export default function MobileApplicationDetail() {
+  return (
+    <Suspense fallback={
+      <MobileLayout title="Application" showBack>
+        <div className="mobile-section" style={{ paddingTop: 60, textAlign: 'center' }}>
+          <div className="scan-processing-spinner" style={{ margin: '0 auto 16px' }} />
+          <p style={{ color: '#6b7280' }}>Loading application...</p>
+        </div>
+      </MobileLayout>
+    }>
+      <ApplicationDetailContent />
+    </Suspense>
   );
 }
