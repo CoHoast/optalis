@@ -366,11 +366,9 @@ function ApplicationDetailContent() {
     >
       {/* Tab Bar */}
       <div className="mobile-tab-bar-inline" style={{ 
-        position: 'sticky', 
-        top: 56, 
-        zIndex: 50, 
         background: 'white',
-        borderBottom: '1px solid #e5e7eb'
+        borderBottom: '1px solid #e5e7eb',
+        marginTop: 0
       }}>
         <button 
           className={`mobile-tab-inline ${activeTab === 'details' ? 'active' : ''}`}
@@ -391,9 +389,6 @@ function ApplicationDetailContent() {
           <span>Original Doc</span>
         </button>
       </div>
-      
-      {/* Content spacer for sticky tab bar */}
-      <div style={{ height: 8 }}></div>
 
       {/* New Application Banner */}
       {showNewBanner && (
