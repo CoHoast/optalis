@@ -871,7 +871,7 @@
 }
 
 /* ============================================
-   CENTER SCAN BUTTON - Instagram/TikTok Style
+   CENTER SCAN BUTTON - Clean Outline Style
    ============================================ */
 
 .mobile-tab-scan {
@@ -880,33 +880,33 @@
   align-items: center;
   justify-content: flex-start;
   min-width: 64px;
-  padding: 0 12px;
+  padding: 4px 12px;
   text-decoration: none;
   -webkit-tap-highlight-color: transparent;
-  margin-top: -12px; /* Elevate the button */
 }
 
 .mobile-tab-scan-btn {
-  width: 56px;
-  height: 56px;
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-  border-radius: 50%;
-  box-shadow: 0 4px 12px rgba(39, 83, 128, 0.35);
-  transition: transform 0.15s, box-shadow 0.15s;
+  background: white;
+  border: 2px solid var(--primary);
+  border-radius: 12px;
+  color: var(--primary);
+  transition: transform 0.15s, background 0.15s;
 }
 
 .mobile-tab-scan:active .mobile-tab-scan-btn {
   transform: scale(0.92);
-  box-shadow: 0 2px 8px rgba(39, 83, 128, 0.25);
+  background: rgba(39, 83, 128, 0.08);
 }
 
 .mobile-tab-scan .mobile-tab-label {
-  margin-top: 6px;
+  margin-top: 2px;
   color: var(--primary);
-  font-weight: 600;
+  font-weight: 500;
 }
 
 /* ============================================

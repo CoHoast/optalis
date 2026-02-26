@@ -143,7 +143,7 @@ export default function MobileLayout({
                 className="mobile-tab-scan"
               >
                 <div className="mobile-tab-scan-btn">
-                  <PlusIcon className="w-7 h-7 text-white" strokeWidth={2.5} />
+                  <CameraIcon className="w-6 h-6" />
                 </div>
                 <span className="mobile-tab-label">{tab.name}</span>
               </Link>
