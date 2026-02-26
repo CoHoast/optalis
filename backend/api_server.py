@@ -90,7 +90,44 @@ def init_db():
              "Dr. Robert Chen, MD", "Cranberry Park at West Bloomfield",
              '["Memory Care", "Medication Management", "Physical Therapy"]',
              "83-year-old female with progressive dementia, well-controlled hypertension, and Type 2 diabetes. Currently hospitalized at Beaumont, medically stable. Family seeking memory care placement with 24/7 supervision.",
-             94, "", "Patient Referral - Margaret Thompson", "2026-02-24T10:30:00", "2026-02-24T10:30:00"),
+             94, """From: Beaumont Health System - Discharge Planning
+Date: February 24, 2026
+
+PATIENT REFERRAL FOR SKILLED NURSING FACILITY
+
+Patient Information:
+Name: Margaret Thompson
+DOB: 03/15/1942 (Age 83)
+Phone: (248) 555-0123
+Address: 1234 Oak Street, Bloomfield Hills, MI 48301
+
+Medical Information:
+Primary Diagnosis: Dementia (Alzheimer's Type)
+Secondary Diagnoses: Hypertension, Type 2 Diabetes
+Current Medications:
+- Metformin 500mg twice daily
+- Lisinopril 10mg once daily
+- Donepezil 5mg at bedtime
+Allergies: Penicillin (rash), Sulfa drugs
+
+Insurance: Medicare Part A & B
+Policy #: 1EG4-TE5-MK72
+
+Referring Physician: Dr. Robert Chen, MD
+Contact: (248) 555-7000
+
+Requested Services: Memory Care, Medication Management, Physical Therapy
+Preferred Facility: Cranberry Park at West Bloomfield
+
+Clinical Summary:
+83-year-old female with progressive dementia, currently hospitalized at Beaumont for fall-related injury. Patient is medically stable and cleared for discharge. Family seeking memory care placement with 24/7 supervision. Patient requires assistance with all ADLs and medication management.
+
+URGENT - Family requesting placement by 2/28/26.
+
+Contact family: Daughter Susan Thompson (248) 555-0199
+
+Thank you,
+Beaumont Discharge Planning Team""", "Patient Referral - Margaret Thompson", "2026-02-24T10:30:00", "2026-02-24T10:30:00"),
             
             ("APP-2026-002", "review", "medium", "Website", "family@email.com",
              "Robert Williams", "07/22/1938", "(616) 555-0456", "567 Maple Ave, Grand Rapids, MI 49503",
