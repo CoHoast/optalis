@@ -3,15 +3,44 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import MobileLayout from '@/components/MobileLayout';
-import { 
-  MagnifyingGlassIcon,
-  XCircleIcon,
-  ClockIcon,
-  CheckCircleIcon,
-  XMarkIcon,
-  BuildingOffice2Icon,
-} from '@heroicons/react/24/outline';
 import '../mobile.css';
+
+// Inline SVG icons with explicit sizing
+const SearchIcon = ({ size = 20, color = '#9ca3af' }: { size?: number; color?: string }) => (
+  <svg style={{ width: size, height: size, color, flexShrink: 0 }} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+  </svg>
+);
+
+const ClockIcon = ({ size = 16, color = 'currentColor' }: { size?: number; color?: string }) => (
+  <svg style={{ width: size, height: size, color, flexShrink: 0 }} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+  </svg>
+);
+
+const XCircleIcon = ({ size = 20, color = '#9ca3af' }: { size?: number; color?: string }) => (
+  <svg style={{ width: size, height: size, color, flexShrink: 0 }} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+  </svg>
+);
+
+const CheckCircleIcon = ({ size = 24, color = '#16a34a' }: { size?: number; color?: string }) => (
+  <svg style={{ width: size, height: size, color, flexShrink: 0 }} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+  </svg>
+);
+
+const XMarkIcon = ({ size = 24, color = '#dc2626' }: { size?: number; color?: string }) => (
+  <svg style={{ width: size, height: size, color, flexShrink: 0 }} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+  </svg>
+);
+
+const BuildingIcon = ({ size = 12, color = 'currentColor' }: { size?: number; color?: string }) => (
+  <svg style={{ width: size, height: size, color, flexShrink: 0 }} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008Zm0 3h.008v.008h-.008v-.008Zm0 3h.008v.008h-.008v-.008Z" />
+  </svg>
+);
 
 // Mock search results
 const allApplications = [
@@ -57,10 +86,10 @@ export default function MobileSearch() {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'approved': return <CheckCircleIcon className="status-icon approved" />;
-      case 'denied': return <XMarkIcon className="status-icon denied" />;
-      case 'review': return <ClockIcon className="status-icon review" />;
-      default: return <ClockIcon className="status-icon pending" />;
+      case 'approved': return <CheckCircleIcon size={24} color="#16a34a" />;
+      case 'denied': return <XMarkIcon size={24} color="#dc2626" />;
+      case 'review': return <ClockIcon size={24} color="#f59e0b" />;
+      default: return <ClockIcon size={24} color="#6b7280" />;
     }
   };
 
@@ -68,19 +97,39 @@ export default function MobileSearch() {
     <MobileLayout title="Search">
       {/* Search Bar */}
       <div className="mobile-section" style={{ paddingTop: 16 }}>
-        <div className="search-container">
-          <MagnifyingGlassIcon className="search-icon" />
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 12,
+          height: 50,
+          padding: '0 16px',
+          background: 'white',
+          borderRadius: 12,
+          boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+        }}>
+          <SearchIcon size={20} color="#9ca3af" />
           <input
             type="text"
-            className="search-input"
             placeholder="Search patients, facilities, IDs..."
             value={query}
             onChange={(e) => handleSearch(e.target.value)}
             autoFocus
+            style={{
+              flex: 1,
+              height: '100%',
+              fontSize: 17,
+              color: '#1a1a1a',
+              background: 'transparent',
+              border: 'none',
+              outline: 'none',
+            }}
           />
           {query && (
-            <button className="search-clear" onClick={clearSearch}>
-              <XCircleIcon className="w-5 h-5" />
+            <button 
+              onClick={clearSearch}
+              style={{ padding: 4, background: 'transparent', border: 'none', cursor: 'pointer' }}
+            >
+              <XCircleIcon size={20} color="#9ca3af" />
             </button>
           )}
         </div>
@@ -89,15 +138,33 @@ export default function MobileSearch() {
       {/* Recent Searches */}
       {!hasSearched && (
         <div className="mobile-section">
-          <h3 className="search-section-title">Recent Searches</h3>
-          <div className="recent-searches">
+          <h3 style={{
+            fontSize: 13,
+            fontWeight: 600,
+            color: '#6b7280',
+            textTransform: 'uppercase',
+            letterSpacing: 0.5,
+            margin: '20px 0 12px 0',
+          }}>Recent Searches</h3>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
             {recentSearches.map((term, index) => (
               <button 
                 key={index}
-                className="recent-search-item"
                 onClick={() => handleSearch(term)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  padding: '10px 16px',
+                  background: 'white',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: 20,
+                  fontSize: 14,
+                  color: '#374151',
+                  cursor: 'pointer',
+                }}
               >
-                <ClockIcon className="w-4 h-4" />
+                <ClockIcon size={14} color="#9ca3af" />
                 {term}
               </button>
             ))}
@@ -108,181 +175,75 @@ export default function MobileSearch() {
       {/* Search Results */}
       {hasSearched && (
         <div className="mobile-section">
-          <h3 className="search-section-title">
+          <h3 style={{
+            fontSize: 13,
+            fontWeight: 600,
+            color: '#6b7280',
+            textTransform: 'uppercase',
+            letterSpacing: 0.5,
+            margin: '20px 0 12px 0',
+          }}>
             {results.length} Result{results.length !== 1 ? 's' : ''}
           </h3>
           
           {results.length > 0 ? (
-            <div className="search-results">
-              {results.map((app) => (
+            <div style={{
+              background: 'white',
+              borderRadius: 12,
+              overflow: 'hidden',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+            }}>
+              {results.map((app, index) => (
                 <button
                   key={app.id}
-                  className="search-result-item"
                   onClick={() => router.push(`/mobile/application/${app.id}`)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 12,
+                    width: '100%',
+                    padding: '14px 16px',
+                    background: 'transparent',
+                    border: 'none',
+                    borderBottom: index < results.length - 1 ? '1px solid #f3f4f6' : 'none',
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                  }}
                 >
                   {getStatusIcon(app.status)}
-                  <div className="search-result-info">
-                    <span className="search-result-name">{app.patientName}</span>
-                    <span className="search-result-meta">
-                      <BuildingOffice2Icon className="w-3 h-3" />
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <span style={{ display: 'block', fontSize: 16, fontWeight: 500, color: '#1a1a1a' }}>
+                      {app.patientName}
+                    </span>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, color: '#6b7280', marginTop: 2 }}>
+                      <BuildingIcon size={12} />
                       {app.facility} • {app.date}
                     </span>
                   </div>
-                  <span className="search-result-id">{app.id}</span>
+                  <span style={{ fontSize: 12, color: '#9ca3af', fontFamily: 'monospace' }}>{app.id}</span>
                 </button>
               ))}
             </div>
           ) : (
-            <div className="mobile-empty" style={{ paddingTop: 40 }}>
-              <MagnifyingGlassIcon className="mobile-empty-icon" />
-              <h3 className="mobile-empty-title">No results found</h3>
-              <p className="mobile-empty-text">Try a different search term</p>
+            <div style={{ textAlign: 'center', padding: '60px 20px' }}>
+              <div style={{ 
+                width: 64, 
+                height: 64, 
+                margin: '0 auto 16px', 
+                background: '#f3f4f6', 
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <SearchIcon size={28} color="#9ca3af" />
+              </div>
+              <h3 style={{ fontSize: 18, fontWeight: 600, color: '#374151', marginBottom: 4 }}>No results found</h3>
+              <p style={{ fontSize: 14, color: '#6b7280' }}>Try a different search term</p>
             </div>
           )}
         </div>
       )}
-
-      <style jsx>{`
-        .search-container {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          height: 50px;
-          padding: 0 16px;
-          background: white;
-          border-radius: 12px;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-        }
-        
-        .search-icon {
-          width: 20px;
-          height: 20px;
-          color: #9ca3af;
-          flex-shrink: 0;
-        }
-        
-        .search-input {
-          flex: 1;
-          height: 100%;
-          font-size: 17px;
-          color: #1a1a1a;
-          background: transparent;
-          border: none;
-          outline: none;
-        }
-        
-        .search-input::placeholder {
-          color: #9ca3af;
-        }
-        
-        .search-clear {
-          padding: 4px;
-          background: transparent;
-          border: none;
-          color: #9ca3af;
-          cursor: pointer;
-        }
-        
-        .search-section-title {
-          font-size: 13px;
-          font-weight: 600;
-          color: #6b7280;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-          margin: 20px 0 12px 0;
-        }
-        
-        .recent-searches {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 10px;
-        }
-        
-        .recent-search-item {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          padding: 10px 16px;
-          background: white;
-          border: 1px solid #e5e7eb;
-          border-radius: 20px;
-          font-size: 14px;
-          color: #374151;
-          cursor: pointer;
-          -webkit-tap-highlight-color: transparent;
-        }
-        
-        .recent-search-item:active {
-          background: #f9fafb;
-        }
-        
-        .search-results {
-          background: white;
-          border-radius: 12px;
-          overflow: hidden;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-        }
-        
-        .search-result-item {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          width: 100%;
-          padding: 14px 16px;
-          background: transparent;
-          border: none;
-          border-bottom: 1px solid #f3f4f6;
-          text-align: left;
-          cursor: pointer;
-          -webkit-tap-highlight-color: transparent;
-        }
-        
-        .search-result-item:last-child {
-          border-bottom: none;
-        }
-        
-        .search-result-item:active {
-          background: #f9fafb;
-        }
-        
-        :global(.status-icon) {
-          width: 24px;
-          height: 24px;
-          flex-shrink: 0;
-        }
-        
-        :global(.status-icon.approved) { color: #16a34a; }
-        :global(.status-icon.denied) { color: #dc2626; }
-        :global(.status-icon.review) { color: #f59e0b; }
-        :global(.status-icon.pending) { color: #6b7280; }
-        
-        .search-result-info {
-          flex: 1;
-          min-width: 0;
-        }
-        
-        .search-result-name {
-          display: block;
-          font-size: 16px;
-          font-weight: 500;
-          color: #1a1a1a;
-        }
-        
-        .search-result-meta {
-          display: flex;
-          align-items: center;
-          gap: 4px;
-          font-size: 13px;
-          color: #6b7280;
-          margin-top: 2px;
-        }
-        
-        .search-result-id {
-          font-size: 12px;
-          color: #9ca3af;
-          font-family: monospace;
-        }
-      `}</style>
     </MobileLayout>
   );
 }
