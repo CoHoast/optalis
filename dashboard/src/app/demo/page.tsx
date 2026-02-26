@@ -149,13 +149,13 @@ const DemoButton = ({
     gap: '8px',
     padding: '14px 20px',
     borderRadius: '10px',
-    fontSize: '14px',
+    fontSize: '15px',
     fontWeight: 600,
     textDecoration: 'none',
     cursor: 'pointer',
     transition: 'all 0.2s',
     border: 'none',
-    flex: 1,
+    width: '100%',
     ...(primary ? {
       background: '#275380',
       color: 'white',
@@ -214,11 +214,16 @@ export default function DemoLauncherPage() {
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
     }}>
       {/* Header */}
-      <div style={{ textAlign: 'center', marginBottom: '48px' }}>
+      <div style={{ 
+        display: 'flex', 
+        flexDirection: 'column', 
+        alignItems: 'center', 
+        marginBottom: '48px' 
+      }}>
         <img 
           src="https://www.optalishealthcare.com/wp-content/uploads/2023/03/optalis_logonav.webp" 
           alt="Optalis Health & Rehabilitation"
-          style={{ height: '56px', width: 'auto', marginBottom: '16px' }}
+          style={{ height: '56px', width: 'auto', display: 'block' }}
         />
         
         <div style={{
@@ -232,7 +237,7 @@ export default function DemoLauncherPage() {
           fontSize: '13px',
           fontWeight: 500,
           color: '#275380',
-          marginBottom: '20px'
+          marginTop: '16px',
         }}>
           <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
@@ -244,8 +249,9 @@ export default function DemoLauncherPage() {
           fontSize: '24px', 
           fontWeight: 600,
           color: '#1a1a1a',
-          maxWidth: '600px',
-          margin: '0 auto 8px',
+          textAlign: 'center',
+          marginTop: '24px',
+          marginBottom: '8px',
           lineHeight: 1.4
         }}>
           AI-Powered Admissions Platform
@@ -255,14 +261,15 @@ export default function DemoLauncherPage() {
           fontSize: '16px', 
           color: '#666',
           maxWidth: '500px',
-          margin: '0 auto',
-          lineHeight: 1.5
+          textAlign: 'center',
+          lineHeight: 1.5,
+          margin: 0,
         }}>
           Automated document intake and processing for healthcare admissions
         </p>
         
         {currentTime && (
-          <p style={{ fontSize: '13px', color: '#999', marginTop: '16px' }}>
+          <p style={{ fontSize: '13px', color: '#999', marginTop: '16px', margin: '16px 0 0' }}>
             {currentTime}
           </p>
         )}
@@ -283,13 +290,17 @@ export default function DemoLauncherPage() {
           borderRadius: '20px',
           padding: '24px',
           boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+          display: 'flex',
+          flexDirection: 'column',
+          minHeight: '480px',
         }}>
           <div style={{
             borderRadius: '12px',
             marginBottom: '20px',
             overflow: 'hidden',
-            height: '160px',
+            height: '180px',
             boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+            flexShrink: 0,
           }}>
             <img 
               src="/demo-previews/marketing-preview.jpg" 
@@ -298,14 +309,14 @@ export default function DemoLauncherPage() {
             />
           </div>
           
-          <h2 style={{ fontSize: '20px', fontWeight: 600, marginBottom: '6px', color: '#1a1a1a' }}>
+          <h2 style={{ fontSize: '20px', fontWeight: 600, marginBottom: '8px', color: '#1a1a1a' }}>
             Marketing Website
           </h2>
-          <p style={{ fontSize: '14px', color: '#666', marginBottom: '20px', lineHeight: 1.5 }}>
+          <p style={{ fontSize: '14px', color: '#666', lineHeight: 1.6, flex: 1 }}>
             Modern, user-friendly public website for prospective patients and families.
           </p>
           
-          <div style={{ display: 'flex', gap: '10px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '20px' }}>
             <DemoButton href={DEMO_LINKS.marketing} primary>
               <span>Visit Site</span>
               <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -327,13 +338,17 @@ export default function DemoLauncherPage() {
           borderRadius: '20px',
           padding: '24px',
           boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+          display: 'flex',
+          flexDirection: 'column',
+          minHeight: '480px',
         }}>
           <div style={{
             borderRadius: '12px',
             marginBottom: '20px',
             overflow: 'hidden',
-            height: '160px',
+            height: '180px',
             boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+            flexShrink: 0,
           }}>
             <img 
               src="/demo-previews/dashboard-preview.jpg" 
@@ -342,14 +357,14 @@ export default function DemoLauncherPage() {
             />
           </div>
           
-          <h2 style={{ fontSize: '20px', fontWeight: 600, marginBottom: '6px', color: '#1a1a1a' }}>
+          <h2 style={{ fontSize: '20px', fontWeight: 600, marginBottom: '8px', color: '#1a1a1a' }}>
             Desktop Dashboard
           </h2>
-          <p style={{ fontSize: '14px', color: '#666', marginBottom: '20px', lineHeight: 1.5 }}>
+          <p style={{ fontSize: '14px', color: '#666', lineHeight: 1.6, flex: 1 }}>
             AI-powered document intake and processing for admissions coordinators.
           </p>
           
-          <div style={{ display: 'flex', gap: '10px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '20px' }}>
             <DemoButton href={DEMO_LINKS.dashboard} primary>
               <span>Open Dashboard</span>
               <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -371,12 +386,15 @@ export default function DemoLauncherPage() {
           borderRadius: '20px',
           padding: '24px',
           boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+          display: 'flex',
+          flexDirection: 'column',
+          minHeight: '480px',
         }}>
-          <h2 style={{ fontSize: '20px', fontWeight: 600, marginBottom: '6px', color: '#1a1a1a', textAlign: 'center' }}>
+          <h2 style={{ fontSize: '20px', fontWeight: 600, marginBottom: '8px', color: '#1a1a1a', textAlign: 'center' }}>
             Mobile Web App
           </h2>
-          <p style={{ fontSize: '14px', color: '#666', marginBottom: '16px', lineHeight: 1.5, textAlign: 'center' }}>
-            On-the-go application review for field staff. Scan QR code:
+          <p style={{ fontSize: '14px', color: '#666', marginBottom: '16px', lineHeight: 1.6, textAlign: 'center' }}>
+            On-the-go application review for field staff.
           </p>
           
           <div style={{
@@ -386,19 +404,20 @@ export default function DemoLauncherPage() {
             padding: '20px',
             background: '#f9f7f4',
             borderRadius: '16px',
-            marginBottom: '20px'
+            flex: 1,
+            justifyContent: 'center',
           }}>
             <img 
-              src={getQRCodeUrl(DEMO_LINKS.mobile, 160)}
+              src={getQRCodeUrl(DEMO_LINKS.mobile, 140)}
               alt="Scan to open mobile app"
-              style={{ width: '160px', height: '160px', borderRadius: '8px' }}
+              style={{ width: '140px', height: '140px', borderRadius: '8px' }}
             />
             <p style={{ fontSize: '12px', color: '#888', marginTop: '12px', textAlign: 'center' }}>
               Scan with your phone camera
             </p>
           </div>
           
-          <div style={{ display: 'flex', gap: '10px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '20px' }}>
             <DemoButton href={DEMO_LINKS.mobile} primary>
               <span>Open App</span>
               <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
