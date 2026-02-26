@@ -738,17 +738,18 @@ export default function DemoLauncherPage() {
               {/* Screenshot (behind frame) */}
               <div style={{
                 position: 'absolute',
-                top: '2.8%',
-                left: '5.5%',
-                right: '5.5%',
-                bottom: '2.8%',
-                borderRadius: '12px',
+                top: '1.5%',
+                left: '4%',
+                right: '4%',
+                bottom: '1.5%',
+                borderRadius: '24px',
                 overflow: 'hidden',
+                background: '#000',
               }}>
                 <img 
                   src="/demo-previews/mobile-inbox.jpg" 
                   alt="Inbox Screen"
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  style={{ width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'top' }}
                 />
               </div>
               {/* iPhone Frame (on top) */}
@@ -771,17 +772,18 @@ export default function DemoLauncherPage() {
               {/* Screenshot (behind frame) */}
               <div style={{
                 position: 'absolute',
-                top: '2.8%',
-                left: '5.5%',
-                right: '5.5%',
-                bottom: '2.8%',
-                borderRadius: '14px',
+                top: '1.5%',
+                left: '4%',
+                right: '4%',
+                bottom: '1.5%',
+                borderRadius: '28px',
                 overflow: 'hidden',
+                background: '#000',
               }}>
                 <img 
                   src="/demo-previews/mobile-detail.jpg" 
                   alt="Application Detail Screen"
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  style={{ width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'top' }}
                 />
               </div>
               {/* iPhone Frame (on top) */}
@@ -805,17 +807,18 @@ export default function DemoLauncherPage() {
               {/* Screenshot (behind frame) */}
               <div style={{
                 position: 'absolute',
-                top: '2.8%',
-                left: '5.5%',
-                right: '5.5%',
-                bottom: '2.8%',
-                borderRadius: '12px',
+                top: '1.5%',
+                left: '4%',
+                right: '4%',
+                bottom: '1.5%',
+                borderRadius: '24px',
                 overflow: 'hidden',
+                background: '#000',
               }}>
                 <img 
                   src="/demo-previews/mobile-scan.jpg" 
                   alt="Scan Document Screen"
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  style={{ width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'top' }}
                 />
               </div>
               {/* iPhone Frame (on top) */}
