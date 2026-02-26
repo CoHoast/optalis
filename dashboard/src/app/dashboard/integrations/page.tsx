@@ -15,7 +15,7 @@ const inputSources = [
   { id: 'referral', name: 'Hospital Referral Portal', type: 'API', address: 'api.beaumont.org/referrals', status: 'active', lastPolled: '5 minutes ago', pending: 2 },
 ];
 
-const fieldMappings = [
+const defaultFieldMappings = [
   { source: 'Patient Name', destination: 'Patient.FullName', status: 'mapped' },
   { source: 'Date of Birth', destination: 'Patient.DateOfBirth', status: 'mapped' },
   { source: 'Phone', destination: 'Patient.PrimaryPhone', status: 'mapped' },
@@ -32,6 +32,10 @@ export default function IntegrationsPage() {
   const [showAddCRM, setShowAddCRM] = useState(false);
   const [showAddSource, setShowAddSource] = useState(false);
   const [showFieldMapping, setShowFieldMapping] = useState(false);
+  const [fieldMappings, setFieldMappings] = useState(defaultFieldMappings);
+  const [editingMapping, setEditingMapping] = useState<{index: number; source: string; destination: string} | null>(null);
+  const [showAddMapping, setShowAddMapping] = useState(false);
+  const [newMapping, setNewMapping] = useState({ source: '', destination: '' });
 
   return (
     <div className="main-content">
@@ -207,7 +211,9 @@ export default function IntegrationsPage() {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           {fieldMappings.map((mapping, i) => (
-            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '12px 16px', border: '1px solid #f0f0f0', borderRadius: '8px' }}>
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '12px 16px', border: '1px solid #f0f0f0', borderRadius: '8px', transition: 'background 0.2s' }}
+                 onMouseOver={(e) => e.currentTarget.style.background = '#f9f7f4'}
+                 onMouseOut={(e) => e.currentTarget.style.background = 'white'}>
               <span style={{ width: '200px', fontWeight: 500 }}>{mapping.source}</span>
               <svg width="20" height="20" fill="none" stroke="#888" strokeWidth="2" viewBox="0 0 24 24">
                 <path d="M5 12h14M12 5l7 7-7 7"/>
@@ -219,8 +225,33 @@ export default function IntegrationsPage() {
               }}>
                 ✓ Mapped
               </span>
+              <button
+                onClick={() => setEditingMapping({ index: i, source: mapping.source, destination: mapping.destination })}
+                style={{ padding: '6px 12px', background: 'white', border: '1px solid #e0e0e0', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', color: '#666' }}
+              >
+                Edit
+              </button>
+              <button
+                onClick={() => {
+                  if (confirm('Remove this field mapping?')) {
+                    setFieldMappings(fieldMappings.filter((_, idx) => idx !== i));
+                  }
+                }}
+                style={{ padding: '6px 10px', background: 'white', border: '1px solid #e0e0e0', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', color: '#dc2626' }}
+              >
+                ✕
+              </button>
             </div>
           ))}
+        </div>
+        
+        <div style={{ marginTop: '16px', display: 'flex', gap: '12px' }}>
+          <button
+            onClick={() => setShowAddMapping(true)}
+            style={{ padding: '10px 20px', background: 'white', border: '1px solid #275380', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', color: '#275380', fontWeight: 500 }}
+          >
+            + Add Field Mapping
+          </button>
         </div>
 
         <div style={{ marginTop: '16px', padding: '16px', background: '#dbeafe', borderRadius: '8px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
@@ -268,6 +299,110 @@ export default function IntegrationsPage() {
             <button onClick={() => setShowAddCRM(false)} style={{ width: '100%', padding: '12px', border: '1px solid #e0e0e0', background: 'white', borderRadius: '8px', cursor: 'pointer' }}>
               Cancel
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Field Mapping Modal */}
+      {editingMapping && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ background: 'white', borderRadius: '16px', padding: '32px', width: '100%', maxWidth: '500px' }}>
+            <h3 style={{ fontSize: '22px', marginBottom: '24px' }}>Edit Field Mapping</h3>
+            
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '8px' }}>Extracted Field (Source)</label>
+              <input
+                type="text"
+                value={editingMapping.source}
+                onChange={(e) => setEditingMapping({ ...editingMapping, source: e.target.value })}
+                style={{ width: '100%', padding: '12px 16px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '15px', boxSizing: 'border-box' }}
+              />
+            </div>
+            
+            <div style={{ marginBottom: '24px' }}>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '8px' }}>PointClickCare Field (Destination)</label>
+              <input
+                type="text"
+                value={editingMapping.destination}
+                onChange={(e) => setEditingMapping({ ...editingMapping, destination: e.target.value })}
+                placeholder="e.g., Patient.FullName"
+                style={{ width: '100%', padding: '12px 16px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '15px', fontFamily: 'monospace', boxSizing: 'border-box' }}
+              />
+              <p style={{ fontSize: '12px', color: '#888', marginTop: '6px' }}>Use dot notation for nested fields (e.g., Patient.Address.Street)</p>
+            </div>
+
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button 
+                onClick={() => setEditingMapping(null)} 
+                style={{ flex: 1, padding: '12px', border: '1px solid #e0e0e0', background: 'white', borderRadius: '8px', cursor: 'pointer' }}
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={() => {
+                  const updated = [...fieldMappings];
+                  updated[editingMapping.index] = { source: editingMapping.source, destination: editingMapping.destination, status: 'mapped' };
+                  setFieldMappings(updated);
+                  setEditingMapping(null);
+                }} 
+                style={{ flex: 1, padding: '12px', border: 'none', background: '#275380', color: 'white', borderRadius: '8px', cursor: 'pointer', fontWeight: 500 }}
+              >
+                Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Field Mapping Modal */}
+      {showAddMapping && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ background: 'white', borderRadius: '16px', padding: '32px', width: '100%', maxWidth: '500px' }}>
+            <h3 style={{ fontSize: '22px', marginBottom: '24px' }}>Add Field Mapping</h3>
+            
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '8px' }}>Extracted Field (Source)</label>
+              <input
+                type="text"
+                value={newMapping.source}
+                onChange={(e) => setNewMapping({ ...newMapping, source: e.target.value })}
+                placeholder="e.g., Emergency Contact"
+                style={{ width: '100%', padding: '12px 16px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '15px', boxSizing: 'border-box' }}
+              />
+            </div>
+            
+            <div style={{ marginBottom: '24px' }}>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '8px' }}>PointClickCare Field (Destination)</label>
+              <input
+                type="text"
+                value={newMapping.destination}
+                onChange={(e) => setNewMapping({ ...newMapping, destination: e.target.value })}
+                placeholder="e.g., Patient.EmergencyContact.Name"
+                style={{ width: '100%', padding: '12px 16px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '15px', fontFamily: 'monospace', boxSizing: 'border-box' }}
+              />
+            </div>
+
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button 
+                onClick={() => { setShowAddMapping(false); setNewMapping({ source: '', destination: '' }); }} 
+                style={{ flex: 1, padding: '12px', border: '1px solid #e0e0e0', background: 'white', borderRadius: '8px', cursor: 'pointer' }}
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={() => {
+                  if (newMapping.source && newMapping.destination) {
+                    setFieldMappings([...fieldMappings, { source: newMapping.source, destination: newMapping.destination, status: 'mapped' }]);
+                    setShowAddMapping(false);
+                    setNewMapping({ source: '', destination: '' });
+                  }
+                }} 
+                disabled={!newMapping.source || !newMapping.destination}
+                style={{ flex: 1, padding: '12px', border: 'none', background: newMapping.source && newMapping.destination ? '#275380' : '#e0e0e0', color: newMapping.source && newMapping.destination ? 'white' : '#888', borderRadius: '8px', cursor: newMapping.source && newMapping.destination ? 'pointer' : 'not-allowed', fontWeight: 500 }}
+              >
+                Add Mapping
+              </button>
+            </div>
           </div>
         </div>
       )}
