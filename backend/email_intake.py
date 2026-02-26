@@ -598,13 +598,15 @@ def process_email(email_data: Dict) -> Optional[str]:
     return app_id
 
 
-def run_intake(watch: bool = False):
+def run_intake(watch: bool = False, interval: int = 300):
     """Main intake loop."""
     init_db()
     
     print("\n" + "="*60)
     print("🏥 Optalis Email Intake Service")
     print(f"📧 Monitoring: {GMAIL_EMAIL}")
+    if watch:
+        print(f"⏱️  Poll interval: {interval}s")
     print("="*60)
     
     while True:
@@ -628,8 +630,8 @@ def run_intake(watch: bool = False):
         if not watch:
             break
             
-        print(f"\n💤 Sleeping {POLL_INTERVAL}s...")
-        time.sleep(POLL_INTERVAL)
+        print(f"\n💤 Sleeping {interval}s...")
+        time.sleep(interval)
 
 
 def run_test():
@@ -722,10 +724,11 @@ Dr. Sarah Wilson
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Optalis Email Intake Service")
     parser.add_argument("--watch", action="store_true", help="Poll continuously")
+    parser.add_argument("--interval", type=int, default=300, help="Poll interval in seconds (default: 300)")
     parser.add_argument("--test", action="store_true", help="Run with test data")
     args = parser.parse_args()
     
     if args.test:
         run_test()
     else:
-        run_intake(watch=args.watch)
+        run_intake(watch=args.watch, interval=args.interval)
