@@ -178,15 +178,21 @@ function ApplicationDetailContent() {
     setIsSaving(true);
     
     try {
+      // When saving edits, also set status to "review" so it moves from Inbox to Review tab
+      const updateData = {
+        ...editedFields,
+        status: 'review' // Move to Review tab after editing
+      };
+
       const response = await fetch(`${API_URL}/api/applications/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editedFields)
+        body: JSON.stringify(updateData)
       });
       
       if (response.ok) {
         // Update local state with saved values
-        setApp(prev => prev ? { ...prev, ...editedFields } : prev);
+        setApp(prev => prev ? { ...prev, ...editedFields, status: 'review' } : prev);
         setEditedFields({});
         setIsEditing(false);
         
@@ -334,16 +340,25 @@ function ApplicationDetailContent() {
               className="mobile-icon-btn" 
               onClick={handleSave}
               disabled={isSaving}
+              style={{ padding: 8 }}
             >
               {isSaving ? (
-                <div className="w-5 h-5 border-2 border-gray-300 border-t-green-600 rounded-full animate-spin" />
+                <div style={{ width: 24, height: 24, border: '2px solid #d1d5db', borderTopColor: '#16a34a', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
               ) : (
-                <CheckIcon className="w-6 h-6 text-green-600" />
+                <svg style={{ width: 24, height: 24, color: '#16a34a' }} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
               )}
             </button>
           ) : (
-            <button className="mobile-icon-btn" onClick={() => setIsEditing(true)}>
-              <PencilIcon className="w-6 h-6" />
+            <button 
+              className="mobile-icon-btn" 
+              onClick={() => setIsEditing(true)}
+              style={{ padding: 8, background: 'rgba(39,83,128,0.1)', borderRadius: 8 }}
+            >
+              <svg style={{ width: 24, height: 24, color: '#275380' }} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+              </svg>
             </button>
           )
         ) : null
@@ -559,16 +574,16 @@ function ApplicationDetailContent() {
           )}
 
           {/* AI Summary Card */}
-          <div className="mobile-section" style={{ paddingTop: 12 }}>
-            <div className="ai-summary-card">
-              <div className="ai-summary-header">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" style={{ width: 20, height: 20, flexShrink: 0 }}>
+          <div className="mobile-section" style={{ paddingTop: 20 }}>
+            <div className="ai-summary-card" style={{ background: '#275380', borderRadius: 16, padding: 20 }}>
+              <div className="ai-summary-header" style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+                <svg style={{ width: 20, height: 20, flexShrink: 0, color: 'white' }} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
                 </svg>
-                <span>AI Summary</span>
-                <span className="ai-confidence">{app.confidence_score}% confidence</span>
+                <span style={{ fontWeight: 600, fontSize: 16, color: 'white' }}>AI Summary</span>
+                <span style={{ marginLeft: 'auto', background: 'rgba(255,255,255,0.2)', padding: '4px 10px', borderRadius: 12, fontSize: 12, fontWeight: 500, color: 'white' }}>{app.confidence_score}% confidence</span>
               </div>
-              <p className="ai-summary-text">{app.ai_summary || 'No summary available'}</p>
+              <p style={{ fontSize: 15, lineHeight: 1.6, color: 'rgba(255,255,255,0.95)', margin: 0 }}>{app.ai_summary || 'No summary available'}</p>
             </div>
           </div>
 
