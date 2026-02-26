@@ -667,3 +667,205 @@
 .toggle-switch.active::after {
   transform: translateX(20px);
 }
+
+/* ============================================
+   INLINE TAB BAR (for application detail)
+   ============================================ */
+
+.mobile-tab-bar-inline {
+  display: flex;
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+  position: sticky;
+  top: 56px;
+  z-index: 50;
+}
+
+.mobile-tab-inline {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #6b7280;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.mobile-tab-inline.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+
+.mobile-tab-inline:active {
+  background: #f9fafb;
+}
+
+/* ============================================
+   DOCUMENT VIEWER (Mobile)
+   ============================================ */
+
+.document-viewer-mobile {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.document-header-mobile {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: #f9f7f4;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.document-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.document-date {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.document-frame-mobile {
+  padding: 16px;
+  background: #f8f8f8;
+  min-height: 400px;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.document-actions-mobile {
+  display: flex;
+  gap: 12px;
+  padding: 12px 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.doc-action-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--primary);
+  background: #f0f4f8;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.doc-action-btn:active {
+  background: #e0e8ef;
+}
+
+/* Mock Document Styles */
+.mock-document {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 24px;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transform: rotate(-0.5deg);
+}
+
+.mock-doc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.mock-stamp {
+  color: #dc2626;
+  font-weight: bold;
+  font-size: 14px;
+  border: 2px solid #dc2626;
+  padding: 4px 8px;
+  transform: rotate(-8deg);
+}
+
+.mock-date {
+  font-size: 11px;
+  color: #666;
+}
+
+.mock-doc-title {
+  text-align: center;
+  font-size: 14px;
+  font-weight: bold;
+  margin: 0 0 20px 0;
+  text-decoration: underline;
+}
+
+.mock-doc-field {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  border-bottom: 1px dotted #ccc;
+  padding-bottom: 4px;
+}
+
+.mock-label {
+  font-weight: bold;
+  white-space: nowrap;
+  font-size: 11px;
+}
+
+.mock-value {
+  flex: 1;
+  font-size: 11px;
+}
+
+.mock-handwritten {
+  font-family: 'Brush Script MT', cursive, sans-serif;
+  font-size: 14px;
+  color: #1a365d;
+}
+
+.mock-doc-divider {
+  height: 1px;
+  background: #ccc;
+  margin: 16px 0;
+}
+
+.mock-doc-footer {
+  margin-top: 24px;
+  padding-top: 16px;
+}
+
+.mock-signature {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.mock-sig-line {
+  width: 150px;
+  height: 1px;
+  background: #333;
+}
+
+.mock-signature span {
+  font-size: 10px;
+  color: #666;
+}

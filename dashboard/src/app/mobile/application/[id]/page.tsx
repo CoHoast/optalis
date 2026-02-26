@@ -10,6 +10,8 @@ import {
   ArrowUpTrayIcon,
   ExclamationTriangleIcon,
   DocumentTextIcon,
+  DocumentIcon,
+  ClipboardDocumentListIcon,
 } from '@heroicons/react/24/outline';
 import '../../mobile.css';
 
@@ -55,6 +57,7 @@ export default function MobileApplicationDetail() {
   const [editedFields, setEditedFields] = useState<Record<string, string>>({});
   const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [activeTab, setActiveTab] = useState<'details' | 'document'>('details');
 
   const handleFieldChange = (field: string, value: string) => {
     setEditedFields({ ...editedFields, [field]: value });
@@ -149,41 +152,144 @@ export default function MobileApplicationDetail() {
       title={isEditing ? 'Edit Application' : 'Application'} 
       showBack 
       rightAction={
-        isEditing ? (
-          <button className="mobile-icon-btn" onClick={handleSave}>
-            <CheckIcon className="w-6 h-6 text-green-600" />
-          </button>
-        ) : (
-          <button className="mobile-icon-btn" onClick={() => setIsEditing(true)}>
-            <PencilIcon className="w-6 h-6" />
-          </button>
-        )
+        activeTab === 'details' ? (
+          isEditing ? (
+            <button className="mobile-icon-btn" onClick={handleSave}>
+              <CheckIcon className="w-6 h-6 text-green-600" />
+            </button>
+          ) : (
+            <button className="mobile-icon-btn" onClick={() => setIsEditing(true)}>
+              <PencilIcon className="w-6 h-6" />
+            </button>
+          )
+        ) : null
       }
     >
-      {/* AI Summary Card */}
-      <div className="mobile-section" style={{ paddingTop: 16 }}>
-        <div className="ai-summary-card">
-          <div className="ai-summary-header">
-            <DocumentTextIcon className="w-5 h-5" />
-            <span>AI Summary</span>
-            <span className="ai-confidence">{app.confidence}% confidence</span>
-          </div>
-          <p className="ai-summary-text">{app.summary}</p>
-        </div>
+      {/* Tab Bar */}
+      <div className="mobile-tab-bar-inline">
+        <button 
+          className={`mobile-tab-inline ${activeTab === 'details' ? 'active' : ''}`}
+          onClick={() => setActiveTab('details')}
+        >
+          <ClipboardDocumentListIcon className="w-5 h-5" />
+          <span>Details</span>
+        </button>
+        <button 
+          className={`mobile-tab-inline ${activeTab === 'document' ? 'active' : ''}`}
+          onClick={() => setActiveTab('document')}
+        >
+          <DocumentIcon className="w-5 h-5" />
+          <span>Original Doc</span>
+        </button>
       </div>
 
-      {/* Low Confidence Warning */}
-      {app.confidence < 85 && (
-        <div className="mobile-section">
-          <div className="warning-banner">
-            <ExclamationTriangleIcon className="w-5 h-5" />
-            <span>Low confidence extraction - please verify all fields</span>
+      {/* Document Viewer Tab */}
+      {activeTab === 'document' && (
+        <div className="mobile-section" style={{ paddingTop: 16 }}>
+          <div className="document-viewer-mobile">
+            <div className="document-header-mobile">
+              <span className="document-label">Scanned Intake Form</span>
+              <span className="document-date">Received {app.createdAt}</span>
+            </div>
+            <div className="document-frame-mobile">
+              {/* Mock document - in production, this would load the actual scanned document */}
+              <div className="mock-document">
+                <div className="mock-doc-header">
+                  <div className="mock-stamp">RECEIVED</div>
+                  <div className="mock-date">FEB 25 2026</div>
+                </div>
+                <h3 className="mock-doc-title">PATIENT REFERRAL FORM</h3>
+                <div className="mock-doc-field">
+                  <span className="mock-label">Patient Name:</span>
+                  <span className="mock-value mock-handwritten">{app.patientName}</span>
+                </div>
+                <div className="mock-doc-field">
+                  <span className="mock-label">DOB:</span>
+                  <span className="mock-value mock-handwritten">{app.dob}</span>
+                </div>
+                <div className="mock-doc-field">
+                  <span className="mock-label">Phone:</span>
+                  <span className="mock-value mock-handwritten">{app.phone}</span>
+                </div>
+                <div className="mock-doc-field">
+                  <span className="mock-label">Address:</span>
+                  <span className="mock-value mock-handwritten">{app.address}</span>
+                </div>
+                <div className="mock-doc-divider" />
+                <div className="mock-doc-field">
+                  <span className="mock-label">Primary Insurance:</span>
+                  <span className="mock-value mock-handwritten">{app.insurance}</span>
+                </div>
+                <div className="mock-doc-field">
+                  <span className="mock-label">Policy #:</span>
+                  <span className="mock-value mock-handwritten">{app.policyNumber}</span>
+                </div>
+                <div className="mock-doc-divider" />
+                <div className="mock-doc-field">
+                  <span className="mock-label">Diagnosis:</span>
+                  <span className="mock-value mock-handwritten">{app.diagnosis.join(', ')}</span>
+                </div>
+                <div className="mock-doc-field">
+                  <span className="mock-label">Referring Physician:</span>
+                  <span className="mock-value mock-handwritten">{app.physician}</span>
+                </div>
+                <div className="mock-doc-field">
+                  <span className="mock-label">Referring Facility:</span>
+                  <span className="mock-value mock-handwritten">{app.facility}</span>
+                </div>
+                <div className="mock-doc-footer">
+                  <div className="mock-signature">
+                    <div className="mock-sig-line"></div>
+                    <span>Physician Signature</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="document-actions-mobile">
+              <button className="doc-action-btn">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+                </svg>
+                Zoom In
+              </button>
+              <button className="doc-action-btn">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                Download
+              </button>
+            </div>
           </div>
         </div>
       )}
 
-      {/* Patient Information */}
-      <div className="mobile-section">
+      {/* Details Tab */}
+      {activeTab === 'details' && (
+        <>
+          {/* AI Summary Card */}
+          <div className="mobile-section" style={{ paddingTop: 16 }}>
+            <div className="ai-summary-card">
+              <div className="ai-summary-header">
+                <DocumentTextIcon className="w-5 h-5" />
+                <span>AI Summary</span>
+                <span className="ai-confidence">{app.confidence}% confidence</span>
+              </div>
+              <p className="ai-summary-text">{app.summary}</p>
+            </div>
+          </div>
+
+          {/* Low Confidence Warning */}
+          {app.confidence < 85 && (
+            <div className="mobile-section">
+              <div className="warning-banner">
+                <ExclamationTriangleIcon className="w-5 h-5" />
+                <span>Low confidence extraction - please verify all fields</span>
+              </div>
+            </div>
+          )}
+
+          {/* Patient Information */}
+          <div className="mobile-section">
         <h3 className="mobile-section-title" style={{ fontSize: 15, color: '#6b7280', marginTop: 20 }}>
           Patient Information
         </h3>
@@ -232,12 +338,14 @@ export default function MobileApplicationDetail() {
       </div>
 
       {/* Notes */}
-      <div className="mobile-section" style={{ paddingBottom: 120 }}>
-        <h3 className="mobile-section-title" style={{ fontSize: 15, color: '#6b7280', marginTop: 20 }}>
-          Notes
-        </h3>
-        {renderEditableField('Notes', 'notes', app.notes, true)}
-      </div>
+          <div className="mobile-section" style={{ paddingBottom: 120 }}>
+            <h3 className="mobile-section-title" style={{ fontSize: 15, color: '#6b7280', marginTop: 20 }}>
+              Notes
+            </h3>
+            {renderEditableField('Notes', 'notes', app.notes, true)}
+          </div>
+        </>
+      )}
 
       {/* Action Bar */}
       {!isEditing && (
