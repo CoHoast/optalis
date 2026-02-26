@@ -176,7 +176,7 @@ export default function MobileScan() {
     
     if (processingStep === 'complete') {
       return (
-        <MobileLayout title="Scan Document">
+        <MobileLayout title="Scan Document" showBack>
           <div className="scan-success">
             <div className="scan-success-icon">
               <CheckIcon />
@@ -192,7 +192,7 @@ export default function MobileScan() {
     }
 
     return (
-      <MobileLayout title="Scan Document">
+      <MobileLayout title="Scan Document" showBack>
         <div className="scan-processing">
           <div className="scan-processing-spinner" />
           <h2 className="scan-processing-title">{message.title}</h2>
@@ -215,7 +215,7 @@ export default function MobileScan() {
   }
 
   return (
-    <MobileLayout title="Scan Document">
+    <MobileLayout title="Scan Document" showBack>
       <div className="scan-container">
         {/* Multi-page hint */}
         {images.length > 0 && images.length < 5 && (
