@@ -11,7 +11,7 @@ import {
   ExclamationTriangleIcon,
   DocumentTextIcon,
 } from '@heroicons/react/24/outline';
-import '../mobile.css';
+import '../../mobile.css';
 
 // Mock data - would come from API based on ID
 const getApplication = (id: string) => ({
