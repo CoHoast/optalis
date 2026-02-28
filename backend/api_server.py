@@ -420,6 +420,79 @@ async def get_application_documents(app_id: str):
     }
 
 
+@app.get("/api/applications/{app_id}/document/original")
+async def get_original_document(app_id: str):
+    """Get original document/email content for an application."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        SELECT raw_text, raw_email_subject, source_email, s3_key, created_at
+        FROM optalis_applications 
+        WHERE id = %s
+    """, (app_id,))
+    
+    row = cursor.fetchone()
+    cursor.close()
+    conn.close()
+    
+    if not row:
+        raise HTTPException(status_code=404, detail="Application not found")
+    
+    data = dict(row)
+    
+    return {
+        "type": "email",
+        "subject": data.get('raw_email_subject', ''),
+        "from": data.get('source_email', ''),
+        "body": data.get('raw_text', ''),
+        "s3_key": data.get('s3_key', ''),
+        "received_at": data.get('created_at', '')
+    }
+
+
+@app.get("/api/applications/{app_id}/document/extracted")
+async def get_extracted_document(app_id: str):
+    """Get AI-extracted data for an application."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        SELECT id, patient_name, dob, phone, address, insurance, policy_number,
+               diagnosis, medications, allergies, physician, facility, services,
+               ai_summary, confidence_score
+        FROM optalis_applications 
+        WHERE id = %s
+    """, (app_id,))
+    
+    row = cursor.fetchone()
+    cursor.close()
+    conn.close()
+    
+    if not row:
+        raise HTTPException(status_code=404, detail="Application not found")
+    
+    data = dict(row)
+    
+    return {
+        "application_id": data.get('id', ''),
+        "patient_name": data.get('patient_name', ''),
+        "dob": data.get('dob', ''),
+        "phone": data.get('phone', ''),
+        "address": data.get('address', ''),
+        "insurance": data.get('insurance', ''),
+        "policy_number": data.get('policy_number', ''),
+        "diagnosis": data.get('diagnosis', []),
+        "medications": data.get('medications', []),
+        "allergies": data.get('allergies', []),
+        "physician": data.get('physician', ''),
+        "facility": data.get('facility', ''),
+        "services": data.get('services', []),
+        "ai_summary": data.get('ai_summary', ''),
+        "confidence_score": data.get('confidence_score', 0)
+    }
+
+
 @app.get("/api/stats")
 async def get_stats():
     """Get application statistics."""
