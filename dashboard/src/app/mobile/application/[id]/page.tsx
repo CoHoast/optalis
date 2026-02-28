@@ -7,73 +7,129 @@ import {
   CheckIcon, 
   XMarkIcon,
   PencilIcon,
-  ArrowUpTrayIcon,
-  ExclamationTriangleIcon,
-  DocumentTextIcon,
-  DocumentIcon,
-  ClipboardDocumentListIcon,
-  PhotoIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
+  ChevronDownIcon,
+  ChevronUpIcon,
 } from '@heroicons/react/24/outline';
 import '../../mobile.css';
 
-// API URL
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://optalis-api-production.up.railway.app';
 
-interface Application {
-  id: string;
-  patient_name: string;
-  dob: string;
-  phone: string;
-  address: string;
-  insurance: string;
-  policy_number: string;
-  diagnosis: string[];
-  medications: string[];
-  allergies: string[];
-  physician: string;
-  facility: string;
-  services: string[];
-  priority: string;
-  source: string;
-  created_at: string;
-  confidence_score: number;
-  ai_summary: string;
-  status: string;
-}
-
-interface DocumentInfo {
-  id: string;
-  document_type: string;
-  filename: string;
-  mime_type: string;
-  page_number: number;
-  created_at: string;
-}
-
-// Fallback mock data
-const getMockApplication = (id: string): Application => ({
-  id,
-  patient_name: 'Margaret Thompson',
-  dob: '03/15/1943',
-  phone: '(248) 555-0147',
-  address: '4521 Maple Grove Dr, West Bloomfield, MI 48322',
-  insurance: 'Medicare',
-  policy_number: '1EG4-TE5-MK72',
-  diagnosis: ['Dementia - Moderate', 'Hypertension', 'Type 2 Diabetes'],
-  medications: ['Lisinopril 10mg daily', 'Metformin 500mg twice daily', 'Donepezil 10mg at bedtime'],
-  allergies: ['Penicillin', 'Sulfa drugs'],
-  physician: 'Dr. Sarah Chen',
-  facility: 'Beaumont Health - Royal Oak',
-  services: ['Skilled Nursing', 'Physical Therapy', 'Occupational Therapy'],
-  priority: 'high',
-  source: 'Hospital Referral',
-  created_at: new Date().toISOString(),
-  confidence_score: 95,
-  ai_summary: 'Post-acute rehabilitation following hip replacement surgery. Patient requires PT/OT and skilled nursing care.',
-  status: 'pending',
-});
+// Field sections for mobile - optimized for touch
+const SECTIONS = [
+  {
+    id: 'referral',
+    title: 'Referral Info',
+    icon: '📋',
+    color: '#275380',
+    fields: [
+      { key: 'referral_type', label: 'Type', type: 'select', options: ['New Referral', 'Return to Hospital'] },
+      { key: 'hospital', label: 'Hospital', type: 'text' },
+      { key: 'building', label: 'Building', type: 'text' },
+      { key: 'room_number', label: 'Room #', type: 'text' },
+      { key: 'case_manager_name', label: 'Case Manager', type: 'text' },
+      { key: 'case_manager_phone', label: 'CM Phone', type: 'tel' },
+    ]
+  },
+  {
+    id: 'patient',
+    title: 'Patient Info',
+    icon: '👤',
+    color: '#16a34a',
+    fields: [
+      { key: 'patient_name', label: 'Name', type: 'text' },
+      { key: 'dob', label: 'DOB', type: 'text' },
+      { key: 'sex', label: 'Sex', type: 'select', options: ['Male', 'Female', 'Other'] },
+      { key: 'ssn_last4', label: 'SSN (last 4)', type: 'text', maxLength: 4 },
+      { key: 'phone', label: 'Phone', type: 'tel' },
+      { key: 'address', label: 'Address', type: 'text' },
+    ]
+  },
+  {
+    id: 'insurance',
+    title: 'Insurance',
+    icon: '💳',
+    color: '#7c3aed',
+    fields: [
+      { key: 'insurance', label: 'Insurance', type: 'text' },
+      { key: 'policy_number', label: 'Policy #', type: 'text' },
+      { key: 'care_level', label: 'Care Level', type: 'select', options: ['SNF', 'LTC', 'AL', 'Hospice'] },
+    ]
+  },
+  {
+    id: 'dates',
+    title: 'Key Dates',
+    icon: '📅',
+    color: '#ea580c',
+    fields: [
+      { key: 'date_admitted', label: 'Admitted', type: 'date' },
+      { key: 'inpatient_date', label: 'Inpatient', type: 'date' },
+      { key: 'anticipated_discharge', label: 'Expected Discharge', type: 'date' },
+    ]
+  },
+  {
+    id: 'clinical',
+    title: 'Clinical',
+    icon: '🏥',
+    color: '#dc2626',
+    fields: [
+      { key: 'diagnosis', label: 'Diagnosis', type: 'tags' },
+      { key: 'fall_risk', label: 'Fall Risk', type: 'toggle' },
+      { key: 'smoking_status', label: 'Smoking', type: 'select', options: ['Never', 'Former', 'Current'] },
+      { key: 'isolation', label: 'Isolation', type: 'text' },
+      { key: 'barrier_precautions', label: 'Barrier Precautions', type: 'text' },
+    ]
+  },
+  {
+    id: 'medical',
+    title: 'Medical',
+    icon: '💊',
+    color: '#0891b2',
+    fields: [
+      { key: 'medications', label: 'Medications', type: 'tags' },
+      { key: 'allergies', label: 'Allergies', type: 'tags' },
+      { key: 'dme', label: 'DME', type: 'textarea' },
+      { key: 'diet', label: 'Diet', type: 'text' },
+      { key: 'height', label: 'Height', type: 'text' },
+      { key: 'weight', label: 'Weight', type: 'text' },
+      { key: 'iv_meds', label: 'IV Meds', type: 'textarea' },
+      { key: 'expensive_meds', label: 'Expensive Meds', type: 'textarea' },
+    ]
+  },
+  {
+    id: 'summary',
+    title: 'Clinical Summary',
+    icon: '📝',
+    color: '#475569',
+    fields: [
+      { key: 'clinical_summary', label: 'Summary', type: 'textarea' },
+      { key: 'physician', label: 'Physician', type: 'text' },
+      { key: 'infection_prevention', label: 'Infection Prevention', type: 'textarea' },
+    ]
+  },
+  {
+    id: 'therapy',
+    title: 'Therapy',
+    icon: '🏃',
+    color: '#059669',
+    fields: [
+      { key: 'therapy_prior_level', label: 'Prior Level', type: 'textarea' },
+      { key: 'therapy_bed_mobility', label: 'Bed Mobility', type: 'text' },
+      { key: 'therapy_transfers', label: 'Transfers', type: 'text' },
+      { key: 'therapy_gait', label: 'Gait', type: 'text' },
+      { key: 'services', label: 'Services', type: 'tags' },
+    ]
+  },
+  {
+    id: 'decision',
+    title: 'Decision',
+    icon: '✅',
+    color: '#275380',
+    fields: [
+      { key: 'decision_status', label: 'Status', type: 'select', options: ['Accepting', 'Considering', 'Denying'] },
+      { key: 'decision_notes', label: 'Notes', type: 'textarea' },
+    ]
+  },
+];
 
 function ApplicationDetailContent() {
   const router = useRouter();
@@ -82,1098 +138,722 @@ function ApplicationDetailContent() {
   const id = params.id as string;
   const isNewApplication = searchParams?.get('new') === 'true';
   
-  const [app, setApp] = useState<Application | null>(null);
-  const [documents, setDocuments] = useState<DocumentInfo[]>([]);
-  const [currentDocPage, setCurrentDocPage] = useState(0);
+  const [app, setApp] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
-  const [editedFields, setEditedFields] = useState<Record<string, string | string[]>>({});
-  const [newListItemInputs, setNewListItemInputs] = useState<Record<string, string>>({});
-  const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
-  const [showDenyConfirm, setShowDenyConfirm] = useState(false);
-  const [showReviewConfirm, setShowReviewConfirm] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [editedData, setEditedData] = useState<any>({});
   const [isSaving, setIsSaving] = useState(false);
-  const [confirmChecked, setConfirmChecked] = useState(false);
-  const [activeTab, setActiveTab] = useState<'details' | 'document'>('details');
+  const [expandedSections, setExpandedSections] = useState<string[]>(['patient']);
   const [showNewBanner, setShowNewBanner] = useState(isNewApplication || false);
 
-  // Fetch application data
+  // Fetch application
   useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true);
-      try {
-        // Fetch application
-        const appResponse = await fetch(`${API_URL}/api/applications/${id}`);
-        if (appResponse.ok) {
-          const appData = await appResponse.json();
-          setApp(appData);
-        } else {
-          // Fall back to mock data for demo
-          setApp(getMockApplication(id));
+    fetch(`${API_URL}/api/applications/${id}`)
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (data) {
+          setApp(data);
+          setEditedData(data);
         }
-
-        // Fetch documents
-        const docsResponse = await fetch(`${API_URL}/api/applications/${id}/documents`);
-        if (docsResponse.ok) {
-          const docsData = await docsResponse.json();
-          setDocuments(docsData);
-        }
-      } catch (error) {
-        console.error('Error fetching application:', error);
-        setApp(getMockApplication(id));
-      } finally {
         setIsLoading(false);
-      }
-    };
-
-    fetchData();
+      })
+      .catch(() => setIsLoading(false));
   }, [id]);
 
-  // Auto-dismiss new application banner
+  // Auto-hide new banner
   useEffect(() => {
     if (showNewBanner) {
-      const timer = setTimeout(() => setShowNewBanner(false), 3000);
+      const timer = setTimeout(() => setShowNewBanner(false), 4000);
       return () => clearTimeout(timer);
     }
   }, [showNewBanner]);
 
-  // Loading state
-  if (isLoading || !app) {
+  const toggleSection = (sectionId: string) => {
+    setExpandedSections(prev => 
+      prev.includes(sectionId) 
+        ? prev.filter(s => s !== sectionId)
+        : [...prev, sectionId]
+    );
+  };
+
+  const getValue = (key: string) => {
+    const data = isEditing ? editedData : app;
+    const value = data?.[key];
+    if (Array.isArray(value)) return value;
+    return value || '';
+  };
+
+  const setValue = (key: string, value: any) => {
+    setEditedData({ ...editedData, [key]: value });
+  };
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      const response = await fetch(`${API_URL}/api/applications/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editedData)
+      });
+      if (response.ok) {
+        setApp({ ...app, ...editedData });
+        setIsEditing(false);
+      }
+    } catch (error) {
+      console.error('Save error:', error);
+    }
+    setIsSaving(false);
+  };
+
+  const handleStatusChange = async (newStatus: string) => {
+    try {
+      await fetch(`${API_URL}/api/applications/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus })
+      });
+      setApp({ ...app, status: newStatus });
+    } catch (error) {
+      console.error('Status error:', error);
+    }
+  };
+
+  const renderField = (field: any) => {
+    const value = getValue(field.key);
+    
+    // Display mode
+    if (!isEditing) {
+      if (field.type === 'tags') {
+        const tags = Array.isArray(value) ? value : [];
+        return tags.length > 0 ? (
+          <div className="mobile-tags">
+            {tags.map((tag: string, i: number) => (
+              <span key={i} className="mobile-tag">{tag}</span>
+            ))}
+          </div>
+        ) : <span className="mobile-empty">—</span>;
+      }
+      if (field.type === 'toggle') {
+        return (
+          <span className={`mobile-badge ${value ? 'danger' : 'success'}`}>
+            {value ? '⚠️ Yes' : 'No'}
+          </span>
+        );
+      }
+      return value || <span className="mobile-empty">—</span>;
+    }
+
+    // Edit mode
+    if (field.type === 'select') {
+      return (
+        <select
+          value={value || ''}
+          onChange={(e) => setValue(field.key, e.target.value)}
+          className="mobile-select"
+        >
+          <option value="">Select...</option>
+          {field.options?.map((opt: string) => (
+            <option key={opt} value={opt}>{opt}</option>
+          ))}
+        </select>
+      );
+    }
+
+    if (field.type === 'toggle') {
+      return (
+        <button
+          type="button"
+          onClick={() => setValue(field.key, !value)}
+          className={`mobile-toggle ${value ? 'active' : ''}`}
+        >
+          <span className="mobile-toggle-track">
+            <span className="mobile-toggle-thumb" />
+          </span>
+          <span>{value ? 'Yes' : 'No'}</span>
+        </button>
+      );
+    }
+
+    if (field.type === 'textarea') {
+      return (
+        <textarea
+          value={value || ''}
+          onChange={(e) => setValue(field.key, e.target.value)}
+          rows={3}
+          className="mobile-textarea"
+          placeholder={field.label}
+        />
+      );
+    }
+
+    if (field.type === 'tags') {
+      const tags = Array.isArray(value) ? value : [];
+      return (
+        <div>
+          <div className="mobile-tags" style={{ marginBottom: '8px' }}>
+            {tags.map((tag: string, i: number) => (
+              <span key={i} className="mobile-tag editable">
+                {tag}
+                <button 
+                  type="button"
+                  onClick={() => setValue(field.key, tags.filter((_: string, idx: number) => idx !== i))}
+                  className="mobile-tag-remove"
+                >×</button>
+              </span>
+            ))}
+          </div>
+          <input
+            type="text"
+            placeholder="Add and press Enter..."
+            className="mobile-input"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && e.currentTarget.value.trim()) {
+                setValue(field.key, [...tags, e.currentTarget.value.trim()]);
+                e.currentTarget.value = '';
+                e.preventDefault();
+              }
+            }}
+          />
+        </div>
+      );
+    }
+
     return (
-      <MobileLayout title="Application" showBack>
-        <div className="mobile-section" style={{ paddingTop: 60, textAlign: 'center' }}>
-          <div className="scan-processing-spinner" style={{ margin: '0 auto 16px' }} />
-          <p style={{ color: '#6b7280' }}>Loading application...</p>
+      <input
+        type={field.type === 'date' ? 'date' : field.type === 'tel' ? 'tel' : 'text'}
+        value={value || ''}
+        onChange={(e) => setValue(field.key, e.target.value)}
+        maxLength={field.maxLength}
+        className="mobile-input"
+        placeholder={field.label}
+      />
+    );
+  };
+
+  if (isLoading) {
+    return (
+      <MobileLayout title="Loading..." showBack>
+        <div className="mobile-loading">
+          <div className="mobile-spinner" />
         </div>
       </MobileLayout>
     );
   }
 
-  // Helper to format date
-  const formatDate = (dateStr: string) => {
-    try {
-      const date = new Date(dateStr);
-      const now = new Date();
-      const diffMs = now.getTime() - date.getTime();
-      const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-      
-      if (diffHours < 1) return 'Just now';
-      if (diffHours < 24) return `${diffHours} hours ago`;
-      if (diffHours < 48) return 'Yesterday';
-      return date.toLocaleDateString();
-    } catch {
-      return dateStr;
-    }
-  };
-
-  const handleFieldChange = (field: string, value: string | string[]) => {
-    setEditedFields({ ...editedFields, [field]: value });
-  };
-
-  const handleSave = async () => {
-    if (Object.keys(editedFields).length === 0) {
-      setIsEditing(false);
-      return;
-    }
-
-    setIsSaving(true);
-    
-    try {
-      // When saving edits, also set status to "review" so it moves from Inbox to Review tab
-      const updateData = {
-        ...editedFields,
-        status: 'review' // Move to Review tab after editing
-      };
-
-      const response = await fetch(`${API_URL}/api/applications/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updateData)
-      });
-      
-      if (response.ok) {
-        // Update local state with saved values
-        setApp(prev => prev ? { ...prev, ...editedFields, status: 'review' } : prev);
-        setEditedFields({});
-        setNewListItemInputs({});
-        setIsEditing(false);
-        
-        // Haptic feedback
-        if ('vibrate' in navigator) {
-          navigator.vibrate([10, 50, 10]);
-        }
-      } else {
-        console.error('Failed to save changes');
-        alert('Failed to save changes. Please try again.');
-      }
-    } catch (error) {
-      console.error('Error saving changes:', error);
-      alert('Failed to save changes. Please try again.');
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleSubmitToCRM = async () => {
-    if (!confirmChecked) return;
-    
-    setIsSubmitting(true);
-    
-    // Haptic feedback
-    if ('vibrate' in navigator) {
-      navigator.vibrate(10);
-    }
-    
-    try {
-      // First approve the application
-      const response = await fetch(`${API_URL}/api/applications/${id}/decision`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ decision: 'approved' })
-      });
-      
-      if (response.ok) {
-        // Success haptic
-        if ('vibrate' in navigator) {
-          navigator.vibrate([10, 100, 10, 100, 10]);
-        }
-        
-        // Navigate back
-        router.push('/mobile');
-      } else {
-        alert('Failed to submit. Please try again.');
-      }
-    } catch (error) {
-      console.error('Error submitting:', error);
-      alert('Failed to submit. Please try again.');
-    } finally {
-      setIsSubmitting(false);
-      setShowSubmitConfirm(false);
-    }
-  };
-
-  const handleApprove = () => {
-    setConfirmChecked(false);
-    setShowSubmitConfirm(true);
-  };
-
-  const handleDeny = () => {
-    setConfirmChecked(false);
-    setShowDenyConfirm(true);
-  };
-
-  const handleConfirmDeny = async () => {
-    if (!confirmChecked) return;
-    
-    setIsSubmitting(true);
-    
-    try {
-      const response = await fetch(`${API_URL}/api/applications/${id}/decision`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ decision: 'denied' })
-      });
-      
-      if (response.ok) {
-        if ('vibrate' in navigator) {
-          navigator.vibrate([10, 100, 10]);
-        }
-        router.push('/mobile');
-      } else {
-        alert('Failed to deny. Please try again.');
-      }
-    } catch (error) {
-      console.error('Error denying:', error);
-      alert('Failed to deny. Please try again.');
-    } finally {
-      setIsSubmitting(false);
-      setShowDenyConfirm(false);
-    }
-  };
-
-  const renderEditableField = (label: string, field: string, value: string, multiline = false) => {
-    const currentValue = editedFields[field] ?? value;
-    
+  if (!app) {
     return (
-      <div className="mobile-form-group">
-        <label className="mobile-label">{label}</label>
-        {isEditing ? (
-          multiline ? (
-            <textarea
-              className="mobile-textarea"
-              value={currentValue}
-              onChange={(e) => handleFieldChange(field, e.target.value)}
-              rows={3}
-            />
-          ) : (
-            <input
-              type="text"
-              className="mobile-input"
-              value={currentValue}
-              onChange={(e) => handleFieldChange(field, e.target.value)}
-            />
-          )
-        ) : (
-          <div className="mobile-field-value">{currentValue}</div>
-        )}
-      </div>
+      <MobileLayout title="Not Found" showBack>
+        <div className="mobile-empty-state">
+          <p>Application not found</p>
+        </div>
+      </MobileLayout>
     );
-  };
+  }
 
-  const renderListField = (label: string, field: string, items: string[]) => {
-    const currentItems: string[] = (editedFields[field] as string[]) ?? items;
-    const newItemValue = newListItemInputs[field] || '';
-    
-    const handleAddItem = () => {
-      if (newItemValue.trim()) {
-        const updatedItems = [...currentItems, newItemValue.trim()];
-        handleFieldChange(field, updatedItems);
-        setNewListItemInputs(prev => ({ ...prev, [field]: '' }));
-      }
-    };
-    
-    const handleRemoveItem = (index: number) => {
-      const updatedItems = currentItems.filter((_, i) => i !== index);
-      handleFieldChange(field, updatedItems);
-    };
-    
-    return (
-      <div className="mobile-form-group">
-        <label className="mobile-label">{label}</label>
-        {isEditing ? (
-          <>
-            <div className="mobile-tags" style={{ marginBottom: currentItems.length > 0 ? 10 : 0 }}>
-              {currentItems.map((item, i) => (
-                <span key={i} className="mobile-tag" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  {item}
-                  <button
-                    onClick={() => handleRemoveItem(i)}
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      padding: 0,
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                    }}
-                  >
-                    <svg style={{ width: 14, height: 14, color: '#ef4444' }} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                </span>
-              ))}
-            </div>
-            <div style={{ display: 'flex', gap: 8 }}>
-              <input
-                type="text"
-                className="mobile-input"
-                placeholder={`Add ${label.toLowerCase().replace('ies', 'y').replace(/s$/, '')}...`}
-                value={newItemValue}
-                onChange={(e) => setNewListItemInputs(prev => ({ ...prev, [field]: e.target.value }))}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    handleAddItem();
-                  }
-                }}
-                style={{ flex: 1 }}
-              />
-              <button
-                onClick={handleAddItem}
-                disabled={!newItemValue.trim()}
-                style={{
-                  padding: '12px 16px',
-                  background: newItemValue.trim() ? '#275380' : '#e5e7eb',
-                  color: newItemValue.trim() ? 'white' : '#9ca3af',
-                  border: 'none',
-                  borderRadius: 10,
-                  fontSize: 14,
-                  fontWeight: 600,
-                  cursor: newItemValue.trim() ? 'pointer' : 'default',
-                }}
-              >
-                Add
-              </button>
-            </div>
-          </>
-        ) : (
-          <div className="mobile-tags">
-            {currentItems.length > 0 ? (
-              currentItems.map((item, i) => (
-                <span key={i} className="mobile-tag">{item}</span>
-              ))
-            ) : (
-              <span style={{ color: '#9ca3af', fontStyle: 'italic', fontSize: 14 }}>None listed</span>
-            )}
-          </div>
-        )}
-      </div>
-    );
+  const getInitials = (name: string) => {
+    if (!name) return '??';
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
   };
 
   return (
-    <MobileLayout 
-      title={isEditing ? 'Edit Application' : 'Application'} 
-      showBack 
-      rightAction={
-        activeTab === 'details' ? (
-          isEditing ? (
-            <button 
-              className="mobile-icon-btn" 
-              onClick={handleSave}
-              disabled={isSaving}
-              style={{ padding: 8 }}
-            >
-              {isSaving ? (
-                <div style={{ width: 24, height: 24, border: '2px solid #d1d5db', borderTopColor: '#16a34a', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
-              ) : (
-                <svg style={{ width: 24, height: 24, color: '#16a34a' }} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-              )}
-            </button>
+    <MobileLayout title="Application" showBack>
+      <div className="mobile-app-detail">
+        {/* New Application Banner */}
+        {showNewBanner && (
+          <div className="mobile-success-banner">
+            <CheckIcon className="w-5 h-5" />
+            <span>Application created successfully!</span>
+          </div>
+        )}
+
+        {/* Patient Header Card */}
+        <div className="mobile-patient-header">
+          <div className="mobile-avatar" style={{ background: '#275380' }}>
+            {getInitials(app.patient_name)}
+          </div>
+          <div className="mobile-patient-info">
+            <h1>{app.patient_name || 'Unknown Patient'}</h1>
+            <p>{app.id}</p>
+          </div>
+          <div className={`mobile-status-badge ${app.status}`}>
+            {app.status}
+          </div>
+        </div>
+
+        {/* AI Summary */}
+        {app.ai_summary && (
+          <div className="mobile-ai-card">
+            <div className="mobile-ai-header">
+              <span>🤖 AI Summary</span>
+              <span className="mobile-confidence">{app.confidence_score || 0}%</span>
+            </div>
+            <p>{app.ai_summary}</p>
+          </div>
+        )}
+
+        {/* Action Bar */}
+        <div className="mobile-action-bar">
+          {isEditing ? (
+            <>
+              <button 
+                className="mobile-btn secondary"
+                onClick={() => { setIsEditing(false); setEditedData(app); }}
+              >
+                Cancel
+              </button>
+              <button 
+                className="mobile-btn primary"
+                onClick={handleSave}
+                disabled={isSaving}
+              >
+                {isSaving ? 'Saving...' : 'Save Changes'}
+              </button>
+            </>
           ) : (
-            <button 
-              className="mobile-icon-btn" 
-              onClick={() => setIsEditing(true)}
-              style={{ padding: 8, background: 'rgba(39,83,128,0.1)', borderRadius: 8 }}
+            <>
+              <button 
+                className="mobile-btn secondary"
+                onClick={() => setIsEditing(true)}
+              >
+                <PencilIcon className="w-4 h-4" />
+                Edit
+              </button>
+              <select 
+                className="mobile-status-select"
+                value={app.status}
+                onChange={(e) => handleStatusChange(e.target.value)}
+              >
+                <option value="pending">Pending</option>
+                <option value="review">Review</option>
+                <option value="approved">Approved</option>
+                <option value="denied">Denied</option>
+              </select>
+            </>
+          )}
+        </div>
+
+        {/* Collapsible Sections */}
+        <div className="mobile-sections">
+          {SECTIONS.map(section => (
+            <div key={section.id} className="mobile-section">
+              <button
+                type="button"
+                className="mobile-section-header"
+                onClick={() => toggleSection(section.id)}
+                style={{ borderLeftColor: section.color }}
+              >
+                <span className="mobile-section-icon">{section.icon}</span>
+                <span className="mobile-section-title">{section.title}</span>
+                {expandedSections.includes(section.id) ? (
+                  <ChevronUpIcon className="w-5 h-5" />
+                ) : (
+                  <ChevronDownIcon className="w-5 h-5" />
+                )}
+              </button>
+              
+              {expandedSections.includes(section.id) && (
+                <div className="mobile-section-content">
+                  {section.fields.map(field => (
+                    <div key={field.key} className="mobile-field">
+                      <label>{field.label}</label>
+                      <div className="mobile-field-value">
+                        {renderField(field)}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Quick Actions */}
+        {!isEditing && (
+          <div className="mobile-quick-actions">
+            <button
+              className="mobile-action-btn approve"
+              onClick={() => handleStatusChange('approved')}
+              disabled={app.status === 'approved'}
             >
-              <svg style={{ width: 24, height: 24, color: '#275380' }} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
-              </svg>
+              <CheckIcon className="w-6 h-6" />
+              <span>Approve</span>
             </button>
-          )
-        ) : null
-      }
-    >
-      {/* Tab Bar */}
-      <div className="mobile-tab-bar-inline" style={{ 
-        background: 'white',
-        borderBottom: '1px solid #e5e7eb',
-        marginTop: 0
-      }}>
-        <button 
-          className={`mobile-tab-inline ${activeTab === 'details' ? 'active' : ''}`}
-          onClick={() => setActiveTab('details')}
-        >
-          <svg style={{ width: 20, height: 20 }} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V19.5a2.25 2.25 0 0 0 2.25 2.25h.75m0-3H12m-.75 3h3.75" />
-          </svg>
-          <span>Details</span>
-        </button>
-        <button 
-          className={`mobile-tab-inline ${activeTab === 'document' ? 'active' : ''}`}
-          onClick={() => setActiveTab('document')}
-        >
-          <svg style={{ width: 20, height: 20 }} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
-          </svg>
-          <span>Original Doc</span>
-        </button>
+            <button
+              className="mobile-action-btn review"
+              onClick={() => handleStatusChange('review')}
+              disabled={app.status === 'review'}
+            >
+              <PencilIcon className="w-6 h-6" />
+              <span>Review</span>
+            </button>
+            <button
+              className="mobile-action-btn deny"
+              onClick={() => handleStatusChange('denied')}
+              disabled={app.status === 'denied'}
+            >
+              <XMarkIcon className="w-6 h-6" />
+              <span>Deny</span>
+            </button>
+          </div>
+        )}
+
+        {/* Source Footer */}
+        <div className="mobile-source-footer">
+          <span>Source: {app.source || 'Unknown'}</span>
+          <span>{app.created_at ? new Date(app.created_at).toLocaleDateString() : ''}</span>
+        </div>
       </div>
 
-      {/* New Application Banner */}
-      {showNewBanner && (
-        <div className="new-app-banner">
-          <CheckIcon className="w-5 h-5" />
-          <span>Application created successfully!</span>
-        </div>
-      )}
-
-      {/* Document Viewer Tab */}
-      {activeTab === 'document' && (
-        <div className="mobile-section" style={{ paddingTop: 16 }}>
-          <div className="document-viewer-mobile">
-            <div className="document-header-mobile">
-              <span className="document-label">
-                {app.source === 'Mobile Scan' ? 'Scanned Document' : 'Original Document'}
-                {documents.length > 1 && ` (${currentDocPage + 1}/${documents.length})`}
-              </span>
-              <span className="document-date">Received {formatDate(app.created_at)}</span>
-            </div>
-            
-            {/* Document Image or Fallback */}
-            <div className="document-frame-mobile">
-              {documents.length > 0 ? (
-                <div className="scanned-doc-container">
-                  {/* Actual scanned image */}
-                  <img 
-                    src={`${API_URL}/api/documents/${documents[currentDocPage].id}/image`}
-                    alt={`Page ${currentDocPage + 1}`}
-                    className="scanned-doc-image"
-                    style={{ 
-                      maxWidth: '100%', 
-                      height: 'auto',
-                      borderRadius: 4,
-                      boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
-                    }}
-                  />
-                  
-                  {/* Page navigation for multi-page docs */}
-                  {documents.length > 1 && (
-                    <div className="doc-page-nav">
-                      <button 
-                        className="doc-page-btn"
-                        onClick={() => setCurrentDocPage(p => Math.max(0, p - 1))}
-                        disabled={currentDocPage === 0}
-                      >
-                        <ChevronLeftIcon className="w-5 h-5" />
-                      </button>
-                      <span className="doc-page-indicator">
-                        {currentDocPage + 1} / {documents.length}
-                      </span>
-                      <button 
-                        className="doc-page-btn"
-                        onClick={() => setCurrentDocPage(p => Math.min(documents.length - 1, p + 1))}
-                        disabled={currentDocPage === documents.length - 1}
-                      >
-                        <ChevronRightIcon className="w-5 h-5" />
-                      </button>
-                    </div>
-                  )}
-                </div>
-              ) : app.source === 'Mobile Scan' ? (
-                <div className="no-doc-placeholder">
-                  <PhotoIcon className="w-12 h-12" />
-                  <p>Scanned image not available</p>
-                </div>
-              ) : (
-                /* Fallback: Show mock document for email-sourced apps */
-                <div className="mock-document">
-                  <div className="mock-doc-header">
-                    <div className="mock-stamp">RECEIVED</div>
-                    <div className="mock-date">{formatDate(app.created_at)}</div>
-                  </div>
-                  <h3 className="mock-doc-title">PATIENT REFERRAL FORM</h3>
-                  <div className="mock-doc-field">
-                    <span className="mock-label">Patient Name:</span>
-                    <span className="mock-value mock-handwritten">{app.patient_name}</span>
-                  </div>
-                  <div className="mock-doc-field">
-                    <span className="mock-label">DOB:</span>
-                    <span className="mock-value mock-handwritten">{app.dob}</span>
-                  </div>
-                  <div className="mock-doc-field">
-                    <span className="mock-label">Phone:</span>
-                    <span className="mock-value mock-handwritten">{app.phone}</span>
-                  </div>
-                  <div className="mock-doc-field">
-                    <span className="mock-label">Address:</span>
-                    <span className="mock-value mock-handwritten">{app.address}</span>
-                  </div>
-                  <div className="mock-doc-divider" />
-                  <div className="mock-doc-field">
-                    <span className="mock-label">Primary Insurance:</span>
-                    <span className="mock-value mock-handwritten">{app.insurance}</span>
-                  </div>
-                  <div className="mock-doc-field">
-                    <span className="mock-label">Policy #:</span>
-                    <span className="mock-value mock-handwritten">{app.policy_number}</span>
-                  </div>
-                  <div className="mock-doc-divider" />
-                  <div className="mock-doc-field">
-                    <span className="mock-label">Diagnosis:</span>
-                    <span className="mock-value mock-handwritten">{app.diagnosis?.join(', ')}</span>
-                  </div>
-                  <div className="mock-doc-field">
-                    <span className="mock-label">Referring Physician:</span>
-                    <span className="mock-value mock-handwritten">{app.physician}</span>
-                  </div>
-                  <div className="mock-doc-field">
-                    <span className="mock-label">Referring Facility:</span>
-                    <span className="mock-value mock-handwritten">{app.facility}</span>
-                  </div>
-                  <div className="mock-doc-footer">
-                    <div className="mock-signature">
-                      <div className="mock-sig-line"></div>
-                      <span>Physician Signature</span>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-            
-            <div className="document-actions-mobile">
-              <button className="doc-action-btn">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
-                </svg>
-                Zoom In
-              </button>
-              <button className="doc-action-btn">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                </svg>
-                Download
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Details Tab */}
-      {activeTab === 'details' && (
-        <>
-          {/* Save/Cancel buttons when editing - appears at top */}
-          {isEditing && (
-            <div className="mobile-section" style={{ paddingTop: 12 }}>
-              <div style={{ display: 'flex', gap: 12 }}>
-                <button 
-                  onClick={() => {
-                    setIsEditing(false);
-                    setEditedFields({});
-                    setNewListItemInputs({});
-                  }}
-                  style={{
-                    flex: 1,
-                    padding: '14px 20px',
-                    background: '#f3f4f6',
-                    color: '#374151',
-                    border: 'none',
-                    borderRadius: 12,
-                    fontSize: 16,
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                  }}
-                >
-                  Cancel
-                </button>
-                <button 
-                  onClick={handleSave}
-                  disabled={isSaving}
-                  style={{
-                    flex: 1,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 8,
-                    padding: '14px 20px',
-                    background: '#16a34a',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: 12,
-                    fontSize: 16,
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    opacity: isSaving ? 0.7 : 1,
-                  }}
-                >
-                  {isSaving ? 'Saving...' : 'Save Changes'}
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* AI Summary Card */}
-          <div className="mobile-section" style={{ paddingTop: 12 }}>
-            <div style={{ 
-              background: 'linear-gradient(135deg, #275380 0%, #1e3f61 100%)', 
-              borderRadius: 16, 
-              padding: 20,
-              color: 'white'
-            }}>
-              <div style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: 10, 
-                marginBottom: 12 
-              }}>
-                <svg style={{ width: 20, height: 20, flexShrink: 0 }} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
-                </svg>
-                <span style={{ fontWeight: 600, fontSize: 16 }}>AI Summary</span>
-                <span style={{ 
-                  marginLeft: 'auto', 
-                  background: 'rgba(255,255,255,0.2)', 
-                  padding: '4px 10px', 
-                  borderRadius: 12, 
-                  fontSize: 12, 
-                  fontWeight: 500 
-                }}>{app.confidence_score}% confidence</span>
-              </div>
-              <p style={{ fontSize: 15, lineHeight: 1.6, margin: 0, opacity: 0.95 }}>{app.ai_summary || 'No summary available'}</p>
-            </div>
-          </div>
-
-          {/* Low Confidence Warning */}
-          {app.confidence_score < 85 && (
-            <div className="mobile-section">
-              <div className="warning-banner">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" style={{ width: 20, height: 20, flexShrink: 0 }}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
-                </svg>
-                <span>Low confidence extraction - please verify all fields</span>
-              </div>
-            </div>
-          )}
-
-          {/* Source Badge */}
-          {app.source === 'Mobile Scan' && (
-            <div className="mobile-section">
-              <div className="source-badge scan">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" style={{ width: 16, height: 16, flexShrink: 0 }}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
-                </svg>
-                <span>Created from mobile scan</span>
-              </div>
-            </div>
-          )}
-
-          {/* Patient Information */}
-          <div className="mobile-section">
-            <h3 className="mobile-section-title" style={{ fontSize: 15, color: '#6b7280', marginTop: 20 }}>
-              Patient Information
-            </h3>
-            
-            {renderEditableField('Patient Name', 'patient_name', app.patient_name || '')}
-            
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-              {renderEditableField('Date of Birth', 'dob', app.dob || '')}
-              {renderEditableField('Phone', 'phone', app.phone || '')}
-            </div>
-            
-            {renderEditableField('Address', 'address', app.address || '')}
-          </div>
-
-          {/* Insurance Information */}
-          <div className="mobile-section">
-            <h3 className="mobile-section-title" style={{ fontSize: 15, color: '#6b7280', marginTop: 20 }}>
-              Insurance
-            </h3>
-            
-            {renderEditableField('Primary Insurance', 'insurance', app.insurance || '')}
-            {renderEditableField('Policy Number', 'policy_number', app.policy_number || '')}
-          </div>
-
-          {/* Medical Information */}
-          <div className="mobile-section">
-            <h3 className="mobile-section-title" style={{ fontSize: 15, color: '#6b7280', marginTop: 20 }}>
-              Medical Information
-            </h3>
-            
-            {renderListField('Diagnosis', 'diagnosis', app.diagnosis || [])}
-            {renderListField('Medications', 'medications', app.medications || [])}
-            {renderListField('Allergies', 'allergies', app.allergies || [])}
-          </div>
-
-          {/* Referral Information */}
-          <div className="mobile-section">
-            <h3 className="mobile-section-title" style={{ fontSize: 15, color: '#6b7280', marginTop: 20 }}>
-              Referral
-            </h3>
-            
-            {renderEditableField('Referring Physician', 'physician', app.physician || '')}
-            {renderEditableField('Referring Facility', 'facility', app.facility || '')}
-            {renderListField('Requested Services', 'services', app.services || [])}
-          </div>
-
-          {/* Notes Section */}
-          <div className="mobile-section">
-            <h3 className="mobile-section-title" style={{ fontSize: 15, color: '#6b7280', marginTop: 20 }}>
-              Notes
-            </h3>
-            
-            <div className="mobile-form-group">
-              {isEditing ? (
-                <textarea
-                  className="mobile-textarea"
-                  placeholder="Add notes about this application..."
-                  value={editedFields['notes'] ?? (app as any).notes ?? ''}
-                  onChange={(e) => handleFieldChange('notes', e.target.value)}
-                  rows={4}
-                  style={{ minHeight: 120 }}
-                />
-              ) : (
-                <div className="mobile-field-value" style={{ 
-                  minHeight: 60, 
-                  color: (app as any).notes ? '#1a1a1a' : '#9ca3af',
-                  fontStyle: (app as any).notes ? 'normal' : 'italic'
-                }}>
-                  {(app as any).notes || 'No notes added. Tap the pencil icon to edit.'}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Spacer for action bar */}
-          <div style={{ paddingBottom: 120 }} />
-        </>
-      )}
-
-      {/* Action Bar */}
-      {!isEditing && (
-        <div className="quick-actions-bar" style={{ 
-          position: 'fixed', 
-          bottom: 'calc(83px + env(safe-area-inset-bottom))',
-          left: 0,
-          right: 0,
-        }}>
-          {/* Show "Review" button for pending apps (in Inbox) */}
-          {app.status === 'pending' && (
-            <button 
-              className="quick-action-btn"
-              onClick={() => setShowReviewConfirm(true)}
-              style={{
-                background: '#f59e0b',
-                color: 'white',
-              }}
-            >
-              <svg style={{ width: 20, height: 20 }} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-              </svg>
-              Review
-            </button>
-          )}
-          <button className="quick-action-btn deny" onClick={handleDeny}>
-            <XMarkIcon className="w-5 h-5" />
-            Deny
-          </button>
-          <button className="quick-action-btn approve" onClick={handleApprove}>
-            <CheckIcon className="w-5 h-5" />
-            Approve
-          </button>
-        </div>
-      )}
-
-      {/* Approve Confirmation Modal */}
-      {showSubmitConfirm && (
-        <div className="mobile-modal-overlay" onClick={() => { setShowSubmitConfirm(false); setConfirmChecked(false); }}>
-          <div className="mobile-modal" onClick={(e) => e.stopPropagation()}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-              <div style={{ width: 48, height: 48, borderRadius: '50%', background: '#dcfce7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <CheckIcon className="w-6 h-6 text-green-600" />
-              </div>
-              <div>
-                <h3 className="mobile-modal-title" style={{ margin: 0 }}>Approve Application?</h3>
-                <p style={{ margin: 0, fontSize: 14, color: '#6b7280' }}>{app?.patient_name || 'Unknown Patient'}</p>
-              </div>
-            </div>
-            
-            <p className="mobile-modal-text">
-              This will approve the application and sync patient data to PointClickCare.
-            </p>
-
-            {/* Confirmation Checkbox */}
-            <label style={{ 
-              display: 'flex', 
-              alignItems: 'flex-start', 
-              gap: 12, 
-              padding: '12px 16px',
-              background: '#f0fdf4',
-              borderRadius: 10,
-              marginBottom: 20,
-              cursor: 'pointer'
-            }}>
-              <input 
-                type="checkbox" 
-                checked={confirmChecked}
-                onChange={(e) => setConfirmChecked(e.target.checked)}
-                style={{ width: 20, height: 20, marginTop: 2, accentColor: '#16a34a' }}
-              />
-              <span style={{ fontSize: 14, color: '#374151' }}>
-                I confirm that I want to <strong>approve</strong> this application for <strong>{app?.patient_name || 'this patient'}</strong>.
-              </span>
-            </label>
-            
-            <div className="mobile-modal-actions">
-              <button 
-                className="quick-action-btn review"
-                onClick={() => { setShowSubmitConfirm(false); setConfirmChecked(false); }}
-                disabled={isSubmitting}
-              >
-                Cancel
-              </button>
-              <button 
-                className="quick-action-btn approve"
-                onClick={handleSubmitToCRM}
-                disabled={isSubmitting || !confirmChecked}
-                style={{ opacity: confirmChecked ? 1 : 0.5 }}
-              >
-                {isSubmitting ? (
-                  <div className="btn-spinner" />
-                ) : (
-                  <>
-                    <CheckIcon className="w-5 h-5" />
-                    Approve
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Deny Confirmation Modal */}
-      {showDenyConfirm && (
-        <div className="mobile-modal-overlay" onClick={() => { setShowDenyConfirm(false); setConfirmChecked(false); }}>
-          <div className="mobile-modal" onClick={(e) => e.stopPropagation()}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-              <div style={{ width: 48, height: 48, borderRadius: '50%', background: '#fef2f2', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <XMarkIcon className="w-6 h-6 text-red-600" />
-              </div>
-              <div>
-                <h3 className="mobile-modal-title" style={{ margin: 0 }}>Deny Application?</h3>
-                <p style={{ margin: 0, fontSize: 14, color: '#6b7280' }}>{app?.patient_name || 'Unknown Patient'}</p>
-              </div>
-            </div>
-            
-            <p className="mobile-modal-text">
-              This will deny the application. This action cannot be undone.
-            </p>
-
-            {/* Confirmation Checkbox */}
-            <label style={{ 
-              display: 'flex', 
-              alignItems: 'flex-start', 
-              gap: 12, 
-              padding: '12px 16px',
-              background: '#fef2f2',
-              borderRadius: 10,
-              marginBottom: 20,
-              cursor: 'pointer'
-            }}>
-              <input 
-                type="checkbox" 
-                checked={confirmChecked}
-                onChange={(e) => setConfirmChecked(e.target.checked)}
-                style={{ width: 20, height: 20, marginTop: 2, accentColor: '#dc2626' }}
-              />
-              <span style={{ fontSize: 14, color: '#374151' }}>
-                I confirm that I want to <strong>deny</strong> this application for <strong>{app?.patient_name || 'this patient'}</strong>.
-              </span>
-            </label>
-            
-            <div className="mobile-modal-actions">
-              <button 
-                className="quick-action-btn review"
-                onClick={() => { setShowDenyConfirm(false); setConfirmChecked(false); }}
-                disabled={isSubmitting}
-              >
-                Cancel
-              </button>
-              <button 
-                className="quick-action-btn deny"
-                onClick={handleConfirmDeny}
-                disabled={isSubmitting || !confirmChecked}
-                style={{ opacity: confirmChecked ? 1 : 0.5 }}
-              >
-                {isSubmitting ? (
-                  <div className="btn-spinner" />
-                ) : (
-                  <>
-                    <XMarkIcon className="w-5 h-5" />
-                    Deny
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Review Confirmation Modal */}
-      {showReviewConfirm && (
-        <div className="mobile-modal-overlay" onClick={() => setShowReviewConfirm(false)}>
-          <div className="mobile-modal" onClick={(e) => e.stopPropagation()}>
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '12px' }}>
-              <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#fef3c7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <svg style={{ width: 20, height: 20, color: '#f59e0b' }} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                </svg>
-              </div>
-              <div>
-                <h3 className="mobile-modal-title" style={{ margin: 0 }}>Send to Review?</h3>
-                <p style={{ margin: '4px 0 0', fontSize: '14px', color: '#6b7280' }}>{app?.patient_name}</p>
-              </div>
-            </div>
-            <p className="mobile-modal-text">
-              This will move the application to the Review queue for further evaluation.
-            </p>
-            <div className="mobile-modal-actions">
-              <button 
-                className="quick-action-btn"
-                onClick={() => setShowReviewConfirm(false)}
-                disabled={isSubmitting}
-                style={{ background: '#f3f4f6', color: '#374151' }}
-              >
-                Cancel
-              </button>
-              <button 
-                className="quick-action-btn"
-                onClick={async () => {
-                  setIsSubmitting(true);
-                  try {
-                    const response = await fetch(`${API_URL}/api/applications/${id}`, {
-                      method: 'PATCH',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ status: 'review' })
-                    });
-                    if (response.ok) {
-                      setApp(prev => prev ? { ...prev, status: 'review' } : prev);
-                      if ('vibrate' in navigator) navigator.vibrate([10, 50, 10]);
-                      setShowReviewConfirm(false);
-                      router.push('/mobile/review');
-                    } else {
-                      alert('Failed to update. Please try again.');
-                    }
-                  } catch (error) {
-                    console.error('Error updating status:', error);
-                    alert('Failed to update. Please try again.');
-                  } finally {
-                    setIsSubmitting(false);
-                  }
-                }}
-                disabled={isSubmitting}
-                style={{ background: '#f59e0b', color: 'white' }}
-              >
-                {isSubmitting ? (
-                  <div className="btn-spinner" />
-                ) : (
-                  <>
-                    <svg style={{ width: 20, height: 20 }} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                    </svg>
-                    Send to Review
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       <style jsx>{`
-        .ai-summary-card {
-          background: linear-gradient(135deg, #275380 0%, #1e3f61 100%);
-          border-radius: 12px;
+        .mobile-app-detail {
           padding: 16px;
-          color: white;
+          padding-bottom: 100px;
         }
-        
-        .ai-summary-header {
+        .mobile-success-banner {
           display: flex;
           align-items: center;
           gap: 8px;
-          font-size: 13px;
+          padding: 12px 16px;
+          background: #dcfce7;
+          color: #166534;
+          border-radius: 12px;
+          margin-bottom: 16px;
+          font-weight: 500;
+        }
+        .mobile-patient-header {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 16px;
+          background: white;
+          border-radius: 16px;
+          margin-bottom: 16px;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .mobile-avatar {
+          width: 56px;
+          height: 56px;
+          border-radius: 14px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          font-weight: 700;
+          font-size: 20px;
+        }
+        .mobile-patient-info {
+          flex: 1;
+        }
+        .mobile-patient-info h1 {
+          font-size: 18px;
           font-weight: 600;
-          margin-bottom: 10px;
+          margin: 0 0 4px 0;
         }
-        
-        .ai-confidence {
-          margin-left: auto;
-          background: rgba(255,255,255,0.2);
-          padding: 4px 8px;
-          border-radius: 6px;
-          font-size: 11px;
-        }
-        
-        .ai-summary-text {
-          font-size: 15px;
-          line-height: 1.5;
+        .mobile-patient-info p {
+          font-size: 13px;
+          color: #6b7280;
           margin: 0;
+        }
+        .mobile-status-badge {
+          padding: 6px 12px;
+          border-radius: 20px;
+          font-size: 12px;
+          font-weight: 600;
+          text-transform: capitalize;
+        }
+        .mobile-status-badge.pending { background: #fef3c7; color: #92400e; }
+        .mobile-status-badge.review { background: #dbeafe; color: #1e40af; }
+        .mobile-status-badge.approved { background: #dcfce7; color: #166534; }
+        .mobile-status-badge.denied { background: #fee2e2; color: #991b1b; }
+        
+        .mobile-ai-card {
+          background: linear-gradient(135deg, #275380, #1e4060);
+          border-radius: 16px;
+          padding: 16px;
+          color: white;
+          margin-bottom: 16px;
+        }
+        .mobile-ai-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 10px;
+          font-weight: 600;
+        }
+        .mobile-confidence {
+          background: rgba(255,255,255,0.2);
+          padding: 4px 10px;
+          border-radius: 12px;
+          font-size: 13px;
+        }
+        .mobile-ai-card p {
+          margin: 0;
+          font-size: 14px;
+          line-height: 1.5;
           opacity: 0.95;
         }
         
-        .warning-banner {
+        .mobile-action-bar {
+          display: flex;
+          gap: 10px;
+          margin-bottom: 16px;
+        }
+        .mobile-btn {
+          flex: 1;
+          padding: 12px;
+          border-radius: 12px;
+          font-size: 14px;
+          font-weight: 600;
+          border: none;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+        }
+        .mobile-btn.primary {
+          background: #275380;
+          color: white;
+        }
+        .mobile-btn.secondary {
+          background: #f3f4f6;
+          color: #374151;
+        }
+        .mobile-status-select {
+          flex: 1;
+          padding: 12px;
+          border-radius: 12px;
+          border: 1px solid #d1d5db;
+          font-size: 14px;
+          font-weight: 500;
+          background: white;
+        }
+        
+        .mobile-sections {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+        .mobile-section {
+          background: white;
+          border-radius: 16px;
+          overflow: hidden;
+          box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+        }
+        .mobile-section-header {
+          width: 100%;
           display: flex;
           align-items: center;
           gap: 10px;
-          padding: 12px 16px;
-          background: #fef3c7;
-          border-radius: 10px;
-          font-size: 13px;
-          color: #92400e;
-          margin-top: 12px;
+          padding: 14px 16px;
+          background: none;
+          border: none;
+          border-left: 4px solid;
+          cursor: pointer;
+          text-align: left;
         }
-        
-        .mobile-field-value {
-          font-size: 17px;
-          color: #1a1a1a;
+        .mobile-section-icon {
+          font-size: 20px;
+        }
+        .mobile-section-title {
+          flex: 1;
+          font-weight: 600;
+          font-size: 15px;
+          color: #1f2937;
+        }
+        .mobile-section-content {
+          padding: 0 16px 16px;
+          border-top: 1px solid #f3f4f6;
+        }
+        .mobile-field {
           padding: 12px 0;
           border-bottom: 1px solid #f3f4f6;
+        }
+        .mobile-field:last-child {
+          border-bottom: none;
+        }
+        .mobile-field label {
+          display: block;
+          font-size: 12px;
+          color: #6b7280;
+          margin-bottom: 4px;
+          font-weight: 500;
+        }
+        .mobile-field-value {
+          font-size: 15px;
+          color: #1f2937;
         }
         
         .mobile-tags {
           display: flex;
           flex-wrap: wrap;
-          gap: 8px;
-          padding: 8px 0;
+          gap: 6px;
         }
-        
         .mobile-tag {
-          display: inline-block;
-          padding: 6px 12px;
-          background: #f3f4f6;
-          border-radius: 8px;
-          font-size: 14px;
-          color: #374151;
+          background: #e5e7eb;
+          padding: 4px 10px;
+          border-radius: 12px;
+          font-size: 13px;
         }
-        
-        .mobile-modal-overlay {
-          position: fixed;
-          inset: 0;
-          background: rgba(0,0,0,0.5);
+        .mobile-tag.editable {
           display: flex;
           align-items: center;
-          justify-content: center;
-          z-index: 200;
-          padding: 20px;
+          gap: 6px;
+        }
+        .mobile-tag-remove {
+          background: none;
+          border: none;
+          color: #9ca3af;
+          cursor: pointer;
+          padding: 0;
+          font-size: 16px;
+        }
+        .mobile-empty {
+          color: #9ca3af;
+        }
+        .mobile-badge {
+          padding: 4px 10px;
+          border-radius: 10px;
+          font-size: 13px;
+          font-weight: 500;
+        }
+        .mobile-badge.danger {
+          background: #fee2e2;
+          color: #dc2626;
+        }
+        .mobile-badge.success {
+          background: #dcfce7;
+          color: #16a34a;
         }
         
-        .mobile-modal {
+        .mobile-input, .mobile-select, .mobile-textarea {
           width: 100%;
-          max-width: 400px;
-          background: white;
-          border-radius: 16px;
-          padding: 24px;
-        }
-        
-        .mobile-modal-title {
-          font-size: 18px;
-          font-weight: 600;
-          color: #1a1a1a;
-          margin: 0 0 8px 0;
-        }
-        
-        .mobile-modal-text {
+          padding: 12px;
+          border: 1px solid #d1d5db;
+          border-radius: 10px;
           font-size: 15px;
-          color: #6b7280;
-          margin: 0 0 20px 0;
-          line-height: 1.5;
+          background: #f9fafb;
+        }
+        .mobile-textarea {
+          resize: vertical;
+          min-height: 80px;
         }
         
-        .mobile-modal-actions {
+        .mobile-toggle {
           display: flex;
-          gap: 12px;
+          align-items: center;
+          gap: 10px;
+          padding: 8px 12px;
+          background: #f3f4f6;
+          border: none;
+          border-radius: 10px;
+          cursor: pointer;
+          font-size: 15px;
         }
-        
-        .btn-spinner {
+        .mobile-toggle-track {
+          width: 44px;
+          height: 26px;
+          background: #d1d5db;
+          border-radius: 13px;
+          position: relative;
+          transition: background 0.2s;
+        }
+        .mobile-toggle.active .mobile-toggle-track {
+          background: #275380;
+        }
+        .mobile-toggle-thumb {
+          position: absolute;
+          top: 3px;
+          left: 3px;
           width: 20px;
           height: 20px;
-          border: 2px solid rgba(255,255,255,0.3);
-          border-top-color: white;
+          background: white;
           border-radius: 50%;
-          animation: spin 0.8s linear infinite;
+          transition: transform 0.2s;
+        }
+        .mobile-toggle.active .mobile-toggle-thumb {
+          transform: translateX(18px);
         }
         
+        .mobile-quick-actions {
+          display: flex;
+          gap: 12px;
+          margin-top: 20px;
+          padding: 16px;
+          background: white;
+          border-radius: 16px;
+        }
+        .mobile-action-btn {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 6px;
+          padding: 16px 12px;
+          border: none;
+          border-radius: 12px;
+          cursor: pointer;
+          font-size: 13px;
+          font-weight: 600;
+        }
+        .mobile-action-btn.approve {
+          background: #dcfce7;
+          color: #166534;
+        }
+        .mobile-action-btn.review {
+          background: #dbeafe;
+          color: #1e40af;
+        }
+        .mobile-action-btn.deny {
+          background: #fee2e2;
+          color: #991b1b;
+        }
+        .mobile-action-btn:disabled {
+          opacity: 0.5;
+        }
+        
+        .mobile-source-footer {
+          display: flex;
+          justify-content: space-between;
+          padding: 16px;
+          margin-top: 16px;
+          font-size: 12px;
+          color: #9ca3af;
+        }
+        
+        .mobile-loading {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 300px;
+        }
+        .mobile-spinner {
+          width: 40px;
+          height: 40px;
+          border: 3px solid #e5e7eb;
+          border-top-color: #275380;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+        }
         @keyframes spin {
           to { transform: rotate(360deg); }
+        }
+        .mobile-empty-state {
+          text-align: center;
+          padding: 60px 20px;
+          color: #6b7280;
         }
       `}</style>
     </MobileLayout>
   );
 }
 
-// Wrapper component with Suspense for useSearchParams
-export default function MobileApplicationDetail() {
+export default function ApplicationDetailPage() {
   return (
     <Suspense fallback={
-      <MobileLayout title="Application" showBack>
-        <div className="mobile-section" style={{ paddingTop: 60, textAlign: 'center' }}>
-          <div className="scan-processing-spinner" style={{ margin: '0 auto 16px' }} />
-          <p style={{ color: '#6b7280' }}>Loading application...</p>
+      <MobileLayout title="Loading..." showBack>
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '60px' }}>
+          <div style={{ width: 40, height: 40, border: '3px solid #e5e7eb', borderTopColor: '#275380', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
         </div>
       </MobileLayout>
     }>
