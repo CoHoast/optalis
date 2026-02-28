@@ -6,111 +6,90 @@ import Link from 'next/link';
 
 const API_URL = 'https://optalis-api-production.up.railway.app';
 
-// Field sections for the Optalis intake form
-const FIELD_SECTIONS = {
+// Organized field groups
+const FIELD_GROUPS = {
   referral: {
     title: 'Referral Information',
     icon: '📋',
-    color: '#275380',
     fields: [
-      { key: 'referral_type', label: 'New Referral or Return to Hospital?', type: 'select', options: ['New Referral', 'Return to Hospital'] },
-      { key: 'hospital', label: 'Hospital Patient is at *', type: 'text', required: true },
-      { key: 'building', label: 'Building Referral is for *', type: 'text', required: true },
-      { key: 'room_number', label: 'Room #', type: 'text' },
-      { key: 'case_manager_name', label: 'Case Manager Name', type: 'text' },
-      { key: 'case_manager_phone', label: 'Case Manager Phone #', type: 'text' },
+      { key: 'referral_type', label: 'Referral Type', type: 'select', options: ['New Referral', 'Return to Hospital'], span: 1 },
+      { key: 'hospital', label: 'Hospital', type: 'text', required: true, span: 1 },
+      { key: 'building', label: 'Building/Facility', type: 'text', required: true, span: 1 },
+      { key: 'room_number', label: 'Room #', type: 'text', span: 1 },
+      { key: 'case_manager_name', label: 'Case Manager', type: 'text', span: 1 },
+      { key: 'case_manager_phone', label: 'CM Phone', type: 'text', span: 1 },
     ]
   },
   patient: {
     title: 'Patient Information',
     icon: '👤',
-    color: '#16a34a',
     fields: [
-      { key: 'patient_name', label: 'Patient Name *', type: 'text', required: true },
-      { key: 'dob', label: 'Date of Birth *', type: 'text', required: true },
-      { key: 'sex', label: 'Sex *', type: 'select', options: ['Male', 'Female', 'Other'], required: true },
-      { key: 'ssn_last4', label: 'SS# (Last 4)', type: 'text', maxLength: 4 },
-      { key: 'phone', label: 'Phone', type: 'text' },
-      { key: 'address', label: 'Address', type: 'text' },
+      { key: 'patient_name', label: 'Full Name', type: 'text', required: true, span: 2 },
+      { key: 'dob', label: 'Date of Birth', type: 'text', required: true, span: 1 },
+      { key: 'sex', label: 'Sex', type: 'select', options: ['Male', 'Female', 'Other'], span: 1 },
+      { key: 'ssn_last4', label: 'SSN (Last 4)', type: 'text', maxLength: 4, span: 1 },
+      { key: 'phone', label: 'Phone', type: 'text', span: 1 },
+      { key: 'address', label: 'Address', type: 'text', span: 2 },
     ]
   },
   insurance: {
-    title: 'Insurance & Care Level',
+    title: 'Insurance & Dates',
     icon: '💳',
-    color: '#7c3aed',
     fields: [
-      { key: 'insurance', label: 'Insurance *', type: 'text', required: true },
-      { key: 'policy_number', label: 'Policy/Member ID', type: 'text' },
-      { key: 'care_level', label: 'SNF/LTC/AL/HOSPICE *', type: 'select', options: ['SNF', 'LTC', 'AL', 'Hospice'], required: true },
-    ]
-  },
-  dates: {
-    title: 'Key Dates',
-    icon: '📅',
-    color: '#ea580c',
-    fields: [
-      { key: 'date_admitted', label: 'Date Admitted *', type: 'date', required: true },
-      { key: 'inpatient_date', label: 'Inpatient Date *', type: 'date', required: true },
-      { key: 'anticipated_discharge', label: 'Anticipated Discharge *', type: 'date', required: true },
+      { key: 'insurance', label: 'Insurance', type: 'text', required: true, span: 1 },
+      { key: 'policy_number', label: 'Policy/Member ID', type: 'text', span: 1 },
+      { key: 'care_level', label: 'Care Level', type: 'select', options: ['SNF', 'LTC', 'AL', 'Hospice'], span: 1 },
+      { key: 'date_admitted', label: 'Date Admitted', type: 'date', span: 1 },
+      { key: 'inpatient_date', label: 'Inpatient Date', type: 'date', span: 1 },
+      { key: 'anticipated_discharge', label: 'Expected Discharge', type: 'date', span: 1 },
     ]
   },
   clinical: {
     title: 'Clinical Information',
     icon: '🏥',
-    color: '#dc2626',
     fields: [
-      { key: 'diagnosis', label: 'Admitting Diagnosis *', type: 'tags', required: true },
-      { key: 'fall_risk', label: 'Fall Risk', type: 'select', options: ['Yes', 'No'] },
-      { key: 'smoking_status', label: 'Smoking Status', type: 'select', options: ['Never', 'Former', 'Current'] },
-      { key: 'isolation', label: 'Isolation *', type: 'text', required: true },
-      { key: 'barrier_precautions', label: 'Enhanced Barrier Precautions *', type: 'text', required: true },
-      { key: 'infection_prevention', label: 'Infection Prevention', type: 'textarea' },
+      { key: 'diagnosis', label: 'Diagnosis', type: 'tags', span: 2 },
+      { key: 'fall_risk', label: 'Fall Risk', type: 'toggle', span: 1 },
+      { key: 'smoking_status', label: 'Smoking Status', type: 'select', options: ['Never', 'Former', 'Current'], span: 1 },
+      { key: 'isolation', label: 'Isolation', type: 'text', span: 1 },
+      { key: 'barrier_precautions', label: 'Enhanced Barrier Precautions', type: 'text', span: 1 },
+      { key: 'infection_prevention', label: 'Infection Prevention', type: 'textarea', span: 2 },
     ]
   },
   medical: {
     title: 'Medical Details',
     icon: '💊',
-    color: '#0891b2',
     fields: [
-      { key: 'dme', label: 'Durable Medical Equipment *', type: 'textarea', required: true },
-      { key: 'diet', label: 'Diet *', type: 'text', required: true },
-      { key: 'height', label: 'Height', type: 'text' },
-      { key: 'weight', label: 'Weight', type: 'text' },
-      { key: 'medications', label: 'Current Medications', type: 'tags' },
-      { key: 'allergies', label: 'Allergies', type: 'tags' },
-      { key: 'iv_meds', label: 'IV Meds (if discharging on IVs)', type: 'textarea' },
-      { key: 'expensive_meds', label: 'Expensive Meds/Carve Out/Chemo', type: 'textarea' },
-    ]
-  },
-  clinical_summary: {
-    title: 'Clinical Summary',
-    icon: '📝',
-    color: '#475569',
-    fields: [
-      { key: 'clinical_summary', label: 'Clinical Summary *', type: 'textarea', required: true, fullWidth: true },
-      { key: 'physician', label: 'Referring Physician', type: 'text' },
+      { key: 'medications', label: 'Current Medications', type: 'tags', span: 2 },
+      { key: 'allergies', label: 'Allergies', type: 'tags', span: 2 },
+      { key: 'dme', label: 'Durable Medical Equipment', type: 'textarea', span: 2 },
+      { key: 'diet', label: 'Diet', type: 'text', span: 1 },
+      { key: 'height', label: 'Height', type: 'text', span: 1 },
+      { key: 'weight', label: 'Weight', type: 'text', span: 1 },
+      { key: 'iv_meds', label: 'IV Medications', type: 'textarea', span: 1 },
+      { key: 'expensive_meds', label: 'Expensive Meds/Chemo', type: 'textarea', span: 2 },
     ]
   },
   therapy: {
-    title: 'Therapy Status',
+    title: 'Therapy & Services',
     icon: '🏃',
-    color: '#059669',
     fields: [
-      { key: 'therapy_prior_level', label: 'Prior Level of Function', type: 'textarea', hint: 'Who do they live with, how many levels in home, stairs to enter home, prior assistance needed' },
-      { key: 'therapy_bed_mobility', label: 'Bed Mobility', type: 'text' },
-      { key: 'therapy_transfers', label: 'Transfers', type: 'text' },
-      { key: 'therapy_gait', label: 'Gait', type: 'text' },
-      { key: 'services', label: 'Services Requested', type: 'tags' },
+      { key: 'services', label: 'Services Requested', type: 'tags', span: 2 },
+      { key: 'therapy_prior_level', label: 'Prior Level of Function', type: 'textarea', span: 2 },
+      { key: 'therapy_bed_mobility', label: 'Bed Mobility', type: 'text', span: 1 },
+      { key: 'therapy_transfers', label: 'Transfers', type: 'text', span: 1 },
+      { key: 'therapy_gait', label: 'Gait', type: 'text', span: 1 },
+      { key: 'physician', label: 'Referring Physician', type: 'text', span: 1 },
     ]
   },
-  decision: {
-    title: 'Decision',
-    icon: '✅',
-    color: '#275380',
+  summary: {
+    title: 'Clinical Summary & Decision',
+    icon: '📝',
     fields: [
-      { key: 'decision_status', label: 'Accepting, Considering or Denying?', type: 'select', options: ['Accepting', 'Considering', 'Denying'] },
-      { key: 'decision_notes', label: 'Decision Notes', type: 'textarea', hint: 'If considering, what additional info is needed?' },
-      { key: 'last_updated_by', label: 'Last Updated By', type: 'text' },
+      { key: 'clinical_summary', label: 'Clinical Summary', type: 'textarea', span: 2, rows: 4 },
+      { key: 'decision_status', label: 'Decision', type: 'select', options: ['Accepting', 'Considering', 'Denying'], span: 1 },
+      { key: 'decision_notes', label: 'Decision Notes', type: 'textarea', span: 1 },
+      { key: 'last_updated_by', label: 'Last Updated By', type: 'text', span: 2 },
     ]
   },
 };
@@ -123,13 +102,12 @@ export default function ApplicationDetailPage() {
   const [saving, setSaving] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editedData, setEditedData] = useState<any>({});
-  const [activeSection, setActiveSection] = useState('referral');
+  const [activeTab, setActiveTab] = useState('referral');
   const [showDocViewer, setShowDocViewer] = useState(false);
   const [docContent, setDocContent] = useState<{original: any; extracted: any}>({ original: null, extracted: null });
   const [docViewTab, setDocViewTab] = useState<'original' | 'extracted'>('original');
   const [docLoading, setDocLoading] = useState(false);
 
-  // Fetch application data
   useEffect(() => {
     fetch(`${API_URL}/api/applications/${params.id}`)
       .then(res => res.ok ? res.json() : null)
@@ -143,7 +121,6 @@ export default function ApplicationDetailPage() {
       .catch(() => setLoading(false));
   }, [params.id]);
 
-  // Fetch document content when viewer opens
   useEffect(() => {
     if (showDocViewer && app) {
       setDocLoading(true);
@@ -160,16 +137,13 @@ export default function ApplicationDetailPage() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const response = await fetch(`${API_URL}/api/applications/${params.id}`, {
+      await fetch(`${API_URL}/api/applications/${params.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(editedData)
       });
-      if (response.ok) {
-        const updated = await response.json();
-        setApp({ ...app, ...editedData });
-        setIsEditing(false);
-      }
+      setApp({ ...app, ...editedData });
+      setIsEditing(false);
     } catch (error) {
       console.error('Save error:', error);
     }
@@ -185,86 +159,99 @@ export default function ApplicationDetailPage() {
       });
       setApp({ ...app, status: newStatus });
     } catch (error) {
-      console.error('Status change error:', error);
+      console.error('Status error:', error);
     }
   };
 
-  const getFieldValue = (key: string) => {
-    const value = isEditing ? editedData[key] : app?.[key];
-    if (Array.isArray(value)) return value;
-    return value || '';
+  const getValue = (key: string) => {
+    const data = isEditing ? editedData : app;
+    return data?.[key] ?? '';
   };
 
-  const setFieldValue = (key: string, value: any) => {
+  const setValue = (key: string, value: any) => {
     setEditedData({ ...editedData, [key]: value });
   };
 
+  // Calculate completion percentage
+  const calculateCompletion = () => {
+    if (!app) return 0;
+    const requiredFields = ['patient_name', 'dob', 'insurance', 'hospital', 'diagnosis'];
+    const filled = requiredFields.filter(f => {
+      const val = app[f];
+      return val && (Array.isArray(val) ? val.length > 0 : val.toString().trim() !== '');
+    });
+    return Math.round((filled.length / requiredFields.length) * 100);
+  };
+
   const renderField = (field: any) => {
-    const value = getFieldValue(field.key);
+    const value = getValue(field.key);
     
     if (!isEditing) {
-      // Display mode
-      if (field.type === 'tags' && Array.isArray(value)) {
-        return value.length > 0 ? (
+      if (field.type === 'tags') {
+        const tags = Array.isArray(value) ? value : [];
+        return tags.length > 0 ? (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-            {value.map((tag: string, i: number) => (
-              <span key={i} style={{ 
-                background: '#e5e7eb', 
-                padding: '4px 10px', 
-                borderRadius: '12px', 
-                fontSize: '13px' 
-              }}>{tag}</span>
+            {tags.map((tag: string, i: number) => (
+              <span key={i} style={{ background: '#e5e7eb', padding: '4px 12px', borderRadius: '6px', fontSize: '13px' }}>{tag}</span>
             ))}
           </div>
         ) : <span style={{ color: '#9ca3af' }}>—</span>;
       }
-      if (field.type === 'select' && field.key === 'fall_risk') {
-        return value === true || value === 'Yes' ? (
-          <span style={{ color: '#dc2626', fontWeight: 600 }}>⚠️ YES</span>
-        ) : value === false || value === 'No' ? (
+      if (field.type === 'toggle') {
+        return value ? (
+          <span style={{ color: '#dc2626', fontWeight: 600 }}>⚠️ Yes</span>
+        ) : (
           <span style={{ color: '#16a34a' }}>No</span>
-        ) : <span style={{ color: '#9ca3af' }}>—</span>;
+        );
+      }
+      if (field.type === 'textarea' && value) {
+        return <div style={{ whiteSpace: 'pre-wrap', lineHeight: 1.5 }}>{value}</div>;
       }
       return value || <span style={{ color: '#9ca3af' }}>—</span>;
     }
 
     // Edit mode
+    const baseStyle = {
+      width: '100%',
+      padding: '10px 12px',
+      border: '1px solid #d1d5db',
+      borderRadius: '8px',
+      fontSize: '14px',
+      background: 'white'
+    };
+
     if (field.type === 'select') {
       return (
-        <select
-          value={value || ''}
-          onChange={(e) => setFieldValue(field.key, e.target.value)}
-          style={{
-            width: '100%',
-            padding: '10px 12px',
-            border: '1px solid #d1d5db',
-            borderRadius: '8px',
-            fontSize: '14px',
-            background: 'white'
-          }}
-        >
+        <select value={value || ''} onChange={(e) => setValue(field.key, e.target.value)} style={baseStyle}>
           <option value="">Select...</option>
-          {field.options?.map((opt: string) => (
-            <option key={opt} value={opt}>{opt}</option>
-          ))}
+          {field.options?.map((opt: string) => <option key={opt} value={opt}>{opt}</option>)}
         </select>
       );
     }
-    
+
+    if (field.type === 'toggle') {
+      return (
+        <button
+          type="button"
+          onClick={() => setValue(field.key, !value)}
+          style={{
+            display: 'flex', alignItems: 'center', gap: '10px',
+            padding: '10px 16px', background: value ? '#fee2e2' : '#dcfce7',
+            border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 500
+          }}
+        >
+          {value ? '⚠️ Yes - Fall Risk' : '✓ No Fall Risk'}
+        </button>
+      );
+    }
+
     if (field.type === 'textarea') {
       return (
         <textarea
           value={value || ''}
-          onChange={(e) => setFieldValue(field.key, e.target.value)}
-          rows={3}
-          style={{
-            width: '100%',
-            padding: '10px 12px',
-            border: '1px solid #d1d5db',
-            borderRadius: '8px',
-            fontSize: '14px',
-            resize: 'vertical'
-          }}
+          onChange={(e) => setValue(field.key, e.target.value)}
+          rows={field.rows || 3}
+          style={{ ...baseStyle, resize: 'vertical' }}
         />
       );
     }
@@ -275,39 +262,22 @@ export default function ApplicationDetailPage() {
         <div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '8px' }}>
             {tags.map((tag: string, i: number) => (
-              <span key={i} style={{ 
-                background: '#e5e7eb', 
-                padding: '4px 10px', 
-                borderRadius: '12px', 
-                fontSize: '13px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px'
-              }}>
+              <span key={i} style={{ background: '#e5e7eb', padding: '4px 12px', borderRadius: '6px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                 {tag}
-                <button 
-                  onClick={() => setFieldValue(field.key, tags.filter((_: string, idx: number) => idx !== i))}
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: '#6b7280' }}
-                >×</button>
+                <button onClick={() => setValue(field.key, tags.filter((_: any, idx: number) => idx !== i))} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6b7280' }}>×</button>
               </span>
             ))}
           </div>
           <input
             type="text"
-            placeholder="Type and press Enter to add..."
+            placeholder="Type and press Enter..."
+            style={baseStyle}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && e.currentTarget.value.trim()) {
-                setFieldValue(field.key, [...tags, e.currentTarget.value.trim()]);
+                setValue(field.key, [...tags, e.currentTarget.value.trim()]);
                 e.currentTarget.value = '';
                 e.preventDefault();
               }
-            }}
-            style={{
-              width: '100%',
-              padding: '8px 12px',
-              border: '1px solid #d1d5db',
-              borderRadius: '8px',
-              fontSize: '14px'
             }}
           />
         </div>
@@ -318,368 +288,282 @@ export default function ApplicationDetailPage() {
       <input
         type={field.type === 'date' ? 'date' : 'text'}
         value={value || ''}
-        onChange={(e) => setFieldValue(field.key, e.target.value)}
+        onChange={(e) => setValue(field.key, e.target.value)}
         maxLength={field.maxLength}
-        style={{
-          width: '100%',
-          padding: '10px 12px',
-          border: '1px solid #d1d5db',
-          borderRadius: '8px',
-          fontSize: '14px'
-        }}
+        style={baseStyle}
       />
     );
   };
 
   if (loading) {
-    return (
-      <div className="main-content">
-        <div style={{ padding: '60px', textAlign: 'center' }}>Loading...</div>
-      </div>
-    );
+    return <div className="main-content"><div style={{ padding: '60px', textAlign: 'center' }}>Loading...</div></div>;
   }
 
   if (!app) {
-    return (
-      <div className="main-content">
-        <div style={{ padding: '60px', textAlign: 'center' }}>Application not found</div>
-      </div>
-    );
+    return <div className="main-content"><div style={{ padding: '60px', textAlign: 'center' }}>Application not found</div></div>;
   }
 
-  const getInitials = (name: string) => {
-    if (!name) return '??';
-    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-  };
+  const completion = calculateCompletion();
+  const getInitials = (name: string) => name ? name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : '??';
 
   return (
-    <div className="main-content" style={{ maxWidth: '1400px' }}>
-      {/* Header */}
-      <div style={{ marginBottom: '24px' }}>
-        <Link href="/dashboard/applications" style={{ color: '#275380', textDecoration: 'none', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '16px' }}>
-          ← Back to Applications
-        </Link>
-        
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <div style={{ 
-              width: '64px', height: '64px', borderRadius: '16px', 
-              background: '#275380', color: 'white', 
+    <div className="main-content" style={{ background: '#f8fafc', minHeight: '100vh' }}>
+      {/* Sticky Header */}
+      <div style={{
+        position: 'sticky', top: 0, zIndex: 100,
+        background: 'white', borderBottom: '1px solid #e5e7eb',
+        padding: '16px 24px', marginBottom: '24px',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <Link href="/dashboard/applications" style={{ color: '#6b7280', textDecoration: 'none' }}>
+            ← Back
+          </Link>
+          <div style={{ width: '1px', height: '24px', background: '#e5e7eb' }} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{
+              width: '44px', height: '44px', borderRadius: '10px',
+              background: '#275380', color: 'white',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: '24px', fontWeight: 600
+              fontSize: '16px', fontWeight: 600
             }}>
               {getInitials(app.patient_name)}
             </div>
             <div>
-              <h1 style={{ fontSize: '28px', marginBottom: '4px' }}>{app.patient_name || 'Unknown Patient'}</h1>
-              <div style={{ color: '#6b7280', fontSize: '14px' }}>
-                {app.id} • {app.facility || 'Optalis Healthcare'}
-              </div>
+              <h1 style={{ fontSize: '18px', fontWeight: 600, margin: 0 }}>{app.patient_name || 'Unknown Patient'}</h1>
+              <span style={{ fontSize: '13px', color: '#6b7280' }}>{app.id}</span>
             </div>
           </div>
-          
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-            <select
-              value={app.status}
-              onChange={(e) => handleStatusChange(e.target.value)}
-              style={{
-                padding: '10px 16px',
-                borderRadius: '8px',
-                border: '1px solid #d1d5db',
-                fontSize: '14px',
-                fontWeight: 500,
-                background: app.status === 'approved' ? '#dcfce7' : app.status === 'denied' ? '#fee2e2' : app.status === 'review' ? '#dbeafe' : '#fef3c7',
-                cursor: 'pointer'
-              }}
-            >
-              <option value="pending">Pending</option>
-              <option value="review">In Review</option>
-              <option value="approved">Approved</option>
-              <option value="denied">Denied</option>
-            </select>
-            
-            <button
-              onClick={() => setShowDocViewer(true)}
-              style={{
-                padding: '10px 20px',
-                background: 'white',
-                border: '1px solid #d1d5db',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px'
-              }}
-            >
-              📄 View Documents
-            </button>
-            
-            {isEditing ? (
-              <>
-                <button
-                  onClick={() => { setIsEditing(false); setEditedData(app); }}
-                  style={{ padding: '10px 20px', background: 'white', border: '1px solid #d1d5db', borderRadius: '8px', cursor: 'pointer' }}
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleSave}
-                  disabled={saving}
-                  style={{ padding: '10px 24px', background: '#275380', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 500 }}
-                >
-                  {saving ? 'Saving...' : 'Save Changes'}
-                </button>
-              </>
-            ) : (
-              <button
-                onClick={() => setIsEditing(true)}
-                style={{ padding: '10px 24px', background: '#275380', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 500 }}
-              >
-                ✏️ Edit Application
-              </button>
-            )}
-          </div>
         </div>
-      </div>
-
-      {/* AI Summary Banner */}
-      {app.ai_summary && (
-        <div style={{ 
-          background: 'linear-gradient(135deg, #275380 0%, #1e4060 100%)', 
-          borderRadius: '12px', 
-          padding: '20px 24px', 
-          marginBottom: '24px',
-          color: 'white'
-        }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-            <span style={{ fontWeight: 600 }}>🤖 AI Summary</span>
-            <span style={{ background: 'rgba(255,255,255,0.2)', padding: '4px 12px', borderRadius: '12px', fontSize: '13px' }}>
-              {app.confidence_score || 0}% confidence
-            </span>
+        
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          {/* Completion Badge */}
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: '8px',
+            padding: '8px 12px', background: completion === 100 ? '#dcfce7' : '#fef3c7',
+            borderRadius: '8px', fontSize: '13px', fontWeight: 500
+          }}>
+            <div style={{
+              width: '24px', height: '24px', borderRadius: '50%',
+              background: completion === 100 ? '#16a34a' : '#f59e0b',
+              color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: '11px', fontWeight: 700
+            }}>
+              {completion}%
+            </div>
+            Complete
           </div>
-          <p style={{ margin: 0, lineHeight: '1.6', opacity: 0.95 }}>{app.ai_summary}</p>
-        </div>
-      )}
 
-      {/* Section Navigation */}
-      <div style={{ 
-        display: 'flex', 
-        gap: '8px', 
-        marginBottom: '24px', 
-        overflowX: 'auto',
-        paddingBottom: '8px'
-      }}>
-        {Object.entries(FIELD_SECTIONS).map(([key, section]) => (
-          <button
-            key={key}
-            onClick={() => setActiveSection(key)}
+          {/* Status Dropdown */}
+          <select
+            value={app.status}
+            onChange={(e) => handleStatusChange(e.target.value)}
             style={{
-              padding: '10px 16px',
-              background: activeSection === key ? section.color : 'white',
-              color: activeSection === key ? 'white' : '#374151',
-              border: `1px solid ${activeSection === key ? section.color : '#d1d5db'}`,
-              borderRadius: '8px',
-              cursor: 'pointer',
-              whiteSpace: 'nowrap',
-              fontWeight: activeSection === key ? 600 : 400,
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              transition: 'all 0.2s'
+              padding: '10px 16px', borderRadius: '8px',
+              border: '1px solid #d1d5db', fontSize: '14px', fontWeight: 500,
+              background: app.status === 'approved' ? '#dcfce7' : app.status === 'denied' ? '#fee2e2' : app.status === 'review' ? '#dbeafe' : '#fef3c7',
+              cursor: 'pointer'
             }}
           >
-            <span>{section.icon}</span>
-            {section.title}
+            <option value="pending">⏳ Pending</option>
+            <option value="review">🔍 In Review</option>
+            <option value="approved">✅ Approved</option>
+            <option value="denied">❌ Denied</option>
+          </select>
+
+          <button onClick={() => setShowDocViewer(true)} style={{
+            padding: '10px 16px', background: 'white', border: '1px solid #d1d5db',
+            borderRadius: '8px', cursor: 'pointer', fontSize: '14px'
+          }}>
+            📄 Documents
           </button>
-        ))}
+
+          {isEditing ? (
+            <>
+              <button onClick={() => { setIsEditing(false); setEditedData(app); }} style={{
+                padding: '10px 16px', background: 'white', border: '1px solid #d1d5db',
+                borderRadius: '8px', cursor: 'pointer', fontSize: '14px'
+              }}>
+                Cancel
+              </button>
+              <button onClick={handleSave} disabled={saving} style={{
+                padding: '10px 20px', background: '#275380', color: 'white',
+                border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 500
+              }}>
+                {saving ? 'Saving...' : '✓ Save'}
+              </button>
+            </>
+          ) : (
+            <button onClick={() => setIsEditing(true)} style={{
+              padding: '10px 20px', background: '#275380', color: 'white',
+              border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 500
+            }}>
+              ✏️ Edit
+            </button>
+          )}
+        </div>
       </div>
 
-      {/* Active Section Content */}
-      <div style={{ 
-        background: 'white', 
-        borderRadius: '16px', 
-        border: '1px solid #e5e7eb',
-        overflow: 'hidden'
-      }}>
-        {Object.entries(FIELD_SECTIONS).map(([key, section]) => (
-          <div 
-            key={key} 
-            style={{ display: activeSection === key ? 'block' : 'none' }}
-          >
-            <div style={{ 
-              padding: '20px 24px', 
-              borderBottom: `3px solid ${section.color}`,
-              background: '#fafafa'
-            }}>
-              <h2 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '10px', color: section.color }}>
-                <span style={{ fontSize: '24px' }}>{section.icon}</span>
-                {section.title}
-              </h2>
+      <div style={{ padding: '0 24px 40px' }}>
+        {/* AI Summary Card */}
+        {app.ai_summary && (
+          <div style={{
+            background: 'linear-gradient(135deg, #275380 0%, #1e4060 100%)',
+            borderRadius: '12px', padding: '20px', marginBottom: '24px', color: 'white'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+              <span style={{ fontWeight: 600, fontSize: '14px' }}>🤖 AI Summary</span>
+              <span style={{ background: 'rgba(255,255,255,0.2)', padding: '4px 12px', borderRadius: '12px', fontSize: '13px' }}>
+                {app.confidence_score || 0}% confidence
+              </span>
             </div>
-            
-            <div style={{ padding: '24px' }}>
-              <div style={{ 
-                display: 'grid', 
-                gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', 
-                gap: '20px' 
-              }}>
-                {section.fields.map((field: any) => (
-                  <div 
-                    key={field.key} 
-                    style={{ 
-                      gridColumn: field.fullWidth ? '1 / -1' : 'auto'
-                    }}
-                  >
-                    <label style={{ 
-                      display: 'block', 
-                      marginBottom: '6px', 
-                      fontSize: '13px', 
-                      fontWeight: 500, 
-                      color: '#374151' 
-                    }}>
-                      {field.label}
-                    </label>
-                    {field.hint && !isEditing && (
-                      <div style={{ fontSize: '12px', color: '#9ca3af', marginBottom: '4px' }}>{field.hint}</div>
-                    )}
-                    <div style={{ fontSize: '15px' }}>
-                      {renderField(field)}
+            <p style={{ margin: 0, lineHeight: 1.6, opacity: 0.95, fontSize: '14px' }}>{app.ai_summary}</p>
+          </div>
+        )}
+
+        {/* Quick Info Cards */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '24px' }}>
+          {[
+            { label: 'Hospital', value: app.hospital, icon: '🏥' },
+            { label: 'Insurance', value: app.insurance, icon: '💳' },
+            { label: 'Care Level', value: app.care_level, icon: '📋' },
+            { label: 'Source', value: app.source, icon: '📨' },
+          ].map((item, i) => (
+            <div key={i} style={{
+              background: 'white', borderRadius: '12px', padding: '16px',
+              border: '1px solid #e5e7eb'
+            }}>
+              <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>{item.icon} {item.label}</div>
+              <div style={{ fontSize: '15px', fontWeight: 500 }}>{item.value || '—'}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Tab Navigation */}
+        <div style={{
+          display: 'flex', gap: '4px', marginBottom: '20px',
+          background: '#f1f5f9', padding: '4px', borderRadius: '10px', width: 'fit-content'
+        }}>
+          {Object.entries(FIELD_GROUPS).map(([key, group]) => (
+            <button
+              key={key}
+              onClick={() => setActiveTab(key)}
+              style={{
+                padding: '10px 16px', border: 'none', borderRadius: '8px',
+                background: activeTab === key ? 'white' : 'transparent',
+                boxShadow: activeTab === key ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                cursor: 'pointer', fontSize: '13px', fontWeight: activeTab === key ? 600 : 400,
+                display: 'flex', alignItems: 'center', gap: '6px',
+                color: activeTab === key ? '#1f2937' : '#6b7280'
+              }}
+            >
+              <span>{group.icon}</span>
+              {group.title.split(' ')[0]}
+            </button>
+          ))}
+        </div>
+
+        {/* Tab Content */}
+        <div style={{ background: 'white', borderRadius: '16px', border: '1px solid #e5e7eb', overflow: 'hidden' }}>
+          {Object.entries(FIELD_GROUPS).map(([key, group]) => (
+            <div key={key} style={{ display: activeTab === key ? 'block' : 'none' }}>
+              <div style={{ padding: '20px 24px', borderBottom: '1px solid #e5e7eb', background: '#fafafa' }}>
+                <h2 style={{ margin: 0, fontSize: '16px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span>{group.icon}</span>
+                  {group.title}
+                </h2>
+              </div>
+              <div style={{ padding: '24px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px' }}>
+                  {group.fields.map((field: any) => (
+                    <div key={field.key} style={{ gridColumn: field.span === 2 ? '1 / -1' : 'auto' }}>
+                      <label style={{
+                        display: 'block', marginBottom: '6px',
+                        fontSize: '13px', fontWeight: 500, color: '#374151'
+                      }}>
+                        {field.label}
+                        {field.required && <span style={{ color: '#dc2626', marginLeft: '2px' }}>*</span>}
+                      </label>
+                      <div style={{ fontSize: '15px' }}>{renderField(field)}</div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
 
-      {/* Source Information */}
-      <div style={{ 
-        marginTop: '24px', 
-        padding: '16px 20px', 
-        background: '#f9fafb', 
-        borderRadius: '12px',
-        fontSize: '13px',
-        color: '#6b7280'
-      }}>
-        <strong>Source:</strong> {app.source || 'Unknown'} • 
-        <strong style={{ marginLeft: '12px' }}>Created:</strong> {app.created_at ? new Date(app.created_at).toLocaleString() : 'Unknown'} •
-        <strong style={{ marginLeft: '12px' }}>Updated:</strong> {app.updated_at ? new Date(app.updated_at).toLocaleString() : 'Unknown'}
+        {/* Footer Info */}
+        <div style={{
+          marginTop: '24px', padding: '16px 20px',
+          background: 'white', borderRadius: '12px', border: '1px solid #e5e7eb',
+          display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#6b7280'
+        }}>
+          <span><strong>Created:</strong> {app.created_at ? new Date(app.created_at).toLocaleString() : 'Unknown'}</span>
+          <span><strong>Updated:</strong> {app.updated_at ? new Date(app.updated_at).toLocaleString() : 'Unknown'}</span>
+          <span><strong>Facility:</strong> {app.facility || 'Optalis Healthcare'}</span>
+        </div>
       </div>
 
       {/* Document Viewer Modal */}
       {showDocViewer && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '16px' }}>
-          <div style={{ background: 'white', borderRadius: '16px', width: '100%', maxWidth: '1000px', height: '85vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-            <div style={{ padding: '20px 24px', borderBottom: '1px solid #e0e0e0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h3 style={{ margin: 0 }}>Application Documents</h3>
-              <button 
-                onClick={() => setShowDocViewer(false)}
-                style={{ width: '36px', height: '36px', borderRadius: '8px', border: '1px solid #e0e0e0', background: 'white', cursor: 'pointer' }}
-              >
-                ✕
-              </button>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '20px' }}>
+          <div style={{ background: 'white', borderRadius: '16px', width: '100%', maxWidth: '900px', height: '80vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+            <div style={{ padding: '16px 24px', borderBottom: '1px solid #e5e7eb', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button onClick={() => setDocViewTab('original')} style={{
+                  padding: '8px 16px', border: 'none', borderRadius: '6px',
+                  background: docViewTab === 'original' ? '#275380' : '#f1f5f9',
+                  color: docViewTab === 'original' ? 'white' : '#374151',
+                  cursor: 'pointer', fontWeight: 500, fontSize: '13px'
+                }}>📄 Original</button>
+                <button onClick={() => setDocViewTab('extracted')} style={{
+                  padding: '8px 16px', border: 'none', borderRadius: '6px',
+                  background: docViewTab === 'extracted' ? '#275380' : '#f1f5f9',
+                  color: docViewTab === 'extracted' ? 'white' : '#374151',
+                  cursor: 'pointer', fontWeight: 500, fontSize: '13px'
+                }}>🤖 Extracted</button>
+              </div>
+              <button onClick={() => setShowDocViewer(false)} style={{
+                width: '32px', height: '32px', borderRadius: '6px',
+                border: '1px solid #e5e7eb', background: 'white', cursor: 'pointer'
+              }}>✕</button>
             </div>
-
-            <div style={{ padding: '0 24px', borderBottom: '1px solid #e0e0e0', display: 'flex', gap: '0' }}>
-              <button
-                onClick={() => setDocViewTab('original')}
-                style={{
-                  padding: '14px 20px',
-                  background: 'none',
-                  border: 'none',
-                  borderBottom: docViewTab === 'original' ? '3px solid #275380' : '3px solid transparent',
-                  color: docViewTab === 'original' ? '#275380' : '#666',
-                  fontWeight: docViewTab === 'original' ? 600 : 400,
-                  cursor: 'pointer'
-                }}
-              >
-                📄 Original Document
-              </button>
-              <button
-                onClick={() => setDocViewTab('extracted')}
-                style={{
-                  padding: '14px 20px',
-                  background: 'none',
-                  border: 'none',
-                  borderBottom: docViewTab === 'extracted' ? '3px solid #275380' : '3px solid transparent',
-                  color: docViewTab === 'extracted' ? '#275380' : '#666',
-                  fontWeight: docViewTab === 'extracted' ? 600 : 400,
-                  cursor: 'pointer'
-                }}
-              >
-                🤖 Extracted Data
-              </button>
-            </div>
-
-            <div style={{ flex: 1, overflow: 'auto', padding: '24px', background: '#f9fafb' }}>
+            <div style={{ flex: 1, overflow: 'auto', padding: '24px', background: '#f8fafc' }}>
               {docLoading ? (
-                <div style={{ textAlign: 'center', padding: '40px' }}>Loading...</div>
+                <div style={{ textAlign: 'center', padding: '60px', color: '#6b7280' }}>Loading...</div>
               ) : docViewTab === 'original' ? (
-                <div style={{ maxWidth: '700px', margin: '0 auto', background: 'white', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', overflow: 'hidden' }}>
+                <div style={{ maxWidth: '700px', margin: '0 auto', background: 'white', borderRadius: '12px', overflow: 'hidden', border: '1px solid #e5e7eb' }}>
                   {docContent.original ? (
                     <>
-                      <div style={{ padding: '20px 24px', borderBottom: '1px solid #eee', background: '#fafafa' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-                          <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#275380', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 600 }}>
-                            {(docContent.original.from || 'U')[0].toUpperCase()}
-                          </div>
-                          <div>
-                            <div style={{ fontWeight: 600 }}>{docContent.original.from || 'Unknown'}</div>
-                            <div style={{ fontSize: '13px', color: '#666' }}>
-                              {docContent.original.received_at ? new Date(docContent.original.received_at).toLocaleString() : ''}
-                            </div>
-                          </div>
-                        </div>
-                        <div style={{ fontSize: '16px', fontWeight: 600, color: '#275380' }}>
-                          {docContent.original.subject || 'No Subject'}
-                        </div>
+                      <div style={{ padding: '16px 20px', background: '#fafafa', borderBottom: '1px solid #e5e7eb' }}>
+                        <div style={{ fontWeight: 600, marginBottom: '4px' }}>{docContent.original.subject || 'No Subject'}</div>
+                        <div style={{ fontSize: '13px', color: '#6b7280' }}>From: {docContent.original.from || 'Unknown'}</div>
                       </div>
-                      <div style={{ padding: '24px', fontSize: '15px', lineHeight: '1.7' }}>
+                      <div style={{ padding: '20px', fontSize: '14px', lineHeight: 1.7 }}>
                         {(docContent.original.body || 'No content').split('\n').map((line: string, i: number) => (
                           <p key={i} style={{ margin: '0 0 8px 0' }}>{line || '\u00A0'}</p>
                         ))}
                       </div>
                     </>
-                  ) : (
-                    <div style={{ padding: '60px', textAlign: 'center', color: '#666' }}>No document available</div>
-                  )}
+                  ) : <div style={{ padding: '60px', textAlign: 'center', color: '#6b7280' }}>No document</div>}
                 </div>
               ) : (
-                <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+                <div style={{ maxWidth: '700px', margin: '0 auto' }}>
                   {docContent.extracted ? (
                     <div style={{ display: 'grid', gap: '16px' }}>
-                      <div style={{ background: 'linear-gradient(135deg, #275380, #1e4060)', borderRadius: '12px', padding: '20px', color: 'white' }}>
-                        <div style={{ fontSize: '13px', opacity: 0.9 }}>AI Confidence</div>
-                        <div style={{ fontSize: '28px', fontWeight: 700 }}>{docContent.extracted.confidence_score || 0}%</div>
+                      <div style={{ background: '#275380', borderRadius: '12px', padding: '16px', color: 'white' }}>
+                        <div style={{ fontSize: '12px', opacity: 0.8 }}>Confidence</div>
+                        <div style={{ fontSize: '24px', fontWeight: 700 }}>{docContent.extracted.confidence_score || 0}%</div>
                       </div>
                       {docContent.extracted.ai_summary && (
-                        <div style={{ background: 'white', borderRadius: '12px', padding: '20px', border: '1px solid #e5e7eb' }}>
-                          <div style={{ fontWeight: 600, marginBottom: '8px', color: '#275380' }}>AI Summary</div>
-                          <p style={{ margin: 0, lineHeight: '1.6' }}>{docContent.extracted.ai_summary}</p>
+                        <div style={{ background: 'white', borderRadius: '12px', padding: '16px', border: '1px solid #e5e7eb' }}>
+                          <div style={{ fontWeight: 600, marginBottom: '8px' }}>AI Summary</div>
+                          <p style={{ margin: 0, lineHeight: 1.6, fontSize: '14px' }}>{docContent.extracted.ai_summary}</p>
                         </div>
                       )}
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
-                        <div style={{ background: 'white', borderRadius: '12px', padding: '20px', border: '1px solid #e5e7eb' }}>
-                          <div style={{ fontWeight: 600, marginBottom: '12px', color: '#16a34a' }}>Patient Info</div>
-                          <div style={{ fontSize: '14px', lineHeight: '1.8' }}>
-                            <div><span style={{ color: '#6b7280' }}>Name:</span> <strong>{docContent.extracted.patient_name || '—'}</strong></div>
-                            <div><span style={{ color: '#6b7280' }}>DOB:</span> <strong>{docContent.extracted.dob || '—'}</strong></div>
-                            <div><span style={{ color: '#6b7280' }}>Phone:</span> <strong>{docContent.extracted.phone || '—'}</strong></div>
-                          </div>
-                        </div>
-                        <div style={{ background: 'white', borderRadius: '12px', padding: '20px', border: '1px solid #e5e7eb' }}>
-                          <div style={{ fontWeight: 600, marginBottom: '12px', color: '#7c3aed' }}>Insurance</div>
-                          <div style={{ fontSize: '14px', lineHeight: '1.8' }}>
-                            <div><span style={{ color: '#6b7280' }}>Provider:</span> <strong>{docContent.extracted.insurance || '—'}</strong></div>
-                            <div><span style={{ color: '#6b7280' }}>Policy:</span> <strong>{docContent.extracted.policy_number || '—'}</strong></div>
-                          </div>
-                        </div>
-                      </div>
                     </div>
-                  ) : (
-                    <div style={{ padding: '60px', textAlign: 'center', color: '#666', background: 'white', borderRadius: '12px' }}>No extracted data</div>
-                  )}
+                  ) : <div style={{ padding: '60px', textAlign: 'center', color: '#6b7280', background: 'white', borderRadius: '12px' }}>No data</div>}
                 </div>
               )}
             </div>
