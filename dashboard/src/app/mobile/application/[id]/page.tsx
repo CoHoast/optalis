@@ -110,6 +110,7 @@ function ApplicationDetailContent() {
   const [isSaving, setIsSaving] = useState(false);
   const [expandedSections, setExpandedSections] = useState<string[]>(['patient']);
   const [showNewBanner, setShowNewBanner] = useState(isNewApplication || false);
+  const [confirmModal, setConfirmModal] = useState<{ show: boolean; action: string; title: string; message: string }>({ show: false, action: '', title: '', message: '' });
 
   useEffect(() => {
     fetch(`${API_URL}/api/applications/${id}`)
@@ -173,9 +174,19 @@ function ApplicationDetailContent() {
         body: JSON.stringify({ status: newStatus })
       });
       setApp({ ...app, status: newStatus });
+      setConfirmModal({ show: false, action: '', title: '', message: '' });
     } catch (error) {
       console.error('Status error:', error);
     }
+  };
+
+  const showConfirmation = (action: string) => {
+    const configs: Record<string, { title: string; message: string }> = {
+      review: { title: 'Send to Review?', message: 'This application will be moved to the Review queue for further evaluation.' },
+      approved: { title: 'Approve Application?', message: 'This will approve the patient application and mark it as ready for admission.' },
+      denied: { title: 'Deny Application?', message: 'This will deny the patient application. This action can be undone by changing the status.' },
+    };
+    setConfirmModal({ show: true, action, ...configs[action] });
   };
 
   const renderField = (field: any) => {
@@ -289,7 +300,32 @@ function ApplicationDetailContent() {
 
   return (
     <MobileLayout title="Application" showBack>
-      <div style={{ padding: '16px', paddingBottom: '120px' }}>
+      {/* Sticky Top Action Bar */}
+      <div style={{ 
+        position: 'sticky', top: 0, zIndex: 50,
+        padding: '12px 16px', background: 'white', 
+        borderBottom: '1px solid #e5e7eb',
+        display: 'flex', gap: '10px'
+      }}>
+        {isEditing ? (
+          <>
+            <button onClick={() => { setIsEditing(false); setEditedData(app); }} style={{ flex: 1, padding: '12px', background: '#f3f4f6', border: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}>
+              Cancel
+            </button>
+            <button onClick={handleSave} disabled={isSaving} style={{ flex: 1, padding: '12px', background: '#275380', color: 'white', border: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}>
+              {isSaving ? 'Saving...' : 'Save Changes'}
+            </button>
+          </>
+        ) : (
+          <>
+            <button onClick={() => setIsEditing(true)} style={{ flex: 1, padding: '12px', background: '#275380', color: 'white', border: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+              <PencilIcon style={{ width: 16, height: 16 }} /> Edit Application
+            </button>
+          </>
+        )}
+      </div>
+
+      <div style={{ padding: '16px', paddingBottom: '180px' }}>
         
         {/* Success Banner */}
         {showNewBanner && (
@@ -328,32 +364,6 @@ function ApplicationDetailContent() {
           </div>
         )}
 
-        {/* Action Bar */}
-        <div style={{ display: 'flex', gap: '10px', marginBottom: '16px' }}>
-          {isEditing ? (
-            <>
-              <button onClick={() => { setIsEditing(false); setEditedData(app); }} style={{ flex: 1, padding: '12px', background: '#f3f4f6', border: 'none', borderRadius: '12px', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}>
-                Cancel
-              </button>
-              <button onClick={handleSave} disabled={isSaving} style={{ flex: 1, padding: '12px', background: '#275380', color: 'white', border: 'none', borderRadius: '12px', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}>
-                {isSaving ? 'Saving...' : 'Save'}
-              </button>
-            </>
-          ) : (
-            <>
-              <button onClick={() => setIsEditing(true)} style={{ flex: 1, padding: '12px', background: '#f3f4f6', border: 'none', borderRadius: '12px', fontSize: '14px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-                <PencilIcon style={{ width: 16, height: 16 }} /> Edit
-              </button>
-              <select value={app.status} onChange={(e) => handleStatusChange(e.target.value)} style={{ flex: 1, padding: '12px', borderRadius: '12px', border: '1px solid #d1d5db', fontSize: '14px', fontWeight: 500, background: 'white' }}>
-                <option value="pending">Pending</option>
-                <option value="review">Review</option>
-                <option value="approved">Approved</option>
-                <option value="denied">Denied</option>
-              </select>
-            </>
-          )}
-        </div>
-
         {/* Sections */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           {SECTIONS.map(section => (
@@ -388,30 +398,116 @@ function ApplicationDetailContent() {
           ))}
         </div>
 
-        {/* Quick Actions */}
-        {!isEditing && (
-          <div style={{ display: 'flex', gap: '10px', marginTop: '20px', padding: '16px', background: 'white', borderRadius: '14px' }}>
-            <button onClick={() => handleStatusChange('approved')} disabled={app.status === 'approved'} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', padding: '14px', background: '#dcfce7', border: 'none', borderRadius: '12px', cursor: 'pointer', opacity: app.status === 'approved' ? 0.5 : 1 }}>
-              <CheckIcon style={{ width: 24, height: 24, color: '#166534' }} />
-              <span style={{ fontSize: '13px', fontWeight: 600, color: '#166534' }}>Approve</span>
-            </button>
-            <button onClick={() => handleStatusChange('review')} disabled={app.status === 'review'} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', padding: '14px', background: '#dbeafe', border: 'none', borderRadius: '12px', cursor: 'pointer', opacity: app.status === 'review' ? 0.5 : 1 }}>
-              <PencilIcon style={{ width: 24, height: 24, color: '#1e40af' }} />
-              <span style={{ fontSize: '13px', fontWeight: 600, color: '#1e40af' }}>Review</span>
-            </button>
-            <button onClick={() => handleStatusChange('denied')} disabled={app.status === 'denied'} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', padding: '14px', background: '#fee2e2', border: 'none', borderRadius: '12px', cursor: 'pointer', opacity: app.status === 'denied' ? 0.5 : 1 }}>
-              <XMarkIcon style={{ width: 24, height: 24, color: '#991b1b' }} />
-              <span style={{ fontSize: '13px', fontWeight: 600, color: '#991b1b' }}>Deny</span>
-            </button>
-          </div>
-        )}
-
         {/* Footer */}
         <div style={{ display: 'flex', justifyContent: 'space-between', padding: '16px', marginTop: '16px', fontSize: '12px', color: '#9ca3af' }}>
           <span>{app.source || 'Unknown source'}</span>
           <span>{app.created_at ? new Date(app.created_at).toLocaleDateString() : ''}</span>
         </div>
       </div>
+
+      {/* Sticky Bottom Actions */}
+      {!isEditing && (
+        <div style={{ 
+          position: 'fixed', bottom: 70, left: 0, right: 0, zIndex: 50,
+          padding: '12px 16px', background: 'white', 
+          borderTop: '1px solid #e5e7eb',
+          boxShadow: '0 -2px 10px rgba(0,0,0,0.1)',
+          display: 'flex', gap: '10px'
+        }}>
+          <button 
+            onClick={() => showConfirmation('review')} 
+            disabled={app.status === 'review'} 
+            style={{ 
+              flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+              padding: '14px', background: app.status === 'review' ? '#f3f4f6' : '#dbeafe', 
+              border: 'none', borderRadius: '12px', cursor: 'pointer',
+              opacity: app.status === 'review' ? 0.5 : 1
+            }}
+          >
+            <PencilIcon style={{ width: 20, height: 20, color: '#1e40af' }} />
+            <span style={{ fontSize: '14px', fontWeight: 600, color: '#1e40af' }}>Review</span>
+          </button>
+          <button 
+            onClick={() => showConfirmation('approved')} 
+            disabled={app.status === 'approved'} 
+            style={{ 
+              flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+              padding: '14px', background: app.status === 'approved' ? '#f3f4f6' : '#dcfce7', 
+              border: 'none', borderRadius: '12px', cursor: 'pointer',
+              opacity: app.status === 'approved' ? 0.5 : 1
+            }}
+          >
+            <CheckIcon style={{ width: 20, height: 20, color: '#166534' }} />
+            <span style={{ fontSize: '14px', fontWeight: 600, color: '#166534' }}>Approve</span>
+          </button>
+          <button 
+            onClick={() => showConfirmation('denied')} 
+            disabled={app.status === 'denied'} 
+            style={{ 
+              flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+              padding: '14px', background: app.status === 'denied' ? '#f3f4f6' : '#fee2e2', 
+              border: 'none', borderRadius: '12px', cursor: 'pointer',
+              opacity: app.status === 'denied' ? 0.5 : 1
+            }}
+          >
+            <XMarkIcon style={{ width: 20, height: 20, color: '#991b1b' }} />
+            <span style={{ fontSize: '14px', fontWeight: 600, color: '#991b1b' }}>Deny</span>
+          </button>
+        </div>
+      )}
+
+      {/* Confirmation Modal */}
+      {confirmModal.show && (
+        <div style={{ 
+          position: 'fixed', inset: 0, zIndex: 100,
+          background: 'rgba(0,0,0,0.5)', 
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          padding: '20px'
+        }}>
+          <div style={{ 
+            background: 'white', borderRadius: '20px', 
+            width: '100%', maxWidth: '340px',
+            overflow: 'hidden'
+          }}>
+            <div style={{ padding: '24px', textAlign: 'center' }}>
+              <div style={{ 
+                width: '56px', height: '56px', borderRadius: '50%', 
+                margin: '0 auto 16px',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                background: confirmModal.action === 'approved' ? '#dcfce7' : confirmModal.action === 'denied' ? '#fee2e2' : '#dbeafe'
+              }}>
+                {confirmModal.action === 'approved' && <CheckIcon style={{ width: 28, height: 28, color: '#166534' }} />}
+                {confirmModal.action === 'denied' && <XMarkIcon style={{ width: 28, height: 28, color: '#991b1b' }} />}
+                {confirmModal.action === 'review' && <PencilIcon style={{ width: 28, height: 28, color: '#1e40af' }} />}
+              </div>
+              <h3 style={{ margin: '0 0 8px', fontSize: '18px', fontWeight: 600 }}>{confirmModal.title}</h3>
+              <p style={{ margin: 0, fontSize: '14px', color: '#6b7280', lineHeight: 1.5 }}>{confirmModal.message}</p>
+            </div>
+            <div style={{ display: 'flex', borderTop: '1px solid #e5e7eb' }}>
+              <button 
+                onClick={() => setConfirmModal({ show: false, action: '', title: '', message: '' })}
+                style={{ 
+                  flex: 1, padding: '16px', background: 'none', border: 'none', 
+                  borderRight: '1px solid #e5e7eb',
+                  fontSize: '16px', fontWeight: 500, color: '#6b7280', cursor: 'pointer'
+                }}
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={() => handleStatusChange(confirmModal.action)}
+                style={{ 
+                  flex: 1, padding: '16px', background: 'none', border: 'none', 
+                  fontSize: '16px', fontWeight: 600, cursor: 'pointer',
+                  color: confirmModal.action === 'approved' ? '#166534' : confirmModal.action === 'denied' ? '#991b1b' : '#1e40af'
+                }}
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </MobileLayout>
   );
 }
