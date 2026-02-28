@@ -115,6 +115,8 @@ export default function ApplicationDetailPage() {
   const [showDocViewer, setShowDocViewer] = useState(false);
   const [selectedDoc, setSelectedDoc] = useState<{name: string; type: string; rawUrl: string; extractedUrl: string} | null>(null);
   const [docViewTab, setDocViewTab] = useState<'original' | 'extracted'>('original');
+  const [docContent, setDocContent] = useState<{original: any; extracted: any}>({ original: null, extracted: null });
+  const [docLoading, setDocLoading] = useState(false);
   
   const [apiApp, setApiApp] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -132,6 +134,20 @@ export default function ApplicationDetailPage() {
       })
       .catch(() => setLoading(false));
   }, [params.id]);
+
+  // Fetch document content when viewer opens
+  useEffect(() => {
+    if (showDocViewer && selectedDoc && apiApp) {
+      setDocLoading(true);
+      Promise.all([
+        fetch(selectedDoc.rawUrl).then(r => r.json()).catch(() => null),
+        fetch(selectedDoc.extractedUrl).then(r => r.json()).catch(() => null)
+      ]).then(([original, extracted]) => {
+        setDocContent({ original, extracted });
+        setDocLoading(false);
+      });
+    }
+  }, [showDocViewer, selectedDoc, apiApp]);
 
   // Use API data if available, otherwise fall back to mock
   const mockApp = mockApplications[params.id as string] || mockApplications['APP-2026-001'];
@@ -1220,13 +1236,85 @@ export default function ApplicationDetailPage() {
               )}
             </div>
 
-            {/* Document Frame */}
-            <div style={{ flex: 1, overflow: 'hidden' }}>
-              <iframe
-                src={docViewTab === 'original' ? selectedDoc.rawUrl : selectedDoc.extractedUrl}
-                style={{ width: '100%', height: '100%', border: 'none' }}
-                title={`${selectedDoc.name} - ${docViewTab}`}
-              />
+            {/* Document Content */}
+            <div style={{ flex: 1, overflow: 'auto', padding: '24px' }}>
+              {docLoading ? (
+                <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>Loading document...</div>
+              ) : docViewTab === 'original' ? (
+                <div>
+                  {docContent.original ? (
+                    <div style={{ fontFamily: 'system-ui, sans-serif' }}>
+                      <div style={{ marginBottom: '20px', padding: '16px', background: '#f5f5f5', borderRadius: '8px' }}>
+                        <div style={{ marginBottom: '8px' }}><strong>Subject:</strong> {docContent.original.subject || 'N/A'}</div>
+                        <div style={{ marginBottom: '8px' }}><strong>From:</strong> {docContent.original.from || 'N/A'}</div>
+                        <div><strong>Received:</strong> {docContent.original.received_at ? new Date(docContent.original.received_at).toLocaleString() : 'N/A'}</div>
+                      </div>
+                      <div style={{ padding: '20px', background: 'white', border: '1px solid #e0e0e0', borderRadius: '8px' }}>
+                        <h4 style={{ marginBottom: '12px', color: '#333' }}>Email Body:</h4>
+                        <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit', fontSize: '14px', lineHeight: '1.6', margin: 0 }}>
+                          {docContent.original.body || 'No content available'}
+                        </pre>
+                      </div>
+                    </div>
+                  ) : (
+                    <div style={{ textAlign: 'center', color: '#666', padding: '40px' }}>
+                      No original document available
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div>
+                  {docContent.extracted ? (
+                    <div style={{ display: 'grid', gap: '16px' }}>
+                      <div style={{ padding: '16px', background: '#f0f9ff', borderRadius: '8px', border: '1px solid #bae6fd' }}>
+                        <h4 style={{ marginBottom: '8px', color: '#0369a1' }}>AI Summary</h4>
+                        <p style={{ margin: 0, lineHeight: '1.6' }}>{docContent.extracted.ai_summary || 'No summary available'}</p>
+                        <div style={{ marginTop: '8px', fontSize: '13px', color: '#666' }}>
+                          Confidence: {docContent.extracted.confidence_score || 0}%
+                        </div>
+                      </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
+                        <div style={{ padding: '16px', background: '#f9fafb', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
+                          <h4 style={{ marginBottom: '12px', fontSize: '14px', color: '#374151' }}>Patient Information</h4>
+                          <div style={{ fontSize: '14px', lineHeight: '1.8' }}>
+                            <div><strong>Name:</strong> {docContent.extracted.patient_name || 'N/A'}</div>
+                            <div><strong>DOB:</strong> {docContent.extracted.dob || 'N/A'}</div>
+                            <div><strong>Phone:</strong> {docContent.extracted.phone || 'N/A'}</div>
+                            <div><strong>Address:</strong> {docContent.extracted.address || 'N/A'}</div>
+                          </div>
+                        </div>
+                        <div style={{ padding: '16px', background: '#f9fafb', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
+                          <h4 style={{ marginBottom: '12px', fontSize: '14px', color: '#374151' }}>Insurance</h4>
+                          <div style={{ fontSize: '14px', lineHeight: '1.8' }}>
+                            <div><strong>Provider:</strong> {docContent.extracted.insurance || 'N/A'}</div>
+                            <div><strong>Policy #:</strong> {docContent.extracted.policy_number || 'N/A'}</div>
+                          </div>
+                        </div>
+                        <div style={{ padding: '16px', background: '#f9fafb', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
+                          <h4 style={{ marginBottom: '12px', fontSize: '14px', color: '#374151' }}>Medical</h4>
+                          <div style={{ fontSize: '14px', lineHeight: '1.8' }}>
+                            <div><strong>Physician:</strong> {docContent.extracted.physician || 'N/A'}</div>
+                            <div><strong>Facility:</strong> {docContent.extracted.facility || 'N/A'}</div>
+                            <div><strong>Diagnosis:</strong> {Array.isArray(docContent.extracted.diagnosis) ? docContent.extracted.diagnosis.join(', ') : docContent.extracted.diagnosis || 'N/A'}</div>
+                          </div>
+                        </div>
+                        <div style={{ padding: '16px', background: '#f9fafb', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
+                          <h4 style={{ marginBottom: '12px', fontSize: '14px', color: '#374151' }}>Services & Meds</h4>
+                          <div style={{ fontSize: '14px', lineHeight: '1.8' }}>
+                            <div><strong>Services:</strong> {Array.isArray(docContent.extracted.services) ? docContent.extracted.services.join(', ') : docContent.extracted.services || 'N/A'}</div>
+                            <div><strong>Medications:</strong> {Array.isArray(docContent.extracted.medications) ? docContent.extracted.medications.join(', ') : docContent.extracted.medications || 'N/A'}</div>
+                            <div><strong>Allergies:</strong> {Array.isArray(docContent.extracted.allergies) ? docContent.extracted.allergies.join(', ') : docContent.extracted.allergies || 'N/A'}</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div style={{ textAlign: 'center', color: '#666', padding: '40px' }}>
+                      No extracted data available
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Modal Footer */}
