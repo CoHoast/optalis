@@ -404,16 +404,21 @@ async def get_stats():
 
 
 @app.post("/api/scan")
-async def scan_document(file: UploadFile = File(...)):
+async def scan_document(file: UploadFile = File(None), images: UploadFile = File(None)):
     """Scan a document and extract patient information using AI Vision."""
     try:
+        # Support both 'file' and 'images' parameter names
+        upload_file = file or images
+        if not upload_file:
+            raise HTTPException(status_code=400, detail="No file provided")
+        
         # Read file content
-        content = await file.read()
+        content = await upload_file.read()
         
         # Extract using vision
         result = extract_with_vision(
             file_data=content,
-            filename=file.filename,
+            filename=upload_file.filename,
             subject="Mobile Document Scan",
             email_body="Document scanned via mobile app",
             raw_text=""
@@ -478,9 +483,15 @@ async def scan_document(file: UploadFile = File(...)):
         cursor.close()
         conn.close()
         
+        app_data = row_to_dict(row)
+        
+        # Return format expected by mobile app
         return {
             "success": True,
-            "application": row_to_dict(row)
+            "applicationId": app_data['id'],
+            "patientName": app_data.get('patient_name'),
+            "confidence": app_data.get('confidence_score'),
+            "application": app_data
         }
         
     except Exception as e:
