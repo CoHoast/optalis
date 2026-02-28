@@ -479,7 +479,7 @@ export default function MobileScan() {
             color: '#dc2626',
             fontSize: '14px'
           }}>
-            {error}
+            {typeof error === 'string' ? error : JSON.stringify(error)}
           </div>
         )}
 
