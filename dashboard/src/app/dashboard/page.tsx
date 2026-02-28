@@ -1,22 +1,68 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
-const recentApplications = [
-  { id: 'APP-2026-004', name: 'Mary Johnson', initials: 'MJ', facility: 'Optalis of Grand Rapids', status: 'pending', date: '2/25/2026' },
-  { id: 'APP-2026-001', name: 'Margaret Thompson', initials: 'MT', facility: 'Cranberry Park at West Bloomfield', status: 'pending', date: '2/24/2026' },
-  { id: 'APP-2026-002', name: 'Robert Williams', initials: 'RW', facility: 'Optalis of Grand Rapids', status: 'review', date: '2/24/2026' },
-  { id: 'APP-2026-003', name: 'Dorothy Martinez', initials: 'DM', facility: 'Cranberry Park at Milford', status: 'approved', date: '2/24/2026' },
-  { id: 'APP-2026-005', name: 'Betty Anderson', initials: 'BA', facility: 'The Cottages at Grand Rapids', status: 'approved', date: '2/23/2026' },
-];
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://optalis-api-production.up.railway.app';
+
+interface Application {
+  id: string;
+  patient_name: string;
+  facility: string;
+  status: string;
+  created_at: string;
+}
+
+interface Stats {
+  total: number;
+  pending: number;
+  review: number;
+  approved: number;
+  denied: number;
+}
 
 export default function DashboardPage() {
+  const [recentApplications, setRecentApplications] = useState<Application[]>([]);
+  const [stats, setStats] = useState<Stats>({ total: 0, pending: 0, review: 0, approved: 0, denied: 0 });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Fetch recent applications
+    fetch(`${API_URL}/api/applications?limit=5`)
+      .then(res => res.json())
+      .then(data => {
+        setRecentApplications(data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error('Failed to fetch applications:', err);
+        setLoading(false);
+      });
+
+    // Fetch stats
+    fetch(`${API_URL}/api/stats`)
+      .then(res => res.json())
+      .then(data => setStats(data))
+      .catch(err => console.error('Failed to fetch stats:', err));
+  }, []);
+
+  const getInitials = (name: string) => {
+    if (!name) return '??';
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+  };
+
+  const formatDate = (dateStr: string) => {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' });
+  };
+
   return (
     <div className="main-content">
       {/* Header */}
       <div style={{ marginBottom: '32px' }}>
         <h1 style={{ fontSize: '32px', marginBottom: '8px' }}>Dashboard</h1>
-        <p style={{ color: '#4a4a4a' }}>Welcome back, Jennifer. Here&apos;s what&apos;s happening today.</p>
+        <p style={{ color: '#4a4a4a' }}>Welcome back. Here&apos;s what&apos;s happening today.</p>
       </div>
 
       {/* Stats */}
@@ -26,8 +72,8 @@ export default function DashboardPage() {
             <div className="stat-card-header">
               <div>
                 <div className="stat-label">Pending Review</div>
-                <div className="stat-value">3</div>
-                <div className="stat-change">+2 from yesterday</div>
+                <div className="stat-value">{stats.pending}</div>
+                <div className="stat-change">Awaiting action</div>
               </div>
               <div className="stat-icon">
                 <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -42,9 +88,9 @@ export default function DashboardPage() {
           <div className="stat-card" style={{ cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s' }}>
             <div className="stat-card-header">
               <div>
-                <div className="stat-label">Approved Today</div>
-                <div className="stat-value">2</div>
-                <div className="stat-change" style={{ color: '#16a34a' }}>On track</div>
+                <div className="stat-label">Approved</div>
+                <div className="stat-value">{stats.approved}</div>
+                <div className="stat-change" style={{ color: '#16a34a' }}>Ready for admission</div>
               </div>
               <div className="stat-icon" style={{ background: 'rgba(22, 163, 74, 0.1)', color: '#16a34a' }}>
                 <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -59,11 +105,11 @@ export default function DashboardPage() {
           <div className="stat-card" style={{ cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s' }}>
             <div className="stat-card-header">
               <div>
-                <div className="stat-label">Needs Review</div>
-                <div className="stat-value">1</div>
-                <div className="stat-change" style={{ color: '#dc2626' }}>1 urgent</div>
+                <div className="stat-label">In Review</div>
+                <div className="stat-value">{stats.review}</div>
+                <div className="stat-change" style={{ color: '#f59e0b' }}>Being processed</div>
               </div>
-              <div className="stat-icon" style={{ background: 'rgba(220, 38, 38, 0.1)', color: '#dc2626' }}>
+              <div className="stat-icon" style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b' }}>
                 <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
                 </svg>
@@ -72,13 +118,13 @@ export default function DashboardPage() {
           </div>
         </Link>
         
-        <Link href="/dashboard/reports" style={{ textDecoration: 'none', color: 'inherit' }}>
+        <Link href="/dashboard/applications" style={{ textDecoration: 'none', color: 'inherit' }}>
           <div className="stat-card" style={{ cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s' }}>
             <div className="stat-card-header">
               <div>
-                <div className="stat-label">Approval Rate</div>
-                <div className="stat-value">78%</div>
-                <div className="stat-change">This week</div>
+                <div className="stat-label">Total Applications</div>
+                <div className="stat-value">{stats.total}</div>
+                <div className="stat-change">All time</div>
               </div>
               <div className="stat-icon">
                 <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -103,119 +149,41 @@ export default function DashboardPage() {
         alignItems: 'center'
       }}>
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-            <div style={{
-              width: '44px', height: '44px', borderRadius: '12px',
-              background: 'rgba(255,255,255,0.2)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center'
-            }}>
-              <svg width="24" height="24" fill="none" stroke="white" strokeWidth="2" viewBox="0 0 24 24">
-                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                <polyline points="22,6 12,13 2,6"/>
-              </svg>
-            </div>
-            <div>
-              <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '2px' }}>Quick Intake Email</h3>
-              <p style={{ fontSize: '13px', opacity: 0.8 }}>Forward applications here for automatic AI processing</p>
-            </div>
-          </div>
-          
-          <div style={{
-            background: 'rgba(255,255,255,0.15)',
-            borderRadius: '12px',
-            padding: '16px 20px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px',
-            marginBottom: '16px'
-          }}>
-            <span style={{ fontSize: '20px', fontWeight: 600, fontFamily: 'monospace', letterSpacing: '0.5px' }}>
-              intake@optalis.dokit.ai
-            </span>
-            <button 
-              onClick={() => {
-                navigator.clipboard.writeText('intake@optalis.dokit.ai');
-                alert('Email copied to clipboard!');
-              }}
-              style={{
-                background: 'rgba(255,255,255,0.2)',
-                border: 'none',
-                borderRadius: '6px',
-                padding: '6px 12px',
-                color: 'white',
-                cursor: 'pointer',
-                fontSize: '13px',
-                fontWeight: 500
-              }}
-            >
-              Copy
-            </button>
-          </div>
-          
-          <div style={{ display: 'flex', gap: '24px', fontSize: '13px', opacity: 0.9 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <polyline points="20 6 9 17 4 12"/>
-              </svg>
-              Auto-extracts patient info
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <polyline points="20 6 9 17 4 12"/>
-              </svg>
-              Processes PDFs & images
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <polyline points="20 6 9 17 4 12"/>
-              </svg>
-              Creates application in &lt;2 min
-            </div>
-          </div>
+          <h3 style={{ fontSize: '18px', marginBottom: '8px', fontWeight: 600 }}>📧 Email Intake Address</h3>
+          <p style={{ fontSize: '24px', fontFamily: 'monospace', marginBottom: '8px' }}>intake@optalis.dokit.ai</p>
+          <p style={{ fontSize: '13px', opacity: 0.8 }}>Forward applications here for automatic AI processing</p>
         </div>
-        
-        <div style={{ textAlign: 'center', paddingLeft: '24px', borderLeft: '1px solid rgba(255,255,255,0.2)' }}>
-          <div style={{ fontSize: '42px', fontWeight: 700, lineHeight: 1 }}>47</div>
-          <div style={{ fontSize: '13px', opacity: 0.8, marginTop: '4px' }}>Applications received<br/>via email this month</div>
-        </div>
+        <button 
+          onClick={() => navigator.clipboard.writeText('intake@optalis.dokit.ai')}
+          style={{
+            background: 'rgba(255,255,255,0.2)',
+            border: '1px solid rgba(255,255,255,0.3)',
+            borderRadius: '8px',
+            padding: '12px 20px',
+            color: 'white',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontWeight: 500
+          }}
+        >
+          Copy Address
+        </button>
       </div>
 
       {/* Quick Actions */}
-      <div className="quick-actions">
+      <h2 style={{ fontSize: '18px', marginBottom: '16px', fontWeight: 600 }}>Quick Actions</h2>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '32px' }}>
         <Link href="/dashboard/applications?status=pending" className="quick-action pending">
-          <div className="quick-action-icon">
-            <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-            </svg>
-          </div>
-          <div>
-            <div className="quick-action-title">3 Pending</div>
-            <div className="quick-action-subtitle">Awaiting review</div>
-          </div>
+          <span style={{ fontSize: '24px' }}>📋</span>
+          <span>Review Pending</span>
         </Link>
-        
         <Link href="/dashboard/applications?status=review" className="quick-action review">
-          <div className="quick-action-icon">
-            <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-            </svg>
-          </div>
-          <div>
-            <div className="quick-action-title">1 Needs Review</div>
-            <div className="quick-action-subtitle">Insurance verification</div>
-          </div>
+          <span style={{ fontSize: '24px' }}>🔍</span>
+          <span>Check Reviews</span>
         </Link>
-        
         <Link href="/dashboard/applications/new" className="quick-action new">
-          <div className="quick-action-icon">
-            <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/>
-            </svg>
-          </div>
-          <div>
-            <div className="quick-action-title">New Application</div>
-            <div className="quick-action-subtitle">Upload documents</div>
-          </div>
+          <span style={{ fontSize: '24px' }}>➕</span>
+          <span>New Application</span>
         </Link>
       </div>
 
@@ -225,135 +193,78 @@ export default function DashboardPage() {
           <h2 className="applications-title">Recent Applications</h2>
           <Link href="/dashboard/applications" className="applications-link">View all →</Link>
         </div>
-        {recentApplications.map((app) => (
-          <Link key={app.id} href={`/dashboard/applications/${app.id}`} className="application-row">
-            <div className="application-avatar">{app.initials}</div>
-            <div className="application-info">
-              <div className="application-name">{app.name}</div>
-              <div className="application-facility">{app.facility}</div>
-            </div>
-            <div className="application-meta">
-              <span className={`status-badge status-${app.status}`}>
-                {app.status === 'pending' && 'Pending'}
-                {app.status === 'approved' && 'Approved'}
-                {app.status === 'denied' && 'Denied'}
-                {app.status === 'review' && 'Needs Review'}
-              </span>
-              <div className="application-date">{app.date}</div>
-            </div>
-          </Link>
-        ))}
+        
+        {loading ? (
+          <div style={{ padding: '40px', textAlign: 'center', color: '#6b7280' }}>
+            Loading...
+          </div>
+        ) : recentApplications.length === 0 ? (
+          <div style={{ padding: '40px', textAlign: 'center', color: '#6b7280' }}>
+            No applications yet
+          </div>
+        ) : (
+          <div className="applications-list">
+            {recentApplications.map((app) => (
+              <Link key={app.id} href={`/dashboard/applications/${app.id}`} className="application-row">
+                <div className="application-avatar">
+                  {getInitials(app.patient_name)}
+                </div>
+                <div className="application-info">
+                  <div className="application-name">{app.patient_name || 'Unknown'}</div>
+                  <div className="application-facility">{app.facility || 'Optalis Healthcare'}</div>
+                </div>
+                <div className="application-meta">
+                  <span className={`status-badge ${app.status}`}>{app.status}</span>
+                  <span className="application-date">{formatDate(app.created_at)}</span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* Two Column Section */}
-      <div className="two-column">
-        {/* Activity Feed */}
-        <div className="card">
-          <h3 style={{ fontSize: '18px', marginBottom: '20px' }}>Recent Activity</h3>
-          
-          <div className="activity-item">
-            <div className="activity-icon approved">
-              <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <polyline points="20 6 9 17 4 12"/>
-              </svg>
-            </div>
-            <div>
-              <div className="activity-text">Dorothy Martinez application <strong style={{ color: '#16a34a' }}>approved</strong></div>
-              <div className="activity-time">2 hours ago by Jennifer Walsh</div>
-            </div>
-          </div>
-          
-          <div className="activity-item">
-            <div className="activity-icon new">
-              <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-              </svg>
-            </div>
-            <div>
-              <div className="activity-text">New application received for <strong>Margaret Thompson</strong></div>
-              <div className="activity-time">3 hours ago via email</div>
-            </div>
-          </div>
-          
-          <div className="activity-item">
-            <div className="activity-icon review">
-              <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-              </svg>
-            </div>
-            <div>
-              <div className="activity-text">Robert Williams marked for <strong style={{ color: '#ca8a04' }}>review</strong></div>
-              <div className="activity-time">5 hours ago - Insurance verification needed</div>
-            </div>
-          </div>
-          
-          <div className="activity-item">
-            <div className="activity-icon denied">
-              <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
-              </svg>
-            </div>
-            <div>
-              <div className="activity-text">Harold Johnson application <strong style={{ color: '#dc2626' }}>denied</strong></div>
-              <div className="activity-time">Yesterday - Does not meet criteria</div>
-            </div>
-          </div>
-        </div>
-
-        {/* Performance */}
-        <div className="card">
-          <h3 style={{ fontSize: '18px', marginBottom: '20px' }}>This Week&apos;s Performance</h3>
-          
-          <div className="progress-item">
-            <div className="progress-header">
-              <span className="progress-label">Applications Processed</span>
-              <span className="progress-value">28</span>
-            </div>
-            <div className="progress-bar">
-              <div className="progress-fill" style={{ width: '75%' }}></div>
-            </div>
-          </div>
-          
-          <div className="progress-item">
-            <div className="progress-header">
-              <span className="progress-label">Average Processing Time</span>
-              <span className="progress-value">2.4 hours</span>
-            </div>
-            <div className="progress-bar">
-              <div className="progress-fill green" style={{ width: '85%' }}></div>
-            </div>
-          </div>
-          
-          <div className="progress-item">
-            <div className="progress-header">
-              <span className="progress-label">Approval Rate</span>
-              <span className="progress-value">78%</span>
-            </div>
-            <div className="progress-bar">
-              <div className="progress-fill" style={{ width: '78%' }}></div>
-            </div>
-          </div>
-          
-          <div className="week-stats">
-            <div>
-              <div className="week-stat-value pending">12</div>
-              <div className="week-stat-label">Pending</div>
-            </div>
-            <div>
-              <div className="week-stat-value approved">18</div>
-              <div className="week-stat-label">Approved</div>
-            </div>
-            <div>
-              <div className="week-stat-value denied">4</div>
-              <div className="week-stat-label">Denied</div>
-            </div>
-            <div>
-              <div className="week-stat-value review">6</div>
-              <div className="week-stat-label">Review</div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <style jsx>{`
+        .quick-action {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 8px;
+          padding: 20px;
+          background: white;
+          border-radius: 12px;
+          border: 1px solid #e5e7eb;
+          text-decoration: none;
+          color: #374151;
+          transition: all 0.2s;
+        }
+        .quick-action:hover {
+          border-color: #275380;
+          box-shadow: 0 4px 12px rgba(39, 83, 128, 0.1);
+        }
+        .status-badge {
+          padding: 4px 12px;
+          border-radius: 9999px;
+          font-size: 12px;
+          font-weight: 500;
+          text-transform: capitalize;
+        }
+        .status-badge.pending {
+          background: #fef3c7;
+          color: #92400e;
+        }
+        .status-badge.review {
+          background: #dbeafe;
+          color: #1e40af;
+        }
+        .status-badge.approved {
+          background: #dcfce7;
+          color: #166534;
+        }
+        .status-badge.denied {
+          background: #fee2e2;
+          color: #991b1b;
+        }
+      `}</style>
     </div>
   );
 }
