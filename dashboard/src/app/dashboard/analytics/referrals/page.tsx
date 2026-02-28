@@ -1,11 +1,16 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
 import {
   ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ZAxis
 } from 'recharts';
 import AnalyticsGate from '@/components/AnalyticsGate';
+import { 
+  AnalyticsTabBar, 
+  DateRangePicker, 
+  ExportButton, 
+  exportToCSV 
+} from '@/components/AnalyticsUtils';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://optalis-api-production.up.railway.app';
 
@@ -19,20 +24,34 @@ interface ReferralData {
 }
 
 export default function ReferralsPage() {
-  const [period, setPeriod] = useState<'week' | 'month' | 'quarter'>('month');
+  const [period, setPeriod] = useState('month');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const [loading, setLoading] = useState(true);
   const [referrals, setReferrals] = useState<ReferralData[]>([]);
   const [sortField, setSortField] = useState<keyof ReferralData>('count');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
 
   useEffect(() => {
-    fetchData();
+    const now = new Date();
+    const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    setEndDate(now.toISOString().split('T')[0]);
+    setStartDate(monthAgo.toISOString().split('T')[0]);
+  }, []);
+
+  useEffect(() => {
+    if (period !== 'custom') {
+      fetchData();
+    }
   }, [period]);
 
   async function fetchData() {
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL}/api/analytics/referrals?period=${period}&limit=50`);
+      const params = period === 'custom' 
+        ? `start_date=${startDate}&end_date=${endDate}`
+        : `period=${period}`;
+      const res = await fetch(`${API_URL}/api/analytics/referrals?${params}&limit=50`);
       if (res.ok) {
         setReferrals(await res.json());
       }
@@ -62,7 +81,6 @@ export default function ReferralsPage() {
       : String(bVal).localeCompare(String(aVal));
   });
 
-  // Scatter plot data
   const scatterData = referrals.map(r => ({
     x: r.count,
     y: r.conversion_rate,
@@ -70,41 +88,40 @@ export default function ReferralsPage() {
     name: r.hospital || r.source,
   }));
 
+  const handleExport = () => {
+    exportToCSV(referrals as unknown as Record<string, unknown>[], 'referral_sources');
+  };
+
   return (
     <AnalyticsGate>
       <main style={{ marginLeft: 280, padding: '32px', background: '#faf8f5', minHeight: '100vh' }}>
         {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-              <Link href="/dashboard/analytics" style={{ color: '#6b7280', textDecoration: 'none', fontSize: '14px' }}>
-                ← Back to Overview
-              </Link>
-            </div>
             <h1 style={{ fontSize: '28px', fontWeight: 700, color: '#1a1a1a', margin: 0 }}>
-              Referral Sources
+              Intake Analytics
             </h1>
             <p style={{ color: '#6b7280', margin: '8px 0 0 0' }}>
               Analyze where your applications are coming from
             </p>
           </div>
+          <ExportButton onClick={handleExport} />
+        </div>
 
-          <select
-            value={period}
-            onChange={(e) => setPeriod(e.target.value as 'week' | 'month' | 'quarter')}
-            style={{
-              padding: '10px 16px',
-              fontSize: '14px',
-              border: '1px solid #e5e7eb',
-              borderRadius: '8px',
-              background: 'white',
-              cursor: 'pointer',
-            }}
-          >
-            <option value="week">This Week</option>
-            <option value="month">This Month</option>
-            <option value="quarter">This Quarter</option>
-          </select>
+        {/* Tab Bar */}
+        <AnalyticsTabBar activeTab="/dashboard/analytics/referrals" />
+
+        {/* Date Range Picker */}
+        <div style={{ marginBottom: '24px' }}>
+          <DateRangePicker
+            period={period}
+            setPeriod={setPeriod}
+            startDate={startDate}
+            setStartDate={setStartDate}
+            endDate={endDate}
+            setEndDate={setEndDate}
+            onApply={fetchData}
+          />
         </div>
 
         {loading ? (
@@ -206,9 +223,12 @@ export default function ReferralsPage() {
               padding: '24px',
               boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
             }}>
-              <h3 style={{ fontSize: '18px', fontWeight: 600, margin: '0 0 24px 0', color: '#1a1a1a' }}>
-                Top Referral Sources
-              </h3>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                <h3 style={{ fontSize: '18px', fontWeight: 600, margin: 0, color: '#1a1a1a' }}>
+                  Top Referral Sources
+                </h3>
+                <ExportButton onClick={handleExport} label="Export Table" />
+              </div>
               {sortedReferrals.length > 0 ? (
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead>

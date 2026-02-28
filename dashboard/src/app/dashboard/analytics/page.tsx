@@ -1,12 +1,18 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, BarChart, Bar, Legend
 } from 'recharts';
 import AnalyticsGate from '@/components/AnalyticsGate';
+import { 
+  AnalyticsTabBar, 
+  DateRangePicker, 
+  ExportButton, 
+  PrintButton, 
+  exportToCSV 
+} from '@/components/AnalyticsUtils';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://optalis-api-production.up.railway.app';
 
@@ -19,6 +25,7 @@ const COLORS = {
 };
 
 const PIE_COLORS = ['#10b981', '#ef4444', '#f59e0b', '#6366f1'];
+const DENIAL_COLORS = ['#ef4444', '#f97316', '#f59e0b', '#eab308', '#84cc16', '#22c55e', '#14b8a6', '#06b6d4'];
 
 interface OverviewData {
   total_applications: number;
@@ -50,29 +57,63 @@ interface LocationData {
   avg_response_time: number;
 }
 
+interface DenialReasonData {
+  reason: string;
+  count: number;
+  percentage: number;
+}
+
+interface PayerMixData {
+  payer: string;
+  count: number;
+  percentage: number;
+}
+
 export default function AnalyticsPage() {
-  const [period, setPeriod] = useState<'week' | 'month' | 'quarter'>('month');
+  const [period, setPeriod] = useState('month');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const [loading, setLoading] = useState(true);
   const [overview, setOverview] = useState<OverviewData | null>(null);
   const [volume, setVolume] = useState<VolumeData[]>([]);
   const [locations, setLocations] = useState<LocationData[]>([]);
+  const [denialReasons, setDenialReasons] = useState<DenialReasonData[]>([]);
+  const [payerMix, setPayerMix] = useState<PayerMixData[]>([]);
 
   useEffect(() => {
-    fetchData();
+    // Set default dates
+    const now = new Date();
+    const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    setEndDate(now.toISOString().split('T')[0]);
+    setStartDate(monthAgo.toISOString().split('T')[0]);
+  }, []);
+
+  useEffect(() => {
+    if (period !== 'custom') {
+      fetchData();
+    }
   }, [period]);
 
   async function fetchData() {
     setLoading(true);
     try {
-      const [overviewRes, volumeRes, locationsRes] = await Promise.all([
-        fetch(`${API_URL}/api/analytics/overview?period=${period}`),
-        fetch(`${API_URL}/api/analytics/volume?period=${period}`),
-        fetch(`${API_URL}/api/analytics/locations?period=${period}`),
+      const params = period === 'custom' 
+        ? `start_date=${startDate}&end_date=${endDate}`
+        : `period=${period}`;
+
+      const [overviewRes, volumeRes, locationsRes, denialRes, payerRes] = await Promise.all([
+        fetch(`${API_URL}/api/analytics/overview?${params}`),
+        fetch(`${API_URL}/api/analytics/volume?${params}`),
+        fetch(`${API_URL}/api/analytics/locations?${params}`),
+        fetch(`${API_URL}/api/analytics/denial-reasons?${params}`),
+        fetch(`${API_URL}/api/analytics/payer-mix?${params}`),
       ]);
 
       if (overviewRes.ok) setOverview(await overviewRes.json());
       if (volumeRes.ok) setVolume(await volumeRes.json());
       if (locationsRes.ok) setLocations(await locationsRes.json());
+      if (denialRes.ok) setDenialReasons(await denialRes.json());
+      if (payerRes.ok) setPayerMix(await payerRes.json());
     } catch (error) {
       console.error('Error fetching analytics:', error);
     }
@@ -91,11 +132,30 @@ export default function AnalyticsPage() {
     date: new Date(v.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
   }));
 
+  // Export handlers
+  const exportOverview = () => {
+    if (overview) {
+      exportToCSV([overview] as unknown as Record<string, unknown>[], 'analytics_overview');
+    }
+  };
+
+  const exportVolume = () => {
+    exportToCSV(volume as unknown as Record<string, unknown>[], 'analytics_volume');
+  };
+
+  const exportLocations = () => {
+    exportToCSV(locations as unknown as Record<string, unknown>[], 'analytics_locations');
+  };
+
+  const exportDenialReasons = () => {
+    exportToCSV(denialReasons as unknown as Record<string, unknown>[], 'analytics_denial_reasons');
+  };
+
   return (
     <AnalyticsGate>
-      <main style={{ marginLeft: 280, padding: '32px', background: '#faf8f5', minHeight: '100vh' }}>
+      <main style={{ marginLeft: 280, padding: '32px', background: '#faf8f5', minHeight: '100vh' }} className="print-area">
         {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
           <div>
             <h1 style={{ fontSize: '28px', fontWeight: 700, color: '#1a1a1a', margin: 0 }}>
               Intake Analytics
@@ -106,61 +166,25 @@ export default function AnalyticsPage() {
           </div>
 
           <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-            {/* Period Selector */}
-            <select
-              value={period}
-              onChange={(e) => setPeriod(e.target.value as 'week' | 'month' | 'quarter')}
-              style={{
-                padding: '10px 16px',
-                fontSize: '14px',
-                border: '1px solid #e5e7eb',
-                borderRadius: '8px',
-                background: 'white',
-                cursor: 'pointer',
-              }}
-            >
-              <option value="week">This Week</option>
-              <option value="month">This Month</option>
-              <option value="quarter">This Quarter</option>
-            </select>
-
-            {/* Sub-nav */}
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <Link href="/dashboard/analytics/referrals" style={{
-                padding: '10px 16px',
-                fontSize: '14px',
-                color: '#275380',
-                textDecoration: 'none',
-                border: '1px solid #275380',
-                borderRadius: '8px',
-                background: 'white',
-              }}>
-                Referrals
-              </Link>
-              <Link href="/dashboard/analytics/response-time" style={{
-                padding: '10px 16px',
-                fontSize: '14px',
-                color: '#275380',
-                textDecoration: 'none',
-                border: '1px solid #275380',
-                borderRadius: '8px',
-                background: 'white',
-              }}>
-                Response Time
-              </Link>
-              <Link href="/dashboard/analytics/locations" style={{
-                padding: '10px 16px',
-                fontSize: '14px',
-                color: '#275380',
-                textDecoration: 'none',
-                border: '1px solid #275380',
-                borderRadius: '8px',
-                background: 'white',
-              }}>
-                Locations
-              </Link>
-            </div>
+            <PrintButton />
+            <ExportButton onClick={exportOverview} label="Export Summary" />
           </div>
+        </div>
+
+        {/* Tab Bar */}
+        <AnalyticsTabBar activeTab="/dashboard/analytics" />
+
+        {/* Date Range Picker */}
+        <div style={{ marginBottom: '24px' }}>
+          <DateRangePicker
+            period={period}
+            setPeriod={setPeriod}
+            startDate={startDate}
+            setStartDate={setStartDate}
+            endDate={endDate}
+            setEndDate={setEndDate}
+            onApply={fetchData}
+          />
         </div>
 
         {loading ? (
@@ -226,7 +250,7 @@ export default function AnalyticsPage() {
               />
             </div>
 
-            {/* Charts Row */}
+            {/* Row 1: Volume & Decision Breakdown */}
             <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px', marginBottom: '32px' }}>
               {/* Volume Chart */}
               <div style={{
@@ -235,9 +259,12 @@ export default function AnalyticsPage() {
                 padding: '24px',
                 boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
               }}>
-                <h3 style={{ fontSize: '18px', fontWeight: 600, margin: '0 0 24px 0', color: '#1a1a1a' }}>
-                  Application Volume
-                </h3>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                  <h3 style={{ fontSize: '18px', fontWeight: 600, margin: 0, color: '#1a1a1a' }}>
+                    Application Volume
+                  </h3>
+                  <ExportButton onClick={exportVolume} />
+                </div>
                 {formattedVolume.length > 0 ? (
                   <ResponsiveContainer width="100%" height={300}>
                     <LineChart data={formattedVolume}>
@@ -308,16 +335,116 @@ export default function AnalyticsPage() {
               </div>
             </div>
 
-            {/* Locations Chart */}
+            {/* Row 2: Denial Reasons & Payer Mix */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '32px' }}>
+              {/* Denial Reasons */}
+              <div style={{
+                background: 'white',
+                borderRadius: '16px',
+                padding: '24px',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                  <h3 style={{ fontSize: '18px', fontWeight: 600, margin: 0, color: '#1a1a1a' }}>
+                    Denial Reasons
+                  </h3>
+                  <ExportButton onClick={exportDenialReasons} />
+                </div>
+                {denialReasons.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={280}>
+                    <BarChart data={denialReasons} layout="vertical" margin={{ left: 120 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                      <XAxis type="number" fontSize={12} stroke="#9ca3af" />
+                      <YAxis type="category" dataKey="reason" fontSize={12} stroke="#6b7280" width={110} />
+                      <Tooltip
+                        contentStyle={{
+                          background: 'white',
+                          border: '1px solid #e5e7eb',
+                          borderRadius: '8px',
+                        }}
+                        formatter={(value, name, props) => [`${value} (${props.payload.percentage}%)`, 'Count']}
+                      />
+                      <Bar dataKey="count" radius={[0, 8, 8, 0]}>
+                        {denialReasons.map((_, index) => (
+                          <Cell key={`cell-${index}`} fill={DENIAL_COLORS[index % DENIAL_COLORS.length]} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div style={{ height: 280, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9ca3af' }}>
+                    No denials in this period
+                  </div>
+                )}
+              </div>
+
+              {/* Payer Mix */}
+              <div style={{
+                background: 'white',
+                borderRadius: '16px',
+                padding: '24px',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+              }}>
+                <h3 style={{ fontSize: '18px', fontWeight: 600, margin: '0 0 24px 0', color: '#1a1a1a' }}>
+                  Payer Mix
+                </h3>
+                {payerMix.length > 0 ? (
+                  <>
+                    <ResponsiveContainer width="100%" height={200}>
+                      <PieChart>
+                        <Pie
+                          data={payerMix}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={50}
+                          outerRadius={80}
+                          paddingAngle={2}
+                          dataKey="count"
+                        >
+                          {payerMix.map((_, index) => (
+                            <Cell key={`cell-${index}`} fill={['#275380', '#10b981', '#f59e0b', '#6366f1', '#9ca3af'][index % 5]} />
+                          ))}
+                        </Pie>
+                        <Tooltip />
+                      </PieChart>
+                    </ResponsiveContainer>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', justifyContent: 'center' }}>
+                      {payerMix.map((p, i) => (
+                        <div key={p.payer} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <div style={{
+                            width: 12,
+                            height: 12,
+                            borderRadius: 3,
+                            background: ['#275380', '#10b981', '#f59e0b', '#6366f1', '#9ca3af'][i % 5],
+                          }} />
+                          <span style={{ fontSize: '13px', color: '#374151' }}>
+                            {p.payer}: {p.percentage}%
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                ) : (
+                  <div style={{ height: 280, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9ca3af' }}>
+                    No data available
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Row 3: Locations Chart */}
             <div style={{
               background: 'white',
               borderRadius: '16px',
               padding: '24px',
               boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
             }}>
-              <h3 style={{ fontSize: '18px', fontWeight: 600, margin: '0 0 24px 0', color: '#1a1a1a' }}>
-                Applications by Location
-              </h3>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                <h3 style={{ fontSize: '18px', fontWeight: 600, margin: 0, color: '#1a1a1a' }}>
+                  Applications by Location
+                </h3>
+                <ExportButton onClick={exportLocations} />
+              </div>
               {locations.length > 0 ? (
                 <ResponsiveContainer width="100%" height={Math.max(300, locations.length * 50)}>
                   <BarChart data={locations} layout="vertical" margin={{ left: 150 }}>
@@ -345,6 +472,7 @@ export default function AnalyticsPage() {
             </div>
           </>
         )}
+
       </main>
     </AnalyticsGate>
   );

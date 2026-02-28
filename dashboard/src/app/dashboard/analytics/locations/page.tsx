@@ -1,11 +1,16 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
 } from 'recharts';
 import AnalyticsGate from '@/components/AnalyticsGate';
+import { 
+  AnalyticsTabBar, 
+  DateRangePicker, 
+  ExportButton, 
+  exportToCSV 
+} from '@/components/AnalyticsUtils';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://optalis-api-production.up.railway.app';
 
@@ -26,23 +31,36 @@ const COLORS = {
 };
 
 export default function LocationsPage() {
-  const [period, setPeriod] = useState<'week' | 'month' | 'quarter'>('month');
+  const [period, setPeriod] = useState('month');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const [loading, setLoading] = useState(true);
   const [locations, setLocations] = useState<LocationData[]>([]);
   const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
 
   useEffect(() => {
-    fetchData();
+    const now = new Date();
+    const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    setEndDate(now.toISOString().split('T')[0]);
+    setStartDate(monthAgo.toISOString().split('T')[0]);
+  }, []);
+
+  useEffect(() => {
+    if (period !== 'custom') {
+      fetchData();
+    }
   }, [period]);
 
   async function fetchData() {
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL}/api/analytics/locations?period=${period}`);
+      const params = period === 'custom' 
+        ? `start_date=${startDate}&end_date=${endDate}`
+        : `period=${period}`;
+      const res = await fetch(`${API_URL}/api/analytics/locations?${params}`);
       if (res.ok) {
         const data = await res.json();
         setLocations(data);
-        // Select all by default
         setSelectedLocations(data.map((d: LocationData) => d.location));
       }
     } catch (error) {
@@ -69,7 +87,6 @@ export default function LocationsPage() {
 
   const filteredLocations = locations.filter(l => selectedLocations.includes(l.location));
 
-  // Calculate totals
   const totals = filteredLocations.reduce((acc, loc) => ({
     total: acc.total + loc.total,
     approved: acc.approved + loc.approved,
@@ -77,41 +94,40 @@ export default function LocationsPage() {
     pending: acc.pending + loc.pending,
   }), { total: 0, approved: 0, denied: 0, pending: 0 });
 
+  const handleExport = () => {
+    exportToCSV(filteredLocations as unknown as Record<string, unknown>[], 'location_comparison');
+  };
+
   return (
     <AnalyticsGate>
       <main style={{ marginLeft: 280, padding: '32px', background: '#faf8f5', minHeight: '100vh' }}>
         {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-              <Link href="/dashboard/analytics" style={{ color: '#6b7280', textDecoration: 'none', fontSize: '14px' }}>
-                ← Back to Overview
-              </Link>
-            </div>
             <h1 style={{ fontSize: '28px', fontWeight: 700, color: '#1a1a1a', margin: 0 }}>
-              Location Comparison
+              Intake Analytics
             </h1>
             <p style={{ color: '#6b7280', margin: '8px 0 0 0' }}>
               Compare performance across all facilities
             </p>
           </div>
+          <ExportButton onClick={handleExport} />
+        </div>
 
-          <select
-            value={period}
-            onChange={(e) => setPeriod(e.target.value as 'week' | 'month' | 'quarter')}
-            style={{
-              padding: '10px 16px',
-              fontSize: '14px',
-              border: '1px solid #e5e7eb',
-              borderRadius: '8px',
-              background: 'white',
-              cursor: 'pointer',
-            }}
-          >
-            <option value="week">This Week</option>
-            <option value="month">This Month</option>
-            <option value="quarter">This Quarter</option>
-          </select>
+        {/* Tab Bar */}
+        <AnalyticsTabBar activeTab="/dashboard/analytics/locations" />
+
+        {/* Date Range Picker */}
+        <div style={{ marginBottom: '24px' }}>
+          <DateRangePicker
+            period={period}
+            setPeriod={setPeriod}
+            startDate={startDate}
+            setStartDate={setStartDate}
+            endDate={endDate}
+            setEndDate={setEndDate}
+            onApply={fetchData}
+          />
         </div>
 
         {loading ? (
@@ -215,9 +231,12 @@ export default function LocationsPage() {
               boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
               marginBottom: '32px',
             }}>
-              <h3 style={{ fontSize: '18px', fontWeight: 600, margin: '0 0 24px 0', color: '#1a1a1a' }}>
-                Applications by Status
-              </h3>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                <h3 style={{ fontSize: '18px', fontWeight: 600, margin: 0, color: '#1a1a1a' }}>
+                  Applications by Status
+                </h3>
+                <ExportButton onClick={handleExport} label="Export Chart Data" />
+              </div>
               {filteredLocations.length > 0 ? (
                 <ResponsiveContainer width="100%" height={Math.max(350, filteredLocations.length * 60)}>
                   <BarChart data={filteredLocations} layout="vertical" margin={{ left: 150, right: 30 }}>
@@ -251,9 +270,12 @@ export default function LocationsPage() {
               padding: '24px',
               boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
             }}>
-              <h3 style={{ fontSize: '18px', fontWeight: 600, margin: '0 0 24px 0', color: '#1a1a1a' }}>
-                Detailed Metrics
-              </h3>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                <h3 style={{ fontSize: '18px', fontWeight: 600, margin: 0, color: '#1a1a1a' }}>
+                  Detailed Metrics
+                </h3>
+                <ExportButton onClick={handleExport} label="Export Table" />
+              </div>
               {filteredLocations.length > 0 ? (
                 <div style={{ overflowX: 'auto' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '700px' }}>

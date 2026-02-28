@@ -980,6 +980,93 @@ async def analytics_locations(period: str = "month"):
     return result
 
 
+@app.get("/api/analytics/denial-reasons")
+async def analytics_denial_reasons(period: str = "month"):
+    """Get denial reason breakdown from decision_notes."""
+    start, end = get_date_range(period)
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    # Categorize denial reasons based on keywords in decision_notes
+    cursor.execute("""
+        SELECT 
+            CASE 
+                WHEN LOWER(COALESCE(decision_notes, '')) LIKE '%capacity%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%bed%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%full%' THEN 'Capacity/No Beds'
+                WHEN LOWER(COALESCE(decision_notes, '')) LIKE '%insurance%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%coverage%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%payer%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%authorization%' THEN 'Insurance/Coverage'
+                WHEN LOWER(COALESCE(decision_notes, '')) LIKE '%clinical%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%acuity%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%medical%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%condition%' THEN 'Clinical/Acuity'
+                WHEN LOWER(COALESCE(decision_notes, '')) LIKE '%behavior%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%psych%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%mental%' THEN 'Behavioral/Psych'
+                WHEN LOWER(COALESCE(decision_notes, '')) LIKE '%document%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%incomplete%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%missing%' THEN 'Incomplete Documentation'
+                WHEN LOWER(COALESCE(decision_notes, '')) LIKE '%service%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%level%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%care%' THEN 'Service Level Mismatch'
+                WHEN decision_notes IS NULL OR decision_notes = '' THEN 'Not Specified'
+                ELSE 'Other'
+            END as reason,
+            COUNT(*) as count
+        FROM optalis_applications
+        WHERE status = 'denied'
+        AND created_at >= %s AND created_at <= %s
+        GROUP BY 1
+        ORDER BY count DESC
+    """, (start, end))
+    
+    rows = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    
+    total = sum(r['count'] for r in rows)
+    result = []
+    for row in rows:
+        r = dict(row)
+        r['percentage'] = round((r['count'] / total * 100), 1) if total > 0 else 0
+        result.append(r)
+    
+    return result
+
+
+@app.get("/api/analytics/reviewers")
+async def analytics_reviewers(period: str = "month"):
+    """Get reviewer/case manager performance stats."""
+    start, end = get_date_range(period)
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        SELECT 
+            COALESCE(last_updated_by, 'Unknown') as reviewer,
+            COUNT(*) as total_reviews,
+            COUNT(*) FILTER (WHERE status = 'approved') as approved,
+            COUNT(*) FILTER (WHERE status = 'denied') as denied,
+            AVG(
+                CASE 
+                    WHEN updated_at IS NOT NULL
+                    THEN EXTRACT(EPOCH FROM (updated_at::timestamp - created_at::timestamp)) / 3600
+                    ELSE NULL 
+                END
+            ) as avg_time_hours
+        FROM optalis_applications
+        WHERE status IN ('approved', 'denied')
+        AND created_at >= %s AND created_at <= %s
+        GROUP BY COALESCE(last_updated_by, 'Unknown')
+        ORDER BY total_reviews DESC
+    """, (start, end))
+    
+    rows = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    
+    result = []
+    for row in rows:
+        r = dict(row)
+        total = r['total_reviews'] or 0
+        approved = r['approved'] or 0
+        r['approval_rate'] = round((approved / total * 100), 1) if total > 0 else 0
+        r['avg_time_hours'] = round(r['avg_time_hours'] or 0, 1)
+        result.append(r)
+    
+    return result
+
+
 # ============================================================
 # Main
 # ============================================================
