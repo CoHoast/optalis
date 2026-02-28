@@ -256,6 +256,8 @@ class DecisionRequest(BaseModel):
 
 
 class ApplicationUpdate(BaseModel):
+    status: Optional[str] = None
+    priority: Optional[str] = None
     patient_name: Optional[str] = None
     dob: Optional[str] = None
     phone: Optional[str] = None
