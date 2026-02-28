@@ -3,137 +3,97 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import MobileLayout from '@/components/MobileLayout';
-import { 
-  CheckIcon, 
-  XMarkIcon,
-  PencilIcon,
-  ChevronDownIcon,
-  ChevronUpIcon,
-} from '@heroicons/react/24/outline';
+import { CheckIcon, XMarkIcon, PencilIcon } from '@heroicons/react/24/outline';
 import '../../mobile.css';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://optalis-api-production.up.railway.app';
 
-// Field sections for mobile - optimized for touch
-// SVG Icons for mobile
-const SectionIcons: Record<string, React.ReactNode> = {
-  referral: <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>,
-  patient: <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>,
-  insurance: <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>,
-  dates: <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>,
-  clinical: <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>,
-  summary: <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8"/></svg>,
-  therapy: <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="5" r="3"/><path d="M12 8v8M8 20l4-4 4 4"/></svg>,
-  decision: <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>,
+// Clean SVG Icons
+const ChevronDown = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="6 9 12 15 18 9"></polyline>
+  </svg>
+);
+
+const ChevronUp = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="18 15 12 9 6 15"></polyline>
+  </svg>
+);
+
+// Section Icons as inline SVGs
+const SectionIcon = ({ type, color }: { type: string; color: string }) => {
+  const icons: Record<string, JSX.Element> = {
+    referral: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>,
+    patient: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>,
+    insurance: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>,
+    dates: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>,
+    clinical: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>,
+    summary: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8"/></svg>,
+    therapy: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2"><circle cx="12" cy="5" r="3"/><path d="M12 8v8M8 20l4-4 4 4"/></svg>,
+    decision: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>,
+  };
+  return icons[type] || null;
 };
 
 const SECTIONS = [
-  {
-    id: 'referral',
-    title: 'Referral Info',
-    icon: SectionIcons.referral,
-    color: '#275380',
-    fields: [
-      { key: 'referral_type', label: 'Type', type: 'select', options: ['New Referral', 'Return to Hospital'] },
-      { key: 'hospital', label: 'Hospital', type: 'text' },
-      { key: 'building', label: 'Building', type: 'text' },
-      { key: 'room_number', label: 'Room #', type: 'text' },
-      { key: 'case_manager_name', label: 'Case Manager', type: 'text' },
-      { key: 'case_manager_phone', label: 'CM Phone', type: 'tel' },
-    ]
-  },
-  {
-    id: 'patient',
-    title: 'Patient Info',
-    icon: SectionIcons.patient,
-    color: '#16a34a',
-    fields: [
-      { key: 'patient_name', label: 'Name', type: 'text' },
-      { key: 'dob', label: 'DOB', type: 'text' },
-      { key: 'sex', label: 'Sex', type: 'select', options: ['Male', 'Female', 'Other'] },
-      { key: 'ssn_last4', label: 'SSN (last 4)', type: 'text', maxLength: 4 },
-      { key: 'phone', label: 'Phone', type: 'tel' },
-      { key: 'address', label: 'Address', type: 'text' },
-    ]
-  },
-  {
-    id: 'insurance',
-    title: 'Insurance',
-    icon: SectionIcons.insurance,
-    color: '#7c3aed',
-    fields: [
-      { key: 'insurance', label: 'Insurance', type: 'text' },
-      { key: 'policy_number', label: 'Policy #', type: 'text' },
-      { key: 'care_level', label: 'Care Level', type: 'select', options: ['SNF', 'LTC', 'AL', 'Hospice'] },
-    ]
-  },
-  {
-    id: 'dates',
-    title: 'Key Dates',
-    icon: SectionIcons.dates,
-    color: '#ea580c',
-    fields: [
-      { key: 'date_admitted', label: 'Admitted', type: 'date' },
-      { key: 'inpatient_date', label: 'Inpatient', type: 'date' },
-      { key: 'anticipated_discharge', label: 'Expected Discharge', type: 'date' },
-    ]
-  },
-  {
-    id: 'clinical',
-    title: 'Clinical & Medical',
-    icon: SectionIcons.clinical,
-    color: '#dc2626',
-    fields: [
-      { key: 'diagnosis', label: 'Diagnosis', type: 'tags' },
-      { key: 'medications', label: 'Medications', type: 'tags' },
-      { key: 'allergies', label: 'Allergies', type: 'tags' },
-      { key: 'fall_risk', label: 'Fall Risk', type: 'toggle' },
-      { key: 'smoking_status', label: 'Smoking', type: 'select', options: ['Never', 'Former', 'Current'] },
-      { key: 'isolation', label: 'Isolation', type: 'text' },
-      { key: 'barrier_precautions', label: 'Barrier Precautions', type: 'text' },
-      { key: 'dme', label: 'DME', type: 'textarea' },
-      { key: 'diet', label: 'Diet', type: 'text' },
-      { key: 'height', label: 'Height', type: 'text' },
-      { key: 'weight', label: 'Weight', type: 'text' },
-      { key: 'iv_meds', label: 'IV Meds', type: 'textarea' },
-      { key: 'expensive_meds', label: 'Expensive Meds', type: 'textarea' },
-      { key: 'infection_prevention', label: 'Infection Prevention', type: 'textarea' },
-    ]
-  },
-  {
-    id: 'summary',
-    title: 'Summary',
-    icon: SectionIcons.summary,
-    color: '#475569',
-    fields: [
-      { key: 'clinical_summary', label: 'Summary', type: 'textarea' },
-      { key: 'physician', label: 'Physician', type: 'text' },
-      { key: 'infection_prevention', label: 'Infection Prevention', type: 'textarea' },
-    ]
-  },
-  {
-    id: 'therapy',
-    title: 'Therapy',
-    icon: SectionIcons.therapy,
-    color: '#059669',
-    fields: [
-      { key: 'therapy_prior_level', label: 'Prior Level', type: 'textarea' },
-      { key: 'therapy_bed_mobility', label: 'Bed Mobility', type: 'text' },
-      { key: 'therapy_transfers', label: 'Transfers', type: 'text' },
-      { key: 'therapy_gait', label: 'Gait', type: 'text' },
-      { key: 'services', label: 'Services', type: 'tags' },
-    ]
-  },
-  {
-    id: 'decision',
-    title: 'Decision',
-    icon: SectionIcons.decision,
-    color: '#275380',
-    fields: [
-      { key: 'decision_status', label: 'Status', type: 'select', options: ['Accepting', 'Considering', 'Denying'] },
-      { key: 'decision_notes', label: 'Notes', type: 'textarea' },
-    ]
-  },
+  { id: 'referral', title: 'Referral Info', color: '#275380', fields: [
+    { key: 'referral_type', label: 'Type', type: 'select', options: ['New Referral', 'Return to Hospital'] },
+    { key: 'hospital', label: 'Hospital', type: 'text' },
+    { key: 'building', label: 'Building', type: 'text' },
+    { key: 'room_number', label: 'Room #', type: 'text' },
+    { key: 'case_manager_name', label: 'Case Manager', type: 'text' },
+    { key: 'case_manager_phone', label: 'CM Phone', type: 'tel' },
+  ]},
+  { id: 'patient', title: 'Patient Info', color: '#16a34a', fields: [
+    { key: 'patient_name', label: 'Name', type: 'text' },
+    { key: 'dob', label: 'DOB', type: 'text' },
+    { key: 'sex', label: 'Sex', type: 'select', options: ['Male', 'Female', 'Other'] },
+    { key: 'ssn_last4', label: 'SSN (last 4)', type: 'text', maxLength: 4 },
+    { key: 'phone', label: 'Phone', type: 'tel' },
+    { key: 'address', label: 'Address', type: 'text' },
+  ]},
+  { id: 'insurance', title: 'Insurance', color: '#7c3aed', fields: [
+    { key: 'insurance', label: 'Insurance', type: 'text' },
+    { key: 'policy_number', label: 'Policy #', type: 'text' },
+    { key: 'care_level', label: 'Care Level', type: 'select', options: ['SNF', 'LTC', 'AL', 'Hospice'] },
+  ]},
+  { id: 'dates', title: 'Key Dates', color: '#ea580c', fields: [
+    { key: 'date_admitted', label: 'Admitted', type: 'date' },
+    { key: 'inpatient_date', label: 'Inpatient', type: 'date' },
+    { key: 'anticipated_discharge', label: 'Expected Discharge', type: 'date' },
+  ]},
+  { id: 'clinical', title: 'Clinical & Medical', color: '#dc2626', fields: [
+    { key: 'diagnosis', label: 'Diagnosis', type: 'tags' },
+    { key: 'medications', label: 'Medications', type: 'tags' },
+    { key: 'allergies', label: 'Allergies', type: 'tags' },
+    { key: 'fall_risk', label: 'Fall Risk', type: 'toggle' },
+    { key: 'smoking_status', label: 'Smoking', type: 'select', options: ['Never', 'Former', 'Current'] },
+    { key: 'isolation', label: 'Isolation', type: 'text' },
+    { key: 'barrier_precautions', label: 'Barrier Precautions', type: 'text' },
+    { key: 'dme', label: 'DME', type: 'textarea' },
+    { key: 'diet', label: 'Diet', type: 'text' },
+    { key: 'height', label: 'Height', type: 'text' },
+    { key: 'weight', label: 'Weight', type: 'text' },
+    { key: 'iv_meds', label: 'IV Meds', type: 'textarea' },
+    { key: 'expensive_meds', label: 'Expensive Meds', type: 'textarea' },
+    { key: 'infection_prevention', label: 'Infection Prevention', type: 'textarea' },
+  ]},
+  { id: 'summary', title: 'Summary', color: '#475569', fields: [
+    { key: 'clinical_summary', label: 'Clinical Summary', type: 'textarea' },
+    { key: 'physician', label: 'Physician', type: 'text' },
+  ]},
+  { id: 'therapy', title: 'Therapy', color: '#059669', fields: [
+    { key: 'therapy_prior_level', label: 'Prior Level', type: 'textarea' },
+    { key: 'therapy_bed_mobility', label: 'Bed Mobility', type: 'text' },
+    { key: 'therapy_transfers', label: 'Transfers', type: 'text' },
+    { key: 'therapy_gait', label: 'Gait', type: 'text' },
+    { key: 'services', label: 'Services', type: 'tags' },
+  ]},
+  { id: 'decision', title: 'Decision', color: '#275380', fields: [
+    { key: 'decision_status', label: 'Status', type: 'select', options: ['Accepting', 'Considering', 'Denying'] },
+    { key: 'decision_notes', label: 'Notes', type: 'textarea' },
+  ]},
 ];
 
 function ApplicationDetailContent() {
@@ -151,7 +111,6 @@ function ApplicationDetailContent() {
   const [expandedSections, setExpandedSections] = useState<string[]>(['patient']);
   const [showNewBanner, setShowNewBanner] = useState(isNewApplication || false);
 
-  // Fetch application
   useEffect(() => {
     fetch(`${API_URL}/api/applications/${id}`)
       .then(res => res.ok ? res.json() : null)
@@ -165,7 +124,6 @@ function ApplicationDetailContent() {
       .catch(() => setIsLoading(false));
   }, [id]);
 
-  // Auto-hide new banner
   useEffect(() => {
     if (showNewBanner) {
       const timer = setTimeout(() => setShowNewBanner(false), 4000);
@@ -175,17 +133,14 @@ function ApplicationDetailContent() {
 
   const toggleSection = (sectionId: string) => {
     setExpandedSections(prev => 
-      prev.includes(sectionId) 
-        ? prev.filter(s => s !== sectionId)
-        : [...prev, sectionId]
+      prev.includes(sectionId) ? prev.filter(s => s !== sectionId) : [...prev, sectionId]
     );
   };
 
   const getValue = (key: string) => {
     const data = isEditing ? editedData : app;
     const value = data?.[key];
-    if (Array.isArray(value)) return value;
-    return value || '';
+    return Array.isArray(value) ? value : (value || '');
   };
 
   const setValue = (key: string, value: any) => {
@@ -226,121 +181,98 @@ function ApplicationDetailContent() {
   const renderField = (field: any) => {
     const value = getValue(field.key);
     
-    // Display mode
     if (!isEditing) {
       if (field.type === 'tags') {
         const tags = Array.isArray(value) ? value : [];
         return tags.length > 0 ? (
-          <div className="mobile-tags">
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
             {tags.map((tag: string, i: number) => (
-              <span key={i} className="mobile-tag">{tag}</span>
+              <span key={i} style={{ background: '#e5e7eb', padding: '4px 10px', borderRadius: '8px', fontSize: '13px' }}>{tag}</span>
             ))}
           </div>
-        ) : <span className="mobile-empty">—</span>;
+        ) : <span style={{ color: '#9ca3af' }}>—</span>;
       }
       if (field.type === 'toggle') {
         return (
-          <span className={`mobile-badge ${value ? 'danger' : 'success'}`}>
+          <span style={{ 
+            background: value ? '#fee2e2' : '#dcfce7', 
+            color: value ? '#dc2626' : '#16a34a',
+            padding: '4px 12px', 
+            borderRadius: '6px', 
+            fontSize: '13px',
+            fontWeight: 500 
+          }}>
             {value ? 'Yes' : 'No'}
           </span>
         );
       }
-      return value || <span className="mobile-empty">—</span>;
+      return value || <span style={{ color: '#9ca3af' }}>—</span>;
     }
 
     // Edit mode
     if (field.type === 'select') {
       return (
-        <select
-          value={value || ''}
-          onChange={(e) => setValue(field.key, e.target.value)}
-          className="mobile-select"
-        >
+        <select value={value || ''} onChange={(e) => setValue(field.key, e.target.value)} style={inputStyle}>
           <option value="">Select...</option>
-          {field.options?.map((opt: string) => (
-            <option key={opt} value={opt}>{opt}</option>
-          ))}
+          {field.options?.map((opt: string) => <option key={opt} value={opt}>{opt}</option>)}
         </select>
       );
     }
 
     if (field.type === 'toggle') {
       return (
-        <button
-          type="button"
-          onClick={() => setValue(field.key, !value)}
-          className={`mobile-toggle ${value ? 'active' : ''}`}
-        >
-          <span className="mobile-toggle-track">
-            <span className="mobile-toggle-thumb" />
-          </span>
-          <span>{value ? 'Yes' : 'No'}</span>
+        <button type="button" onClick={() => setValue(field.key, !value)} style={{
+          display: 'flex', alignItems: 'center', gap: '10px',
+          padding: '12px 16px', width: '100%',
+          background: value ? '#fee2e2' : '#dcfce7',
+          border: 'none', borderRadius: '10px', cursor: 'pointer', fontSize: '15px', fontWeight: 500
+        }}>
+          {value ? 'Yes - Fall Risk' : 'No Fall Risk'}
         </button>
       );
     }
 
     if (field.type === 'textarea') {
-      return (
-        <textarea
-          value={value || ''}
-          onChange={(e) => setValue(field.key, e.target.value)}
-          rows={3}
-          className="mobile-textarea"
-          placeholder={field.label}
-        />
-      );
+      return <textarea value={value || ''} onChange={(e) => setValue(field.key, e.target.value)} rows={3} style={{ ...inputStyle, minHeight: '80px', resize: 'vertical' }} />;
     }
 
     if (field.type === 'tags') {
       const tags = Array.isArray(value) ? value : [];
       return (
         <div>
-          <div className="mobile-tags" style={{ marginBottom: '8px' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '8px' }}>
             {tags.map((tag: string, i: number) => (
-              <span key={i} className="mobile-tag editable">
+              <span key={i} style={{ background: '#e5e7eb', padding: '6px 12px', borderRadius: '8px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                 {tag}
-                <button 
-                  type="button"
-                  onClick={() => setValue(field.key, tags.filter((_: string, idx: number) => idx !== i))}
-                  className="mobile-tag-remove"
-                >×</button>
+                <button type="button" onClick={() => setValue(field.key, tags.filter((_: string, idx: number) => idx !== i))} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6b7280', padding: 0, fontSize: '16px' }}>×</button>
               </span>
             ))}
           </div>
-          <input
-            type="text"
-            placeholder="Add and press Enter..."
-            className="mobile-input"
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && e.currentTarget.value.trim()) {
-                setValue(field.key, [...tags, e.currentTarget.value.trim()]);
-                e.currentTarget.value = '';
-                e.preventDefault();
-              }
-            }}
-          />
+          <input type="text" placeholder="Add and press Enter..." style={inputStyle} onKeyDown={(e) => {
+            if (e.key === 'Enter' && e.currentTarget.value.trim()) {
+              setValue(field.key, [...tags, e.currentTarget.value.trim()]);
+              e.currentTarget.value = '';
+              e.preventDefault();
+            }
+          }} />
         </div>
       );
     }
 
-    return (
-      <input
-        type={field.type === 'date' ? 'date' : field.type === 'tel' ? 'tel' : 'text'}
-        value={value || ''}
-        onChange={(e) => setValue(field.key, e.target.value)}
-        maxLength={field.maxLength}
-        className="mobile-input"
-        placeholder={field.label}
-      />
-    );
+    return <input type={field.type === 'date' ? 'date' : field.type === 'tel' ? 'tel' : 'text'} value={value || ''} onChange={(e) => setValue(field.key, e.target.value)} maxLength={field.maxLength} style={inputStyle} />;
+  };
+
+  const inputStyle: React.CSSProperties = {
+    width: '100%', padding: '12px 14px', border: '1px solid #d1d5db', borderRadius: '10px', fontSize: '15px', background: '#f9fafb'
   };
 
   if (isLoading) {
     return (
       <MobileLayout title="Loading..." showBack>
-        <div className="mobile-loading">
-          <div className="mobile-spinner" />
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '200px' }}>
+          <div style={{ width: 32, height: 32, border: '3px solid #e5e7eb', borderTopColor: '#275380', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
         </div>
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </MobileLayout>
     );
   }
@@ -348,86 +280,71 @@ function ApplicationDetailContent() {
   if (!app) {
     return (
       <MobileLayout title="Not Found" showBack>
-        <div className="mobile-empty-state">
-          <p>Application not found</p>
-        </div>
+        <div style={{ textAlign: 'center', padding: '60px 20px', color: '#6b7280' }}>Application not found</div>
       </MobileLayout>
     );
   }
 
-  const getInitials = (name: string) => {
-    if (!name) return '??';
-    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-  };
+  const getInitials = (name: string) => name ? name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : '??';
 
   return (
     <MobileLayout title="Application" showBack>
-      <div className="mobile-app-detail">
-        {/* New Application Banner */}
+      <div style={{ padding: '16px', paddingBottom: '120px' }}>
+        
+        {/* Success Banner */}
         {showNewBanner && (
-          <div className="mobile-success-banner">
-            <CheckIcon className="w-5 h-5" />
-            <span>Application created successfully!</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 16px', background: '#dcfce7', color: '#166534', borderRadius: '12px', marginBottom: '16px', fontWeight: 500 }}>
+            <CheckIcon style={{ width: 20, height: 20 }} />
+            Application created successfully!
           </div>
         )}
 
-        {/* Patient Header Card */}
-        <div className="mobile-patient-header">
-          <div className="mobile-avatar" style={{ background: '#275380' }}>
+        {/* Patient Header */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '16px', background: 'white', borderRadius: '16px', marginBottom: '16px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
+          <div style={{ width: 52, height: 52, borderRadius: '12px', background: '#275380', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', fontWeight: 700 }}>
             {getInitials(app.patient_name)}
           </div>
-          <div className="mobile-patient-info">
-            <h1>{app.patient_name || 'Unknown Patient'}</h1>
-            <p>{app.id}</p>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: '17px', fontWeight: 600 }}>{app.patient_name || 'Unknown'}</div>
+            <div style={{ fontSize: '13px', color: '#6b7280' }}>{app.id}</div>
           </div>
-          <div className={`mobile-status-badge ${app.status}`}>
+          <span style={{
+            padding: '6px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 600, textTransform: 'capitalize',
+            background: app.status === 'approved' ? '#dcfce7' : app.status === 'denied' ? '#fee2e2' : app.status === 'review' ? '#dbeafe' : '#fef3c7',
+            color: app.status === 'approved' ? '#166534' : app.status === 'denied' ? '#991b1b' : app.status === 'review' ? '#1e40af' : '#92400e'
+          }}>
             {app.status}
-          </div>
+          </span>
         </div>
 
         {/* AI Summary */}
         {app.ai_summary && (
-          <div className="mobile-ai-card">
-            <div className="mobile-ai-header">
-              <span>AI Summary</span>
-              <span className="mobile-confidence">{app.confidence_score || 0}%</span>
+          <div style={{ background: 'linear-gradient(135deg, #275380, #1e4060)', borderRadius: '14px', padding: '16px', color: 'white', marginBottom: '16px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+              <span style={{ fontWeight: 600, fontSize: '14px' }}>AI Summary</span>
+              <span style={{ background: 'rgba(255,255,255,0.2)', padding: '4px 10px', borderRadius: '10px', fontSize: '12px' }}>{app.confidence_score || 0}%</span>
             </div>
-            <p>{app.ai_summary}</p>
+            <p style={{ margin: 0, fontSize: '14px', lineHeight: 1.5, opacity: 0.95 }}>{app.ai_summary}</p>
           </div>
         )}
 
         {/* Action Bar */}
-        <div className="mobile-action-bar">
+        <div style={{ display: 'flex', gap: '10px', marginBottom: '16px' }}>
           {isEditing ? (
             <>
-              <button 
-                className="mobile-btn secondary"
-                onClick={() => { setIsEditing(false); setEditedData(app); }}
-              >
+              <button onClick={() => { setIsEditing(false); setEditedData(app); }} style={{ flex: 1, padding: '12px', background: '#f3f4f6', border: 'none', borderRadius: '12px', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}>
                 Cancel
               </button>
-              <button 
-                className="mobile-btn primary"
-                onClick={handleSave}
-                disabled={isSaving}
-              >
-                {isSaving ? 'Saving...' : 'Save Changes'}
+              <button onClick={handleSave} disabled={isSaving} style={{ flex: 1, padding: '12px', background: '#275380', color: 'white', border: 'none', borderRadius: '12px', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}>
+                {isSaving ? 'Saving...' : 'Save'}
               </button>
             </>
           ) : (
             <>
-              <button 
-                className="mobile-btn secondary"
-                onClick={() => setIsEditing(true)}
-              >
-                <PencilIcon className="w-4 h-4" />
-                Edit
+              <button onClick={() => setIsEditing(true)} style={{ flex: 1, padding: '12px', background: '#f3f4f6', border: 'none', borderRadius: '12px', fontSize: '14px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                <PencilIcon style={{ width: 16, height: 16 }} /> Edit
               </button>
-              <select 
-                className="mobile-status-select"
-                value={app.status}
-                onChange={(e) => handleStatusChange(e.target.value)}
-              >
+              <select value={app.status} onChange={(e) => handleStatusChange(e.target.value)} style={{ flex: 1, padding: '12px', borderRadius: '12px', border: '1px solid #d1d5db', fontSize: '14px', fontWeight: 500, background: 'white' }}>
                 <option value="pending">Pending</option>
                 <option value="review">Review</option>
                 <option value="approved">Approved</option>
@@ -437,33 +354,32 @@ function ApplicationDetailContent() {
           )}
         </div>
 
-        {/* Collapsible Sections */}
-        <div className="mobile-sections">
+        {/* Sections */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           {SECTIONS.map(section => (
-            <div key={section.id} className="mobile-section">
+            <div key={section.id} style={{ background: 'white', borderRadius: '14px', overflow: 'hidden', boxShadow: '0 1px 2px rgba(0,0,0,0.04)' }}>
               <button
                 type="button"
-                className="mobile-section-header"
                 onClick={() => toggleSection(section.id)}
-                style={{ borderLeftColor: section.color }}
+                style={{
+                  width: '100%', display: 'flex', alignItems: 'center', gap: '12px',
+                  padding: '14px 16px', background: 'none', border: 'none', borderLeft: `4px solid ${section.color}`,
+                  cursor: 'pointer', textAlign: 'left'
+                }}
               >
-                <span className="mobile-section-icon">{section.icon}</span>
-                <span className="mobile-section-title">{section.title}</span>
-                {expandedSections.includes(section.id) ? (
-                  <ChevronUpIcon className="w-5 h-5" />
-                ) : (
-                  <ChevronDownIcon className="w-5 h-5" />
-                )}
+                <SectionIcon type={section.id} color={section.color} />
+                <span style={{ flex: 1, fontWeight: 600, fontSize: '15px', color: '#1f2937' }}>{section.title}</span>
+                <span style={{ color: '#9ca3af' }}>
+                  {expandedSections.includes(section.id) ? <ChevronUp /> : <ChevronDown />}
+                </span>
               </button>
               
               {expandedSections.includes(section.id) && (
-                <div className="mobile-section-content">
+                <div style={{ padding: '0 16px 16px', borderTop: '1px solid #f3f4f6' }}>
                   {section.fields.map(field => (
-                    <div key={field.key} className="mobile-field">
-                      <label>{field.label}</label>
-                      <div className="mobile-field-value">
-                        {renderField(field)}
-                      </div>
+                    <div key={field.key} style={{ padding: '12px 0', borderBottom: '1px solid #f3f4f6' }}>
+                      <label style={{ display: 'block', fontSize: '12px', color: '#6b7280', marginBottom: '4px', fontWeight: 500 }}>{field.label}</label>
+                      <div style={{ fontSize: '15px', color: '#1f2937' }}>{renderField(field)}</div>
                     </div>
                   ))}
                 </div>
@@ -474,389 +390,28 @@ function ApplicationDetailContent() {
 
         {/* Quick Actions */}
         {!isEditing && (
-          <div className="mobile-quick-actions">
-            <button
-              className="mobile-action-btn approve"
-              onClick={() => handleStatusChange('approved')}
-              disabled={app.status === 'approved'}
-            >
-              <CheckIcon className="w-6 h-6" />
-              <span>Approve</span>
+          <div style={{ display: 'flex', gap: '10px', marginTop: '20px', padding: '16px', background: 'white', borderRadius: '14px' }}>
+            <button onClick={() => handleStatusChange('approved')} disabled={app.status === 'approved'} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', padding: '14px', background: '#dcfce7', border: 'none', borderRadius: '12px', cursor: 'pointer', opacity: app.status === 'approved' ? 0.5 : 1 }}>
+              <CheckIcon style={{ width: 24, height: 24, color: '#166534' }} />
+              <span style={{ fontSize: '13px', fontWeight: 600, color: '#166534' }}>Approve</span>
             </button>
-            <button
-              className="mobile-action-btn review"
-              onClick={() => handleStatusChange('review')}
-              disabled={app.status === 'review'}
-            >
-              <PencilIcon className="w-6 h-6" />
-              <span>Review</span>
+            <button onClick={() => handleStatusChange('review')} disabled={app.status === 'review'} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', padding: '14px', background: '#dbeafe', border: 'none', borderRadius: '12px', cursor: 'pointer', opacity: app.status === 'review' ? 0.5 : 1 }}>
+              <PencilIcon style={{ width: 24, height: 24, color: '#1e40af' }} />
+              <span style={{ fontSize: '13px', fontWeight: 600, color: '#1e40af' }}>Review</span>
             </button>
-            <button
-              className="mobile-action-btn deny"
-              onClick={() => handleStatusChange('denied')}
-              disabled={app.status === 'denied'}
-            >
-              <XMarkIcon className="w-6 h-6" />
-              <span>Deny</span>
+            <button onClick={() => handleStatusChange('denied')} disabled={app.status === 'denied'} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', padding: '14px', background: '#fee2e2', border: 'none', borderRadius: '12px', cursor: 'pointer', opacity: app.status === 'denied' ? 0.5 : 1 }}>
+              <XMarkIcon style={{ width: 24, height: 24, color: '#991b1b' }} />
+              <span style={{ fontSize: '13px', fontWeight: 600, color: '#991b1b' }}>Deny</span>
             </button>
           </div>
         )}
 
-        {/* Source Footer */}
-        <div className="mobile-source-footer">
-          <span>Source: {app.source || 'Unknown'}</span>
+        {/* Footer */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '16px', marginTop: '16px', fontSize: '12px', color: '#9ca3af' }}>
+          <span>{app.source || 'Unknown source'}</span>
           <span>{app.created_at ? new Date(app.created_at).toLocaleDateString() : ''}</span>
         </div>
       </div>
-
-      <style jsx>{`
-        .mobile-app-detail {
-          padding: 16px;
-          padding-bottom: 100px;
-        }
-        .mobile-success-banner {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          padding: 12px 16px;
-          background: #dcfce7;
-          color: #166534;
-          border-radius: 12px;
-          margin-bottom: 16px;
-          font-weight: 500;
-        }
-        .mobile-patient-header {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          padding: 16px;
-          background: white;
-          border-radius: 16px;
-          margin-bottom: 16px;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-        }
-        .mobile-avatar {
-          width: 56px;
-          height: 56px;
-          border-radius: 14px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: white;
-          font-weight: 700;
-          font-size: 20px;
-        }
-        .mobile-patient-info {
-          flex: 1;
-        }
-        .mobile-patient-info h1 {
-          font-size: 18px;
-          font-weight: 600;
-          margin: 0 0 4px 0;
-        }
-        .mobile-patient-info p {
-          font-size: 13px;
-          color: #6b7280;
-          margin: 0;
-        }
-        .mobile-status-badge {
-          padding: 6px 12px;
-          border-radius: 20px;
-          font-size: 12px;
-          font-weight: 600;
-          text-transform: capitalize;
-        }
-        .mobile-status-badge.pending { background: #fef3c7; color: #92400e; }
-        .mobile-status-badge.review { background: #dbeafe; color: #1e40af; }
-        .mobile-status-badge.approved { background: #dcfce7; color: #166534; }
-        .mobile-status-badge.denied { background: #fee2e2; color: #991b1b; }
-        
-        .mobile-ai-card {
-          background: linear-gradient(135deg, #275380, #1e4060);
-          border-radius: 16px;
-          padding: 16px;
-          color: white;
-          margin-bottom: 16px;
-        }
-        .mobile-ai-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 10px;
-          font-weight: 600;
-        }
-        .mobile-confidence {
-          background: rgba(255,255,255,0.2);
-          padding: 4px 10px;
-          border-radius: 12px;
-          font-size: 13px;
-        }
-        .mobile-ai-card p {
-          margin: 0;
-          font-size: 14px;
-          line-height: 1.5;
-          opacity: 0.95;
-        }
-        
-        .mobile-action-bar {
-          display: flex;
-          gap: 10px;
-          margin-bottom: 16px;
-        }
-        .mobile-btn {
-          flex: 1;
-          padding: 12px;
-          border-radius: 12px;
-          font-size: 14px;
-          font-weight: 600;
-          border: none;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 6px;
-        }
-        .mobile-btn.primary {
-          background: #275380;
-          color: white;
-        }
-        .mobile-btn.secondary {
-          background: #f3f4f6;
-          color: #374151;
-        }
-        .mobile-status-select {
-          flex: 1;
-          padding: 12px;
-          border-radius: 12px;
-          border: 1px solid #d1d5db;
-          font-size: 14px;
-          font-weight: 500;
-          background: white;
-        }
-        
-        .mobile-sections {
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-        }
-        .mobile-section {
-          background: white;
-          border-radius: 16px;
-          overflow: hidden;
-          box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-        }
-        .mobile-section-header {
-          width: 100%;
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          padding: 14px 16px;
-          background: none;
-          border: none;
-          border-left: 4px solid;
-          cursor: pointer;
-          text-align: left;
-        }
-        .mobile-section-icon {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 24px;
-          height: 24px;
-        }
-        .mobile-section-icon svg {
-          width: 20px;
-          height: 20px;
-        }
-        .mobile-section-title {
-          flex: 1;
-          font-weight: 600;
-          font-size: 15px;
-          color: #1f2937;
-        }
-        .mobile-section-content {
-          padding: 0 16px 16px;
-          border-top: 1px solid #f3f4f6;
-        }
-        .mobile-field {
-          padding: 12px 0;
-          border-bottom: 1px solid #f3f4f6;
-        }
-        .mobile-field:last-child {
-          border-bottom: none;
-        }
-        .mobile-field label {
-          display: block;
-          font-size: 12px;
-          color: #6b7280;
-          margin-bottom: 4px;
-          font-weight: 500;
-        }
-        .mobile-field-value {
-          font-size: 15px;
-          color: #1f2937;
-        }
-        
-        .mobile-tags {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 6px;
-        }
-        .mobile-tag {
-          background: #e5e7eb;
-          padding: 4px 10px;
-          border-radius: 12px;
-          font-size: 13px;
-        }
-        .mobile-tag.editable {
-          display: flex;
-          align-items: center;
-          gap: 6px;
-        }
-        .mobile-tag-remove {
-          background: none;
-          border: none;
-          color: #9ca3af;
-          cursor: pointer;
-          padding: 0;
-          font-size: 16px;
-        }
-        .mobile-empty {
-          color: #9ca3af;
-        }
-        .mobile-badge {
-          padding: 4px 10px;
-          border-radius: 10px;
-          font-size: 13px;
-          font-weight: 500;
-        }
-        .mobile-badge.danger {
-          background: #fee2e2;
-          color: #dc2626;
-        }
-        .mobile-badge.success {
-          background: #dcfce7;
-          color: #16a34a;
-        }
-        
-        .mobile-input, .mobile-select, .mobile-textarea {
-          width: 100%;
-          padding: 12px;
-          border: 1px solid #d1d5db;
-          border-radius: 10px;
-          font-size: 15px;
-          background: #f9fafb;
-        }
-        .mobile-textarea {
-          resize: vertical;
-          min-height: 80px;
-        }
-        
-        .mobile-toggle {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          padding: 8px 12px;
-          background: #f3f4f6;
-          border: none;
-          border-radius: 10px;
-          cursor: pointer;
-          font-size: 15px;
-        }
-        .mobile-toggle-track {
-          width: 44px;
-          height: 26px;
-          background: #d1d5db;
-          border-radius: 13px;
-          position: relative;
-          transition: background 0.2s;
-        }
-        .mobile-toggle.active .mobile-toggle-track {
-          background: #275380;
-        }
-        .mobile-toggle-thumb {
-          position: absolute;
-          top: 3px;
-          left: 3px;
-          width: 20px;
-          height: 20px;
-          background: white;
-          border-radius: 50%;
-          transition: transform 0.2s;
-        }
-        .mobile-toggle.active .mobile-toggle-thumb {
-          transform: translateX(18px);
-        }
-        
-        .mobile-quick-actions {
-          display: flex;
-          gap: 12px;
-          margin-top: 20px;
-          padding: 16px;
-          background: white;
-          border-radius: 16px;
-        }
-        .mobile-action-btn {
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 6px;
-          padding: 16px 12px;
-          border: none;
-          border-radius: 12px;
-          cursor: pointer;
-          font-size: 13px;
-          font-weight: 600;
-        }
-        .mobile-action-btn.approve {
-          background: #dcfce7;
-          color: #166534;
-        }
-        .mobile-action-btn.review {
-          background: #dbeafe;
-          color: #1e40af;
-        }
-        .mobile-action-btn.deny {
-          background: #fee2e2;
-          color: #991b1b;
-        }
-        .mobile-action-btn:disabled {
-          opacity: 0.5;
-        }
-        
-        .mobile-source-footer {
-          display: flex;
-          justify-content: space-between;
-          padding: 16px;
-          margin-top: 16px;
-          font-size: 12px;
-          color: #9ca3af;
-        }
-        
-        .mobile-loading {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          height: 300px;
-        }
-        .mobile-spinner {
-          width: 40px;
-          height: 40px;
-          border: 3px solid #e5e7eb;
-          border-top-color: #275380;
-          border-radius: 50%;
-          animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
-        .mobile-empty-state {
-          text-align: center;
-          padding: 60px 20px;
-          color: #6b7280;
-        }
-      `}</style>
     </MobileLayout>
   );
 }
@@ -866,8 +421,9 @@ export default function ApplicationDetailPage() {
     <Suspense fallback={
       <MobileLayout title="Loading..." showBack>
         <div style={{ display: 'flex', justifyContent: 'center', padding: '60px' }}>
-          <div style={{ width: 40, height: 40, border: '3px solid #e5e7eb', borderTopColor: '#275380', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+          <div style={{ width: 32, height: 32, border: '3px solid #e5e7eb', borderTopColor: '#275380', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
         </div>
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </MobileLayout>
     }>
       <ApplicationDetailContent />
