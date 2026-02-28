@@ -11,7 +11,7 @@ Runs on PORT from environment (Railway) or 8080 locally.
 import os
 import json
 import base64
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from typing import Optional, List
 import uuid
@@ -671,6 +671,313 @@ async def scan_document(file: UploadFile = File(None), images: UploadFile = File
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Scan failed: {str(e)}")
+
+
+# ============================================================
+# Analytics Endpoints
+# ============================================================
+
+def get_date_range(period: str, start_date: Optional[str] = None, end_date: Optional[str] = None):
+    """Calculate date range based on period or custom dates."""
+    now = datetime.now(timezone.utc)
+    
+    if start_date and end_date:
+        return start_date, end_date
+    
+    if period == "week":
+        start = (now - timedelta(days=7)).isoformat()
+    elif period == "month":
+        start = (now - timedelta(days=30)).isoformat()
+    elif period == "quarter":
+        start = (now - timedelta(days=90)).isoformat()
+    else:
+        start = (now - timedelta(days=30)).isoformat()  # Default to month
+    
+    return start, now.isoformat()
+
+
+@app.get("/api/analytics/overview")
+async def analytics_overview(
+    period: str = "month",
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None
+):
+    """Get analytics overview KPIs."""
+    start, end = get_date_range(period, start_date, end_date)
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    # Get current period stats
+    cursor.execute("""
+        SELECT 
+            COUNT(*) as total_applications,
+            COUNT(*) FILTER (WHERE status = 'approved') as approved_count,
+            COUNT(*) FILTER (WHERE status = 'denied') as denied_count,
+            COUNT(*) FILTER (WHERE status = 'pending') as pending_count,
+            COUNT(*) FILTER (WHERE status = 'review') as review_count,
+            AVG(
+                CASE 
+                    WHEN status IN ('approved', 'denied') AND updated_at IS NOT NULL AND created_at IS NOT NULL
+                    THEN EXTRACT(EPOCH FROM (updated_at::timestamp - created_at::timestamp)) / 3600
+                    ELSE NULL 
+                END
+            ) as avg_time_to_decision
+        FROM optalis_applications
+        WHERE created_at >= %s AND created_at <= %s
+    """, (start, end))
+    
+    current = dict(cursor.fetchone())
+    
+    # Calculate conversion rate
+    total = current['total_applications'] or 0
+    approved = current['approved_count'] or 0
+    current['conversion_rate'] = round((approved / total * 100), 1) if total > 0 else 0
+    current['avg_time_to_decision'] = round(current['avg_time_to_decision'] or 0, 1)
+    
+    # Get previous period stats for comparison
+    period_days = {"week": 7, "month": 30, "quarter": 90}.get(period, 30)
+    prev_start = (datetime.fromisoformat(start.replace('Z', '+00:00')) - timedelta(days=period_days)).isoformat()
+    prev_end = start
+    
+    cursor.execute("""
+        SELECT 
+            COUNT(*) as total_applications,
+            COUNT(*) FILTER (WHERE status = 'approved') as approved_count
+        FROM optalis_applications
+        WHERE created_at >= %s AND created_at < %s
+    """, (prev_start, prev_end))
+    
+    previous = dict(cursor.fetchone())
+    prev_total = previous['total_applications'] or 0
+    prev_approved = previous['approved_count'] or 0
+    prev_conversion = round((prev_approved / prev_total * 100), 1) if prev_total > 0 else 0
+    
+    # Calculate changes
+    current['total_change'] = round(((total - prev_total) / prev_total * 100), 1) if prev_total > 0 else 0
+    current['conversion_change'] = round(current['conversion_rate'] - prev_conversion, 1)
+    
+    cursor.close()
+    conn.close()
+    
+    return current
+
+
+@app.get("/api/analytics/volume")
+async def analytics_volume(
+    period: str = "month",
+    granularity: str = "day"
+):
+    """Get application volume over time for charting."""
+    start, end = get_date_range(period)
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    if granularity == "week":
+        date_trunc = "week"
+    else:
+        date_trunc = "day"
+    
+    cursor.execute(f"""
+        SELECT 
+            DATE_TRUNC('{date_trunc}', created_at::timestamp) as date,
+            COUNT(*) as count,
+            COUNT(*) FILTER (WHERE status = 'approved') as approved,
+            COUNT(*) FILTER (WHERE status = 'denied') as denied,
+            COUNT(*) FILTER (WHERE status = 'pending') as pending
+        FROM optalis_applications
+        WHERE created_at >= %s AND created_at <= %s
+        GROUP BY DATE_TRUNC('{date_trunc}', created_at::timestamp)
+        ORDER BY date ASC
+    """, (start, end))
+    
+    rows = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    
+    result = []
+    for row in rows:
+        r = dict(row)
+        r['date'] = r['date'].isoformat() if r['date'] else None
+        result.append(r)
+    
+    return result
+
+
+@app.get("/api/analytics/referrals")
+async def analytics_referrals(
+    period: str = "month",
+    limit: int = 20
+):
+    """Get referral source breakdown."""
+    start, end = get_date_range(period)
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        SELECT 
+            COALESCE(source, 'Unknown') as source,
+            COALESCE(hospital, facility, 'Unknown') as hospital,
+            COUNT(*) as count,
+            COUNT(*) FILTER (WHERE status = 'approved') as approved,
+            COUNT(*) FILTER (WHERE status = 'denied') as denied
+        FROM optalis_applications
+        WHERE created_at >= %s AND created_at <= %s
+        GROUP BY COALESCE(source, 'Unknown'), COALESCE(hospital, facility, 'Unknown')
+        ORDER BY count DESC
+        LIMIT %s
+    """, (start, end, limit))
+    
+    rows = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    
+    result = []
+    for row in rows:
+        r = dict(row)
+        total = r['count'] or 0
+        approved = r['approved'] or 0
+        r['conversion_rate'] = round((approved / total * 100), 1) if total > 0 else 0
+        result.append(r)
+    
+    return result
+
+
+@app.get("/api/analytics/payer-mix")
+async def analytics_payer_mix(period: str = "month"):
+    """Get insurance/payer breakdown."""
+    start, end = get_date_range(period)
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        SELECT 
+            COALESCE(
+                CASE 
+                    WHEN LOWER(insurance) LIKE '%medicare%' THEN 'Medicare'
+                    WHEN LOWER(insurance) LIKE '%medicaid%' THEN 'Medicaid'
+                    WHEN LOWER(insurance) LIKE '%private%' OR LOWER(insurance) LIKE '%self%' THEN 'Private Pay'
+                    WHEN insurance IS NULL OR insurance = '' THEN 'Unknown'
+                    ELSE 'Commercial'
+                END,
+                'Unknown'
+            ) as payer,
+            COUNT(*) as count
+        FROM optalis_applications
+        WHERE created_at >= %s AND created_at <= %s
+        GROUP BY 1
+        ORDER BY count DESC
+    """, (start, end))
+    
+    rows = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    
+    total = sum(r['count'] for r in rows)
+    result = []
+    for row in rows:
+        r = dict(row)
+        r['percentage'] = round((r['count'] / total * 100), 1) if total > 0 else 0
+        result.append(r)
+    
+    return result
+
+
+@app.get("/api/analytics/response-time")
+async def analytics_response_time(period: str = "month"):
+    """Get time-to-decision distribution."""
+    start, end = get_date_range(period)
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        SELECT 
+            CASE 
+                WHEN hours < 2 THEN '<2hr'
+                WHEN hours < 4 THEN '2-4hr'
+                WHEN hours < 8 THEN '4-8hr'
+                WHEN hours < 24 THEN '8-24hr'
+                WHEN hours < 48 THEN '1-2d'
+                ELSE '>2d'
+            END as bucket,
+            COUNT(*) as count
+        FROM (
+            SELECT 
+                EXTRACT(EPOCH FROM (updated_at::timestamp - created_at::timestamp)) / 3600 as hours
+            FROM optalis_applications
+            WHERE status IN ('approved', 'denied')
+            AND created_at >= %s AND created_at <= %s
+            AND updated_at IS NOT NULL
+        ) sub
+        GROUP BY 1
+        ORDER BY 
+            CASE bucket
+                WHEN '<2hr' THEN 1
+                WHEN '2-4hr' THEN 2
+                WHEN '4-8hr' THEN 3
+                WHEN '8-24hr' THEN 4
+                WHEN '1-2d' THEN 5
+                ELSE 6
+            END
+    """, (start, end))
+    
+    rows = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    
+    # Ensure all buckets exist
+    buckets = ['<2hr', '2-4hr', '4-8hr', '8-24hr', '1-2d', '>2d']
+    result_map = {r['bucket']: r['count'] for r in rows}
+    
+    return [{'bucket': b, 'count': result_map.get(b, 0)} for b in buckets]
+
+
+@app.get("/api/analytics/locations")
+async def analytics_locations(period: str = "month"):
+    """Get per-facility/location statistics."""
+    start, end = get_date_range(period)
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        SELECT 
+            COALESCE(facility, 'Unknown') as location,
+            COUNT(*) as total,
+            COUNT(*) FILTER (WHERE status = 'approved') as approved,
+            COUNT(*) FILTER (WHERE status = 'denied') as denied,
+            COUNT(*) FILTER (WHERE status = 'pending') as pending,
+            AVG(
+                CASE 
+                    WHEN status IN ('approved', 'denied') AND updated_at IS NOT NULL
+                    THEN EXTRACT(EPOCH FROM (updated_at::timestamp - created_at::timestamp)) / 3600
+                    ELSE NULL 
+                END
+            ) as avg_response_time
+        FROM optalis_applications
+        WHERE created_at >= %s AND created_at <= %s
+        GROUP BY COALESCE(facility, 'Unknown')
+        ORDER BY total DESC
+    """, (start, end))
+    
+    rows = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    
+    result = []
+    for row in rows:
+        r = dict(row)
+        total = r['total'] or 0
+        approved = r['approved'] or 0
+        r['conversion_rate'] = round((approved / total * 100), 1) if total > 0 else 0
+        r['avg_response_time'] = round(r['avg_response_time'] or 0, 1)
+        result.append(r)
+    
+    return result
 
 
 # ============================================================
