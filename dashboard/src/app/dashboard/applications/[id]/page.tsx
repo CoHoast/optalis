@@ -45,29 +45,23 @@ const FIELD_GROUPS = {
     ]
   },
   clinical: {
-    title: 'Clinical Information',
+    title: 'Clinical & Medical',
     icon: '🏥',
     fields: [
       { key: 'diagnosis', label: 'Diagnosis', type: 'tags', span: 2 },
+      { key: 'medications', label: 'Current Medications', type: 'tags', span: 2 },
+      { key: 'allergies', label: 'Allergies', type: 'tags', span: 2 },
       { key: 'fall_risk', label: 'Fall Risk', type: 'toggle', span: 1 },
       { key: 'smoking_status', label: 'Smoking Status', type: 'select', options: ['Never', 'Former', 'Current'], span: 1 },
       { key: 'isolation', label: 'Isolation', type: 'text', span: 1 },
       { key: 'barrier_precautions', label: 'Enhanced Barrier Precautions', type: 'text', span: 1 },
-      { key: 'infection_prevention', label: 'Infection Prevention', type: 'textarea', span: 2 },
-    ]
-  },
-  medical: {
-    title: 'Medical Details',
-    icon: '💊',
-    fields: [
-      { key: 'medications', label: 'Current Medications', type: 'tags', span: 2 },
-      { key: 'allergies', label: 'Allergies', type: 'tags', span: 2 },
       { key: 'dme', label: 'Durable Medical Equipment', type: 'textarea', span: 2 },
       { key: 'diet', label: 'Diet', type: 'text', span: 1 },
       { key: 'height', label: 'Height', type: 'text', span: 1 },
       { key: 'weight', label: 'Weight', type: 'text', span: 1 },
       { key: 'iv_meds', label: 'IV Medications', type: 'textarea', span: 1 },
       { key: 'expensive_meds', label: 'Expensive Meds/Chemo', type: 'textarea', span: 2 },
+      { key: 'infection_prevention', label: 'Infection Prevention', type: 'textarea', span: 2 },
     ]
   },
   therapy: {

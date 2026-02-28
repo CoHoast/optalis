@@ -68,31 +68,24 @@ const SECTIONS = [
   },
   {
     id: 'clinical',
-    title: 'Clinical',
+    title: 'Clinical & Medical',
     icon: '🏥',
     color: '#dc2626',
     fields: [
       { key: 'diagnosis', label: 'Diagnosis', type: 'tags' },
+      { key: 'medications', label: 'Medications', type: 'tags' },
+      { key: 'allergies', label: 'Allergies', type: 'tags' },
       { key: 'fall_risk', label: 'Fall Risk', type: 'toggle' },
       { key: 'smoking_status', label: 'Smoking', type: 'select', options: ['Never', 'Former', 'Current'] },
       { key: 'isolation', label: 'Isolation', type: 'text' },
       { key: 'barrier_precautions', label: 'Barrier Precautions', type: 'text' },
-    ]
-  },
-  {
-    id: 'medical',
-    title: 'Medical',
-    icon: '💊',
-    color: '#0891b2',
-    fields: [
-      { key: 'medications', label: 'Medications', type: 'tags' },
-      { key: 'allergies', label: 'Allergies', type: 'tags' },
       { key: 'dme', label: 'DME', type: 'textarea' },
       { key: 'diet', label: 'Diet', type: 'text' },
       { key: 'height', label: 'Height', type: 'text' },
       { key: 'weight', label: 'Weight', type: 'text' },
       { key: 'iv_meds', label: 'IV Meds', type: 'textarea' },
       { key: 'expensive_meds', label: 'Expensive Meds', type: 'textarea' },
+      { key: 'infection_prevention', label: 'Infection Prevention', type: 'textarea' },
     ]
   },
   {
