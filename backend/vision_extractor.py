@@ -67,47 +67,73 @@ For each field, assess your confidence based on:
 
 Be conservative with confidence scores - only rate 95+ if the field is crystal clear."""
 
-EXTRACTION_PROMPT = """Analyze this healthcare document image and extract the following information.
+EXTRACTION_PROMPT = """Analyze this healthcare document image and extract ALL available information for a skilled nursing/post-acute care referral.
 
-Return a JSON object with these fields:
+Return a JSON object with these fields (extract as many as you can find):
+
 {
   "patient_name": {"value": string or null, "confidence": 0-100},
   "dob": {"value": string (MM/DD/YYYY) or null, "confidence": 0-100},
+  "sex": {"value": "Male"|"Female"|"Other" or null, "confidence": 0-100},
+  "ssn_last4": {"value": string (last 4 digits only) or null, "confidence": 0-100},
   "phone": {"value": string or null, "confidence": 0-100},
   "address": {"value": string or null, "confidence": 0-100},
+  
+  "referral_type": {"value": "New Referral"|"Return to Hospital" or null, "confidence": 0-100},
+  "hospital": {"value": string (hospital patient is currently at) or null, "confidence": 0-100},
+  "building": {"value": string (building/facility referral is for) or null, "confidence": 0-100},
+  "room_number": {"value": string or null, "confidence": 0-100},
+  "case_manager_name": {"value": string or null, "confidence": 0-100},
+  "case_manager_phone": {"value": string or null, "confidence": 0-100},
+  
   "insurance": {"value": string (provider name) or null, "confidence": 0-100},
   "policy_number": {"value": string or null, "confidence": 0-100},
+  "care_level": {"value": "SNF"|"LTC"|"AL"|"Hospice" or null, "confidence": 0-100},
+  
+  "date_admitted": {"value": string (MM/DD/YYYY) or null, "confidence": 0-100},
+  "inpatient_date": {"value": string (MM/DD/YYYY) or null, "confidence": 0-100},
+  "anticipated_discharge": {"value": string (MM/DD/YYYY) or null, "confidence": 0-100},
+  
   "diagnosis": {"value": [array of diagnosis strings] or [], "confidence": 0-100},
   "medications": {"value": [array of medication strings with dosages] or [], "confidence": 0-100},
   "allergies": {"value": [array of allergy strings] or [], "confidence": 0-100},
+  "fall_risk": {"value": true|false or null, "confidence": 0-100},
+  "smoking_status": {"value": "Never"|"Former"|"Current" or null, "confidence": 0-100},
+  "isolation": {"value": string (isolation requirements) or null, "confidence": 0-100},
+  "barrier_precautions": {"value": string (enhanced barrier precautions) or null, "confidence": 0-100},
+  
+  "dme": {"value": string (durable medical equipment needed) or null, "confidence": 0-100},
+  "diet": {"value": string (dietary requirements) or null, "confidence": 0-100},
+  "height": {"value": string or null, "confidence": 0-100},
+  "weight": {"value": string or null, "confidence": 0-100},
+  "iv_meds": {"value": string (IV medications if any) or null, "confidence": 0-100},
+  "expensive_meds": {"value": string (expensive/carve-out/chemo meds) or null, "confidence": 0-100},
+  "infection_prevention": {"value": string or null, "confidence": 0-100},
+  
   "physician": {"value": string (referring physician) or null, "confidence": 0-100},
   "facility": {"value": string or "Optalis Healthcare", "confidence": 0-100},
-  "services": {"value": [array like "Skilled Nursing", "Physical Therapy"] or [], "confidence": 0-100},
+  "services": {"value": [array like "Skilled Nursing", "Physical Therapy", "Occupational Therapy"] or [], "confidence": 0-100},
+  
+  "therapy_prior_level": {"value": string (prior level of function - living situation, stairs, assistance needed) or null, "confidence": 0-100},
+  "therapy_bed_mobility": {"value": string (current bed mobility status) or null, "confidence": 0-100},
+  "therapy_transfers": {"value": string (current transfer status) or null, "confidence": 0-100},
+  "therapy_gait": {"value": string (current gait/ambulation status) or null, "confidence": 0-100},
+  
+  "clinical_summary": {"value": string (detailed clinical summary of current condition and history) or null, "confidence": 0-100},
   "priority": {"value": "high"|"medium"|"normal", "confidence": 0-100},
-  "ai_summary": string (2-3 sentence clinical summary for admissions review),
+  "ai_summary": string (2-3 sentence summary for quick admissions review),
   "overall_confidence": number (0-100, weighted average of field confidences),
-  "extraction_notes": string (any issues, unclear areas, or fields that need human review),
-  "extra_data": {
-    "emergency_contact": string or null (name and phone if present),
-    "secondary_insurance": string or null,
-    "admission_date": string or null,
-    "discharge_date": string or null,
-    "social_security": string or null (last 4 digits only for security),
-    "gender": string or null,
-    "marital_status": string or null,
-    "care_level": string or null (e.g., "skilled nursing", "assisted living"),
-    "special_requirements": [array of strings] or [],
-    "other": {} (any other relevant information found)
-  }
+  "extraction_notes": string (any issues, unclear areas, or fields needing human review)
 }
 
-Important:
+Important Instructions:
 - Look carefully at checkboxes - checked vs unchecked
-- Read handwritten text carefully
+- Read handwritten text carefully, even if messy
 - Note any stamps, signatures, or dates
+- For Fall Risk, look for checkboxes or yes/no indicators
 - If a field is illegible, set confidence to 0-50 and note in extraction_notes
-- Capture ANY additional relevant information in extra_data
-- Return ONLY valid JSON, no markdown formatting"""
+- Extract EVERYTHING you can find - this is for post-acute care admissions
+- Return ONLY valid JSON, no markdown formatting or code blocks"""
 
 
 TURBO_VERIFICATION_PROMPT = """You are verifying a healthcare document extraction that had low confidence.
@@ -483,18 +509,53 @@ def _parse_json_response(text: str) -> Dict[str, Any]:
 def _empty_extraction(error: str = "") -> Dict[str, Any]:
     """Return empty extraction structure."""
     return {
+        # Patient Info
         "patient_name": {"value": None, "confidence": 0},
         "dob": {"value": None, "confidence": 0},
+        "sex": {"value": None, "confidence": 0},
+        "ssn_last4": {"value": None, "confidence": 0},
         "phone": {"value": None, "confidence": 0},
         "address": {"value": None, "confidence": 0},
+        # Referral Info
+        "referral_type": {"value": None, "confidence": 0},
+        "hospital": {"value": None, "confidence": 0},
+        "building": {"value": None, "confidence": 0},
+        "room_number": {"value": None, "confidence": 0},
+        "case_manager_name": {"value": None, "confidence": 0},
+        "case_manager_phone": {"value": None, "confidence": 0},
+        # Insurance & Dates
         "insurance": {"value": None, "confidence": 0},
         "policy_number": {"value": None, "confidence": 0},
+        "care_level": {"value": None, "confidence": 0},
+        "date_admitted": {"value": None, "confidence": 0},
+        "inpatient_date": {"value": None, "confidence": 0},
+        "anticipated_discharge": {"value": None, "confidence": 0},
+        # Clinical Info
         "diagnosis": {"value": [], "confidence": 0},
         "medications": {"value": [], "confidence": 0},
         "allergies": {"value": [], "confidence": 0},
+        "fall_risk": {"value": None, "confidence": 0},
+        "smoking_status": {"value": None, "confidence": 0},
+        "isolation": {"value": None, "confidence": 0},
+        "barrier_precautions": {"value": None, "confidence": 0},
+        # Medical Details
+        "dme": {"value": None, "confidence": 0},
+        "diet": {"value": None, "confidence": 0},
+        "height": {"value": None, "confidence": 0},
+        "weight": {"value": None, "confidence": 0},
+        "iv_meds": {"value": None, "confidence": 0},
+        "expensive_meds": {"value": None, "confidence": 0},
+        "infection_prevention": {"value": None, "confidence": 0},
+        # Therapy
+        "therapy_prior_level": {"value": None, "confidence": 0},
+        "therapy_bed_mobility": {"value": None, "confidence": 0},
+        "therapy_transfers": {"value": None, "confidence": 0},
+        "therapy_gait": {"value": None, "confidence": 0},
+        "services": {"value": [], "confidence": 0},
+        # Summary
         "physician": {"value": None, "confidence": 0},
         "facility": {"value": "Optalis Healthcare", "confidence": 50},
-        "services": {"value": [], "confidence": 0},
+        "clinical_summary": {"value": None, "confidence": 0},
         "priority": {"value": "normal", "confidence": 50},
         "ai_summary": "Unable to extract document information.",
         "overall_confidence": 0,
@@ -513,9 +574,24 @@ def flatten_extraction(result: Dict[str, Any]) -> Dict[str, Any]:
     
     # Fields with value/confidence structure
     value_fields = [
-        "patient_name", "dob", "phone", "address", "insurance", 
-        "policy_number", "diagnosis", "medications", "allergies",
-        "physician", "facility", "services", "priority"
+        # Patient Info
+        "patient_name", "dob", "sex", "ssn_last4", "phone", "address",
+        # Referral Info
+        "referral_type", "hospital", "building", "room_number", 
+        "case_manager_name", "case_manager_phone",
+        # Insurance & Dates
+        "insurance", "policy_number", "care_level",
+        "date_admitted", "inpatient_date", "anticipated_discharge",
+        # Clinical Info
+        "diagnosis", "medications", "allergies", "fall_risk", "smoking_status",
+        "isolation", "barrier_precautions",
+        # Medical Details
+        "dme", "diet", "height", "weight", "iv_meds", "expensive_meds", "infection_prevention",
+        # Therapy
+        "therapy_prior_level", "therapy_bed_mobility", "therapy_transfers", "therapy_gait",
+        "services",
+        # Summary
+        "physician", "facility", "clinical_summary", "priority"
     ]
     
     for field in value_fields:

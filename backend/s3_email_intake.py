@@ -423,20 +423,64 @@ def create_application(email_data: Dict, extracted: Dict, s3_key: str) -> str:
         "priority": extracted.get("priority", "normal"),
         "source": "Email (S3 Intake)",
         "source_email": email_data.get("from_email", ""),
+        
+        # Patient Info
         "patient_name": extracted.get("patient_name"),
         "dob": extracted.get("dob"),
+        "sex": extracted.get("sex"),
+        "ssn_last4": extracted.get("ssn_last4"),
         "phone": extracted.get("phone"),
         "address": extracted.get("address"),
+        
+        # Referral Info
+        "referral_type": extracted.get("referral_type"),
+        "hospital": extracted.get("hospital"),
+        "building": extracted.get("building"),
+        "room_number": extracted.get("room_number"),
+        "case_manager_name": extracted.get("case_manager_name"),
+        "case_manager_phone": extracted.get("case_manager_phone"),
+        
+        # Insurance & Dates
         "insurance": extracted.get("insurance"),
         "policy_number": extracted.get("policy_number"),
+        "care_level": extracted.get("care_level"),
+        "date_admitted": extracted.get("date_admitted"),
+        "inpatient_date": extracted.get("inpatient_date"),
+        "anticipated_discharge": extracted.get("anticipated_discharge"),
+        
+        # Clinical Info
         "diagnosis": extracted.get("diagnosis", []),
         "medications": extracted.get("medications", []),
         "allergies": extracted.get("allergies", []),
+        "fall_risk": extracted.get("fall_risk"),
+        "smoking_status": extracted.get("smoking_status"),
+        "isolation": extracted.get("isolation"),
+        "barrier_precautions": extracted.get("barrier_precautions"),
+        
+        # Medical Details
+        "dme": extracted.get("dme"),
+        "diet": extracted.get("diet"),
+        "height": extracted.get("height"),
+        "weight": extracted.get("weight"),
+        "iv_meds": extracted.get("iv_meds"),
+        "expensive_meds": extracted.get("expensive_meds"),
+        "infection_prevention": extracted.get("infection_prevention"),
+        
+        # Therapy
+        "therapy_prior_level": extracted.get("therapy_prior_level"),
+        "therapy_bed_mobility": extracted.get("therapy_bed_mobility"),
+        "therapy_transfers": extracted.get("therapy_transfers"),
+        "therapy_gait": extracted.get("therapy_gait"),
+        "services": extracted.get("services", []),
+        
+        # Summary
         "physician": extracted.get("physician"),
         "facility": extracted.get("facility"),
-        "services": extracted.get("services", []),
+        "clinical_summary": extracted.get("clinical_summary"),
         "ai_summary": extracted.get("ai_summary"),
         "confidence_score": extracted.get("confidence_score", 0),
+        
+        # Meta
         "raw_text": email_data.get("body", "")[:5000],
         "raw_email_subject": email_data.get("subject", ""),
         "s3_key": s3_key,
