@@ -17,7 +17,7 @@ from email.parser import BytesParser
 import time
 import base64
 import tempfile
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 import argparse
 from typing import Optional, Dict, List, Any
@@ -403,7 +403,7 @@ def create_application(email_data: Dict, extracted: Dict, s3_key: str) -> str:
     import requests
     
     app_id = generate_application_id()
-    now = datetime.now().isoformat()
+    now = datetime.now(timezone.utc).isoformat()
     
     payload = {
         "id": app_id,

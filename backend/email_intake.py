@@ -28,7 +28,7 @@ from email.header import decode_header
 import time
 import base64
 import tempfile
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 import sqlite3
 import argparse
@@ -302,7 +302,7 @@ def mark_email_processed(message_id: str):
     cursor = conn.cursor()
     cursor.execute(
         "INSERT OR REPLACE INTO processed_emails (message_id, processed_at) VALUES (?, ?)",
-        (message_id, datetime.now().isoformat())
+        (message_id, datetime.now(timezone.utc).isoformat())
     )
     conn.commit()
     conn.close()
@@ -462,7 +462,7 @@ def create_application(email_data: Dict, extracted: Dict) -> str:
     import requests
     
     app_id = generate_application_id()
-    now = datetime.now().isoformat()
+    now = datetime.now(timezone.utc).isoformat()
     
     # Post to Railway API
     api_url = "https://optalis-api-production.up.railway.app/api/applications"
@@ -749,7 +749,7 @@ def run_test():
         "message_id": f"test-{datetime.now().timestamp()}",
         "subject": "Patient Referral - Eleanor Mitchell",
         "from": "dr.wilson@beaumonthealth.com",
-        "date": datetime.now().isoformat(),
+        "date": datetime.now(timezone.utc).isoformat(),
         "body": """
 From: Dr. Sarah Wilson
 Beaumont Health System
