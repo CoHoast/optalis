@@ -167,51 +167,18 @@ function ApplicationsContent() {
     review: applications.filter(a => a.status === 'review').length,
   };
 
-  // Sortable header component
-  const SortHeader = ({ field, label, width, align = 'center' }: { 
-    field: SortField; 
-    label: string; 
-    width: string;
-    align?: 'left' | 'center' | 'right';
-  }) => {
+  // Sort indicator arrows
+  const SortArrows = ({ field }: { field: SortField }) => {
     const isActive = sortField === field;
     return (
-      <div 
-        onClick={() => handleSort(field)}
-        style={{ 
-          width, 
-          textAlign: align,
-          cursor: 'pointer',
-          userSelect: 'none',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: align === 'left' ? 'flex-start' : align === 'right' ? 'flex-end' : 'center',
-          gap: '4px',
-          color: isActive ? '#275380' : '#6b7280',
-          fontWeight: isActive ? 700 : 600,
-        }}
-      >
-        {label}
-        <span style={{ display: 'flex', flexDirection: 'column', lineHeight: 0 }}>
-          <svg 
-            width="8" 
-            height="8" 
-            viewBox="0 0 8 8" 
-            fill={isActive && sortDirection === 'asc' ? '#275380' : '#d1d5db'}
-          >
-            <path d="M4 0L8 4H0L4 0Z" />
-          </svg>
-          <svg 
-            width="8" 
-            height="8" 
-            viewBox="0 0 8 8" 
-            fill={isActive && sortDirection === 'desc' ? '#275380' : '#d1d5db'}
-            style={{ marginTop: '1px' }}
-          >
-            <path d="M4 8L0 4H8L4 8Z" />
-          </svg>
-        </span>
-      </div>
+      <span style={{ display: 'inline-flex', flexDirection: 'column', marginLeft: '4px', lineHeight: 0 }}>
+        <svg width="8" height="6" viewBox="0 0 8 6" fill={isActive && sortDirection === 'asc' ? '#275380' : '#d1d5db'}>
+          <path d="M4 0L8 6H0L4 0Z" />
+        </svg>
+        <svg width="8" height="6" viewBox="0 0 8 6" fill={isActive && sortDirection === 'desc' ? '#275380' : '#d1d5db'} style={{ marginTop: '2px' }}>
+          <path d="M4 6L0 0H8L4 6Z" />
+        </svg>
+      </span>
     );
   };
 
@@ -300,12 +267,83 @@ function ApplicationsContent() {
           letterSpacing: '0.05em',
           color: '#6b7280'
         }}>
+          {/* Avatar spacer */}
           <div style={{ width: '48px', marginRight: '16px' }}></div>
-          <SortHeader field="patient_name" label="Patient / Facility" width="flex: 1" align="left" />
-          <SortHeader field="priority" label="Priority" width="80px" />
-          <SortHeader field="status" label="Status" width="120px" />
+          
+          {/* Patient / Facility - flex: 1 */}
+          <div 
+            onClick={() => handleSort('patient_name')}
+            style={{ 
+              flex: 1,
+              cursor: 'pointer',
+              userSelect: 'none',
+              display: 'flex',
+              alignItems: 'center',
+              color: sortField === 'patient_name' ? '#275380' : '#6b7280',
+            }}
+          >
+            Patient / Facility
+            <SortArrows field="patient_name" />
+          </div>
+          
+          {/* Priority - 80px */}
+          <div 
+            onClick={() => handleSort('priority')}
+            style={{ 
+              width: '80px',
+              textAlign: 'center',
+              cursor: 'pointer',
+              userSelect: 'none',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: sortField === 'priority' ? '#275380' : '#6b7280',
+            }}
+          >
+            Priority
+            <SortArrows field="priority" />
+          </div>
+          
+          {/* Status - 120px */}
+          <div 
+            onClick={() => handleSort('status')}
+            style={{ 
+              width: '120px',
+              textAlign: 'center',
+              cursor: 'pointer',
+              userSelect: 'none',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: sortField === 'status' ? '#275380' : '#6b7280',
+            }}
+          >
+            Status
+            <SortArrows field="status" />
+          </div>
+          
+          {/* Auto-Delete - 100px (not sortable) */}
           <div style={{ width: '100px', textAlign: 'center' }}>Auto-Delete</div>
-          <SortHeader field="date" label="Date" width="100px" align="right" />
+          
+          {/* Date - 100px */}
+          <div 
+            onClick={() => handleSort('date')}
+            style={{ 
+              width: '100px',
+              textAlign: 'right',
+              cursor: 'pointer',
+              userSelect: 'none',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'flex-end',
+              color: sortField === 'date' ? '#275380' : '#6b7280',
+            }}
+          >
+            Date
+            <SortArrows field="date" />
+          </div>
+          
+          {/* Source - 120px (not sortable) */}
           <div style={{ width: '120px', textAlign: 'left', paddingLeft: '16px' }}>Source</div>
         </div>
 
