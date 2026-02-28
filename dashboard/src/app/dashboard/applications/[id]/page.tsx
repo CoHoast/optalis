@@ -1237,80 +1237,178 @@ export default function ApplicationDetailPage() {
             </div>
 
             {/* Document Content */}
-            <div style={{ flex: 1, overflow: 'auto', padding: '24px' }}>
+            <div style={{ flex: 1, overflow: 'auto', padding: '24px', background: docViewTab === 'original' ? '#faf9f7' : '#f8fafc' }}>
               {docLoading ? (
                 <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>Loading document...</div>
               ) : docViewTab === 'original' ? (
-                <div>
+                /* ORIGINAL DOCUMENT TAB */
+                <div style={{ maxWidth: '800px', margin: '0 auto' }}>
                   {docContent.original ? (
-                    <div style={{ fontFamily: 'system-ui, sans-serif' }}>
-                      <div style={{ marginBottom: '20px', padding: '16px', background: '#f5f5f5', borderRadius: '8px' }}>
-                        <div style={{ marginBottom: '8px' }}><strong>Subject:</strong> {docContent.original.subject || 'N/A'}</div>
-                        <div style={{ marginBottom: '8px' }}><strong>From:</strong> {docContent.original.from || 'N/A'}</div>
-                        <div><strong>Received:</strong> {docContent.original.received_at ? new Date(docContent.original.received_at).toLocaleString() : 'N/A'}</div>
+                    <div style={{ background: 'white', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', overflow: 'hidden' }}>
+                      {/* Email Header */}
+                      <div style={{ padding: '20px 24px', borderBottom: '1px solid #eee', background: '#fafafa' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+                          <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#275380', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 600 }}>
+                            {(docContent.original.from || 'U')[0].toUpperCase()}
+                          </div>
+                          <div>
+                            <div style={{ fontWeight: 600, color: '#333' }}>{docContent.original.from || 'Unknown Sender'}</div>
+                            <div style={{ fontSize: '13px', color: '#666' }}>
+                              {docContent.original.received_at ? new Date(docContent.original.received_at).toLocaleString() : ''}
+                            </div>
+                          </div>
+                        </div>
+                        <div style={{ fontSize: '18px', fontWeight: 600, color: '#275380' }}>
+                          {docContent.original.subject || 'No Subject'}
+                        </div>
                       </div>
-                      <div style={{ padding: '20px', background: 'white', border: '1px solid #e0e0e0', borderRadius: '8px' }}>
-                        <h4 style={{ marginBottom: '12px', color: '#333' }}>Email Body:</h4>
-                        <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit', fontSize: '14px', lineHeight: '1.6', margin: 0 }}>
-                          {docContent.original.body || 'No content available'}
-                        </pre>
+                      {/* Email Body */}
+                      <div style={{ padding: '24px', fontSize: '15px', lineHeight: '1.7', color: '#333' }}>
+                        {(docContent.original.body || 'No content').split('\n').map((line: string, i: number) => (
+                          <p key={i} style={{ margin: '0 0 8px 0' }}>{line || '\u00A0'}</p>
+                        ))}
                       </div>
                     </div>
                   ) : (
-                    <div style={{ textAlign: 'center', color: '#666', padding: '40px' }}>
-                      No original document available
+                    <div style={{ textAlign: 'center', color: '#666', padding: '60px', background: 'white', borderRadius: '12px' }}>
+                      <svg width="48" height="48" fill="none" stroke="#ccc" strokeWidth="1.5" viewBox="0 0 24 24" style={{ marginBottom: '16px' }}>
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+                      </svg>
+                      <div>No original document available</div>
                     </div>
                   )}
                 </div>
               ) : (
-                <div>
+                /* EXTRACTED DATA TAB - Branded Optalis Style */
+                <div style={{ maxWidth: '900px', margin: '0 auto' }}>
                   {docContent.extracted ? (
-                    <div style={{ display: 'grid', gap: '16px' }}>
-                      <div style={{ padding: '16px', background: '#f0f9ff', borderRadius: '8px', border: '1px solid #bae6fd' }}>
-                        <h4 style={{ marginBottom: '8px', color: '#0369a1' }}>AI Summary</h4>
-                        <p style={{ margin: 0, lineHeight: '1.6' }}>{docContent.extracted.ai_summary || 'No summary available'}</p>
-                        <div style={{ marginTop: '8px', fontSize: '13px', color: '#666' }}>
-                          Confidence: {docContent.extracted.confidence_score || 0}%
+                    <div>
+                      {/* AI Confidence Banner */}
+                      <div style={{ 
+                        background: 'linear-gradient(135deg, #275380 0%, #1e4060 100%)', 
+                        borderRadius: '12px', 
+                        padding: '20px 24px', 
+                        marginBottom: '20px',
+                        color: 'white',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center'
+                      }}>
+                        <div>
+                          <div style={{ fontSize: '13px', opacity: 0.9, marginBottom: '4px' }}>AI Extraction Confidence</div>
+                          <div style={{ fontSize: '28px', fontWeight: 700 }}>{docContent.extracted.confidence_score || 0}%</div>
+                        </div>
+                        <div style={{ 
+                          background: 'rgba(255,255,255,0.2)', 
+                          padding: '8px 16px', 
+                          borderRadius: '20px',
+                          fontSize: '13px',
+                          fontWeight: 500
+                        }}>
+                          ✓ Verified by AI
                         </div>
                       </div>
+
+                      {/* AI Summary Card */}
+                      {docContent.extracted.ai_summary && (
+                        <div style={{ 
+                          background: 'white', 
+                          borderRadius: '12px', 
+                          padding: '20px 24px', 
+                          marginBottom: '20px',
+                          border: '1px solid #e5e7eb',
+                          boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+                        }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                            <svg width="20" height="20" fill="none" stroke="#275380" strokeWidth="2" viewBox="0 0 24 24">
+                              <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"/>
+                              <path d="M12 6v6l4 2"/>
+                            </svg>
+                            <span style={{ fontWeight: 600, color: '#275380' }}>AI Summary</span>
+                          </div>
+                          <p style={{ margin: 0, lineHeight: '1.7', color: '#4a5568' }}>{docContent.extracted.ai_summary}</p>
+                        </div>
+                      )}
+
+                      {/* Data Cards Grid */}
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
-                        <div style={{ padding: '16px', background: '#f9fafb', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
-                          <h4 style={{ marginBottom: '12px', fontSize: '14px', color: '#374151' }}>Patient Information</h4>
-                          <div style={{ fontSize: '14px', lineHeight: '1.8' }}>
-                            <div><strong>Name:</strong> {docContent.extracted.patient_name || 'N/A'}</div>
-                            <div><strong>DOB:</strong> {docContent.extracted.dob || 'N/A'}</div>
-                            <div><strong>Phone:</strong> {docContent.extracted.phone || 'N/A'}</div>
-                            <div><strong>Address:</strong> {docContent.extracted.address || 'N/A'}</div>
+                        {/* Patient Info Card */}
+                        <div style={{ background: 'white', borderRadius: '12px', padding: '20px', border: '1px solid #e5e7eb' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px', paddingBottom: '12px', borderBottom: '2px solid #275380' }}>
+                            <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: '#e8f0f7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              <svg width="18" height="18" fill="none" stroke="#275380" strokeWidth="2" viewBox="0 0 24 24">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                              </svg>
+                            </div>
+                            <span style={{ fontWeight: 600, color: '#275380' }}>Patient Information</span>
+                          </div>
+                          <div style={{ display: 'grid', gap: '10px', fontSize: '14px' }}>
+                            <div><span style={{ color: '#6b7280' }}>Name:</span> <strong>{docContent.extracted.patient_name || '—'}</strong></div>
+                            <div><span style={{ color: '#6b7280' }}>DOB:</span> <strong>{docContent.extracted.dob || '—'}</strong></div>
+                            <div><span style={{ color: '#6b7280' }}>Phone:</span> <strong>{docContent.extracted.phone || '—'}</strong></div>
+                            <div><span style={{ color: '#6b7280' }}>Address:</span> <strong>{docContent.extracted.address || '—'}</strong></div>
                           </div>
                         </div>
-                        <div style={{ padding: '16px', background: '#f9fafb', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
-                          <h4 style={{ marginBottom: '12px', fontSize: '14px', color: '#374151' }}>Insurance</h4>
-                          <div style={{ fontSize: '14px', lineHeight: '1.8' }}>
-                            <div><strong>Provider:</strong> {docContent.extracted.insurance || 'N/A'}</div>
-                            <div><strong>Policy #:</strong> {docContent.extracted.policy_number || 'N/A'}</div>
+
+                        {/* Insurance Card */}
+                        <div style={{ background: 'white', borderRadius: '12px', padding: '20px', border: '1px solid #e5e7eb' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px', paddingBottom: '12px', borderBottom: '2px solid #16a34a' }}>
+                            <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: '#dcfce7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              <svg width="18" height="18" fill="none" stroke="#16a34a" strokeWidth="2" viewBox="0 0 24 24">
+                                <rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>
+                              </svg>
+                            </div>
+                            <span style={{ fontWeight: 600, color: '#16a34a' }}>Insurance</span>
+                          </div>
+                          <div style={{ display: 'grid', gap: '10px', fontSize: '14px' }}>
+                            <div><span style={{ color: '#6b7280' }}>Provider:</span> <strong>{docContent.extracted.insurance || '—'}</strong></div>
+                            <div><span style={{ color: '#6b7280' }}>Policy #:</span> <strong>{docContent.extracted.policy_number || '—'}</strong></div>
                           </div>
                         </div>
-                        <div style={{ padding: '16px', background: '#f9fafb', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
-                          <h4 style={{ marginBottom: '12px', fontSize: '14px', color: '#374151' }}>Medical</h4>
-                          <div style={{ fontSize: '14px', lineHeight: '1.8' }}>
-                            <div><strong>Physician:</strong> {docContent.extracted.physician || 'N/A'}</div>
-                            <div><strong>Facility:</strong> {docContent.extracted.facility || 'N/A'}</div>
-                            <div><strong>Diagnosis:</strong> {Array.isArray(docContent.extracted.diagnosis) ? docContent.extracted.diagnosis.join(', ') : docContent.extracted.diagnosis || 'N/A'}</div>
+
+                        {/* Medical Card */}
+                        <div style={{ background: 'white', borderRadius: '12px', padding: '20px', border: '1px solid #e5e7eb' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px', paddingBottom: '12px', borderBottom: '2px solid #dc2626' }}>
+                            <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: '#fee2e2', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              <svg width="18" height="18" fill="none" stroke="#dc2626" strokeWidth="2" viewBox="0 0 24 24">
+                                <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                              </svg>
+                            </div>
+                            <span style={{ fontWeight: 600, color: '#dc2626' }}>Medical Information</span>
+                          </div>
+                          <div style={{ display: 'grid', gap: '10px', fontSize: '14px' }}>
+                            <div><span style={{ color: '#6b7280' }}>Physician:</span> <strong>{docContent.extracted.physician || '—'}</strong></div>
+                            <div><span style={{ color: '#6b7280' }}>Facility:</span> <strong>{docContent.extracted.facility || '—'}</strong></div>
+                            <div><span style={{ color: '#6b7280' }}>Diagnosis:</span> <strong>{Array.isArray(docContent.extracted.diagnosis) ? docContent.extracted.diagnosis.join(', ') : docContent.extracted.diagnosis || '—'}</strong></div>
+                            <div><span style={{ color: '#6b7280' }}>Allergies:</span> <strong style={{ color: docContent.extracted.allergies?.length ? '#dc2626' : 'inherit' }}>{Array.isArray(docContent.extracted.allergies) ? docContent.extracted.allergies.join(', ') : docContent.extracted.allergies || 'None reported'}</strong></div>
                           </div>
                         </div>
-                        <div style={{ padding: '16px', background: '#f9fafb', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
-                          <h4 style={{ marginBottom: '12px', fontSize: '14px', color: '#374151' }}>Services & Meds</h4>
-                          <div style={{ fontSize: '14px', lineHeight: '1.8' }}>
-                            <div><strong>Services:</strong> {Array.isArray(docContent.extracted.services) ? docContent.extracted.services.join(', ') : docContent.extracted.services || 'N/A'}</div>
-                            <div><strong>Medications:</strong> {Array.isArray(docContent.extracted.medications) ? docContent.extracted.medications.join(', ') : docContent.extracted.medications || 'N/A'}</div>
-                            <div><strong>Allergies:</strong> {Array.isArray(docContent.extracted.allergies) ? docContent.extracted.allergies.join(', ') : docContent.extracted.allergies || 'N/A'}</div>
+
+                        {/* Services Card */}
+                        <div style={{ background: 'white', borderRadius: '12px', padding: '20px', border: '1px solid #e5e7eb' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px', paddingBottom: '12px', borderBottom: '2px solid #7c3aed' }}>
+                            <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: '#ede9fe', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              <svg width="18" height="18" fill="none" stroke="#7c3aed" strokeWidth="2" viewBox="0 0 24 24">
+                                <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
+                                <rect x="9" y="3" width="6" height="4" rx="1"/>
+                                <path d="M9 12h6m-6 4h6"/>
+                              </svg>
+                            </div>
+                            <span style={{ fontWeight: 600, color: '#7c3aed' }}>Services & Medications</span>
+                          </div>
+                          <div style={{ display: 'grid', gap: '10px', fontSize: '14px' }}>
+                            <div><span style={{ color: '#6b7280' }}>Services:</span> <strong>{Array.isArray(docContent.extracted.services) ? docContent.extracted.services.join(', ') : docContent.extracted.services || '—'}</strong></div>
+                            <div><span style={{ color: '#6b7280' }}>Medications:</span> <strong>{Array.isArray(docContent.extracted.medications) ? docContent.extracted.medications.join(', ') : docContent.extracted.medications || '—'}</strong></div>
                           </div>
                         </div>
                       </div>
                     </div>
                   ) : (
-                    <div style={{ textAlign: 'center', color: '#666', padding: '40px' }}>
-                      No extracted data available
+                    <div style={{ textAlign: 'center', color: '#666', padding: '60px', background: 'white', borderRadius: '12px' }}>
+                      <svg width="48" height="48" fill="none" stroke="#ccc" strokeWidth="1.5" viewBox="0 0 24 24" style={{ marginBottom: '16px' }}>
+                        <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                      </svg>
+                      <div>No extracted data available</div>
                     </div>
                   )}
                 </div>
