@@ -302,7 +302,7 @@ function ApplicationDetailContent() {
     <MobileLayout title="Application" showBack>
       {/* Sticky Top Action Bar */}
       <div style={{ 
-        position: 'sticky', top: 0, zIndex: 50,
+        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50,
         padding: '12px 16px', background: 'white', 
         borderBottom: '1px solid #e5e7eb',
         display: 'flex', gap: '10px'
@@ -325,7 +325,7 @@ function ApplicationDetailContent() {
         )}
       </div>
 
-      <div style={{ padding: '16px', paddingBottom: '180px' }}>
+      <div style={{ padding: '16px', paddingTop: '70px', paddingBottom: '180px' }}>
         
         {/* Success Banner */}
         {showNewBanner && (
@@ -408,8 +408,8 @@ function ApplicationDetailContent() {
       {/* Sticky Bottom Actions */}
       {!isEditing && (
         <div style={{ 
-          position: 'fixed', bottom: 70, left: 0, right: 0, zIndex: 50,
-          padding: '12px 16px', background: 'white', 
+          position: 'fixed', bottom: 90, left: 0, right: 0, zIndex: 50,
+          padding: '14px 16px', background: 'white', 
           borderTop: '1px solid #e5e7eb',
           boxShadow: '0 -2px 10px rgba(0,0,0,0.1)',
           display: 'flex', gap: '10px'
