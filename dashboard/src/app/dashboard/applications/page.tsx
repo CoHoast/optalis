@@ -18,22 +18,23 @@ interface Application {
   priority: string;
   source: string;
   created_at: string;
-  decided_at?: string; // When approved/denied
+  decided_at?: string;
 }
+
+type SortField = 'date' | 'priority' | 'status' | 'patient_name';
+type SortDirection = 'asc' | 'desc';
 
 // Calculate days remaining before auto-delete
 function getDaysRemaining(app: Application): number {
   const now = new Date();
   
   if (app.status === 'approved' || app.status === 'denied') {
-    // For processed apps, count from decision date (or created_at if no decided_at)
     const decisionDate = app.decided_at ? new Date(app.decided_at) : new Date(app.created_at);
     const deleteDate = new Date(decisionDate);
     deleteDate.setDate(deleteDate.getDate() + PROCESSED_RETENTION_DAYS);
     const diffTime = deleteDate.getTime() - now.getTime();
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   } else {
-    // For pending/review, count from creation
     const createdDate = new Date(app.created_at);
     const deleteDate = new Date(createdDate);
     deleteDate.setDate(deleteDate.getDate() + PENDING_RETENTION_DAYS);
@@ -45,18 +46,33 @@ function getDaysRemaining(app: Application): number {
 // Get color for days remaining
 function getRetentionColor(days: number, status: string): { bg: string; text: string } {
   if (status === 'approved' || status === 'denied') {
-    // Processed apps always show muted
     return { bg: '#f3f4f6', text: '#6b7280' };
   }
   
   if (days >= 21) {
-    return { bg: '#dcfce7', text: '#166534' }; // Green
+    return { bg: '#dcfce7', text: '#166534' };
   } else if (days >= 10) {
-    return { bg: '#fef3c7', text: '#92400e' }; // Orange
+    return { bg: '#fef3c7', text: '#92400e' };
   } else {
-    return { bg: '#fee2e2', text: '#991b1b' }; // Red
+    return { bg: '#fee2e2', text: '#991b1b' };
   }
 }
+
+// Priority sort order
+const priorityOrder: { [key: string]: number } = {
+  'high': 1,
+  'urgent': 1,
+  'normal': 2,
+  'low': 3,
+};
+
+// Status sort order
+const statusOrder: { [key: string]: number } = {
+  'pending': 1,
+  'review': 2,
+  'approved': 3,
+  'denied': 4,
+};
 
 function ApplicationsContent() {
   const searchParams = useSearchParams();
@@ -64,6 +80,8 @@ function ApplicationsContent() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
+  const [sortField, setSortField] = useState<SortField>('date');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
 
   // Read status filter from URL params on mount
   useEffect(() => {
@@ -95,11 +113,50 @@ function ApplicationsContent() {
     return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
   };
 
+  // Handle sort click
+  const handleSort = (field: SortField) => {
+    if (sortField === field) {
+      // Toggle direction if same field
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      // New field, default to desc for date, asc for others
+      setSortField(field);
+      setSortDirection(field === 'date' ? 'desc' : 'asc');
+    }
+  };
+
+  // Filter applications
   const filteredApps = applications.filter(app => {
     const matchesFilter = filter === 'all' || app.status === filter;
     const matchesSearch = (app.patient_name?.toLowerCase() || '').includes(search.toLowerCase()) || 
                           (app.facility?.toLowerCase() || '').includes(search.toLowerCase());
     return matchesFilter && matchesSearch;
+  });
+
+  // Sort applications
+  const sortedApps = [...filteredApps].sort((a, b) => {
+    let comparison = 0;
+    
+    switch (sortField) {
+      case 'date':
+        comparison = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+        break;
+      case 'priority':
+        const aPriority = priorityOrder[a.priority?.toLowerCase()] || 99;
+        const bPriority = priorityOrder[b.priority?.toLowerCase()] || 99;
+        comparison = aPriority - bPriority;
+        break;
+      case 'status':
+        const aStatus = statusOrder[a.status?.toLowerCase()] || 99;
+        const bStatus = statusOrder[b.status?.toLowerCase()] || 99;
+        comparison = aStatus - bStatus;
+        break;
+      case 'patient_name':
+        comparison = (a.patient_name || '').localeCompare(b.patient_name || '');
+        break;
+    }
+    
+    return sortDirection === 'asc' ? comparison : -comparison;
   });
 
   const counts = {
@@ -108,6 +165,54 @@ function ApplicationsContent() {
     approved: applications.filter(a => a.status === 'approved').length,
     denied: applications.filter(a => a.status === 'denied').length,
     review: applications.filter(a => a.status === 'review').length,
+  };
+
+  // Sortable header component
+  const SortHeader = ({ field, label, width, align = 'center' }: { 
+    field: SortField; 
+    label: string; 
+    width: string;
+    align?: 'left' | 'center' | 'right';
+  }) => {
+    const isActive = sortField === field;
+    return (
+      <div 
+        onClick={() => handleSort(field)}
+        style={{ 
+          width, 
+          textAlign: align,
+          cursor: 'pointer',
+          userSelect: 'none',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: align === 'left' ? 'flex-start' : align === 'right' ? 'flex-end' : 'center',
+          gap: '4px',
+          color: isActive ? '#275380' : '#6b7280',
+          fontWeight: isActive ? 700 : 600,
+        }}
+      >
+        {label}
+        <span style={{ display: 'flex', flexDirection: 'column', lineHeight: 0 }}>
+          <svg 
+            width="8" 
+            height="8" 
+            viewBox="0 0 8 8" 
+            fill={isActive && sortDirection === 'asc' ? '#275380' : '#d1d5db'}
+          >
+            <path d="M4 0L8 4H0L4 0Z" />
+          </svg>
+          <svg 
+            width="8" 
+            height="8" 
+            viewBox="0 0 8 8" 
+            fill={isActive && sortDirection === 'desc' ? '#275380' : '#d1d5db'}
+            style={{ marginTop: '1px' }}
+          >
+            <path d="M4 8L0 4H8L4 8Z" />
+          </svg>
+        </span>
+      </div>
+    );
   };
 
   if (loading) {
@@ -196,20 +301,20 @@ function ApplicationsContent() {
           color: '#6b7280'
         }}>
           <div style={{ width: '48px', marginRight: '16px' }}></div>
-          <div style={{ flex: 1 }}>Patient / Facility</div>
-          <div style={{ width: '80px', textAlign: 'center' }}>Priority</div>
-          <div style={{ width: '120px', textAlign: 'center' }}>Status</div>
+          <SortHeader field="patient_name" label="Patient / Facility" width="flex: 1" align="left" />
+          <SortHeader field="priority" label="Priority" width="80px" />
+          <SortHeader field="status" label="Status" width="120px" />
           <div style={{ width: '100px', textAlign: 'center' }}>Auto-Delete</div>
-          <div style={{ width: '100px', textAlign: 'right' }}>Date</div>
+          <SortHeader field="date" label="Date" width="100px" align="right" />
           <div style={{ width: '120px', textAlign: 'left', paddingLeft: '16px' }}>Source</div>
         </div>
 
-        {filteredApps.length === 0 ? (
+        {sortedApps.length === 0 ? (
           <div style={{ padding: '40px', textAlign: 'center', color: '#666' }}>
             No applications found
           </div>
         ) : (
-          filteredApps.map((app) => {
+          sortedApps.map((app) => {
             const daysRemaining = getDaysRemaining(app);
             const retentionColor = getRetentionColor(daysRemaining, app.status);
             const isProcessed = app.status === 'approved' || app.status === 'denied';
@@ -245,7 +350,7 @@ function ApplicationsContent() {
                   <div style={{ fontSize: '14px', color: '#666' }}>{app.facility || 'No facility'}</div>
                 </div>
                 <div style={{ width: '80px', textAlign: 'center' }}>
-                  {app.priority === 'high' && (
+                  {(app.priority === 'high' || app.priority === 'urgent') && (
                     <span style={{
                       padding: '4px 8px',
                       background: '#fee2e2',
@@ -255,6 +360,30 @@ function ApplicationsContent() {
                       fontWeight: 500
                     }}>
                       URGENT
+                    </span>
+                  )}
+                  {app.priority === 'normal' && (
+                    <span style={{
+                      padding: '4px 8px',
+                      background: '#f3f4f6',
+                      color: '#6b7280',
+                      borderRadius: '4px',
+                      fontSize: '12px',
+                      fontWeight: 500
+                    }}>
+                      Normal
+                    </span>
+                  )}
+                  {app.priority === 'low' && (
+                    <span style={{
+                      padding: '4px 8px',
+                      background: '#dbeafe',
+                      color: '#1e40af',
+                      borderRadius: '4px',
+                      fontSize: '12px',
+                      fontWeight: 500
+                    }}>
+                      Low
                     </span>
                   )}
                 </div>
