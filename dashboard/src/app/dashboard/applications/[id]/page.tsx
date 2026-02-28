@@ -6,11 +6,21 @@ import Link from 'next/link';
 
 const API_URL = 'https://optalis-api-production.up.railway.app';
 
+// SVG Icons
+const Icons = {
+  referral: <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>,
+  patient: <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>,
+  insurance: <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>,
+  clinical: <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>,
+  therapy: <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/><path d="M20 13c-1 2-3.5 3-5.5 3s-4.5-1-5.5-3"/><path d="M8.5 10c-.83 0-1.5-.67-1.5-1.5v-5C7 2.67 7.67 2 8.5 2S10 2.67 10 3.5v5c0 .83-.67 1.5-1.5 1.5z"/><path d="M12 22v-6"/><circle cx="12" cy="22" r="2"/></svg>,
+  summary: <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>,
+};
+
 // Organized field groups
 const FIELD_GROUPS = {
   referral: {
     title: 'Referral Information',
-    icon: '📋',
+    icon: Icons.referral,
     fields: [
       { key: 'referral_type', label: 'Referral Type', type: 'select', options: ['New Referral', 'Return to Hospital'], span: 1 },
       { key: 'hospital', label: 'Hospital', type: 'text', required: true, span: 1 },
@@ -22,7 +32,7 @@ const FIELD_GROUPS = {
   },
   patient: {
     title: 'Patient Information',
-    icon: '👤',
+    icon: Icons.patient,
     fields: [
       { key: 'patient_name', label: 'Full Name', type: 'text', required: true, span: 2 },
       { key: 'dob', label: 'Date of Birth', type: 'text', required: true, span: 1 },
@@ -34,7 +44,7 @@ const FIELD_GROUPS = {
   },
   insurance: {
     title: 'Insurance & Dates',
-    icon: '💳',
+    icon: Icons.insurance,
     fields: [
       { key: 'insurance', label: 'Insurance', type: 'text', required: true, span: 1 },
       { key: 'policy_number', label: 'Policy/Member ID', type: 'text', span: 1 },
@@ -46,7 +56,7 @@ const FIELD_GROUPS = {
   },
   clinical: {
     title: 'Clinical & Medical',
-    icon: '🏥',
+    icon: Icons.clinical,
     fields: [
       { key: 'diagnosis', label: 'Diagnosis', type: 'tags', span: 2 },
       { key: 'medications', label: 'Current Medications', type: 'tags', span: 2 },
@@ -66,7 +76,7 @@ const FIELD_GROUPS = {
   },
   therapy: {
     title: 'Therapy & Services',
-    icon: '🏃',
+    icon: Icons.therapy,
     fields: [
       { key: 'services', label: 'Services Requested', type: 'tags', span: 2 },
       { key: 'therapy_prior_level', label: 'Prior Level of Function', type: 'textarea', span: 2 },
@@ -78,7 +88,7 @@ const FIELD_GROUPS = {
   },
   summary: {
     title: 'Clinical Summary & Decision',
-    icon: '📝',
+    icon: Icons.summary,
     fields: [
       { key: 'clinical_summary', label: 'Clinical Summary', type: 'textarea', span: 2, rows: 4 },
       { key: 'decision_status', label: 'Decision', type: 'select', options: ['Accepting', 'Considering', 'Denying'], span: 1 },
@@ -193,9 +203,9 @@ export default function ApplicationDetailPage() {
       }
       if (field.type === 'toggle') {
         return value ? (
-          <span style={{ color: '#dc2626', fontWeight: 600 }}>⚠️ Yes</span>
+          <span style={{ background: '#fee2e2', color: '#dc2626', padding: '4px 10px', borderRadius: '6px', fontWeight: 600, fontSize: '13px' }}>Yes</span>
         ) : (
-          <span style={{ color: '#16a34a' }}>No</span>
+          <span style={{ background: '#dcfce7', color: '#16a34a', padding: '4px 10px', borderRadius: '6px', fontWeight: 500, fontSize: '13px' }}>No</span>
         );
       }
       if (field.type === 'textarea' && value) {
@@ -234,7 +244,7 @@ export default function ApplicationDetailPage() {
             border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 500
           }}
         >
-          {value ? '⚠️ Yes - Fall Risk' : '✓ No Fall Risk'}
+          {value ? 'Yes - Fall Risk' : 'No Fall Risk'}
         </button>
       );
     }
@@ -359,17 +369,17 @@ export default function ApplicationDetailPage() {
               cursor: 'pointer'
             }}
           >
-            <option value="pending">⏳ Pending</option>
-            <option value="review">🔍 In Review</option>
-            <option value="approved">✅ Approved</option>
-            <option value="denied">❌ Denied</option>
+            <option value="pending">Pending</option>
+            <option value="review">In Review</option>
+            <option value="approved">Approved</option>
+            <option value="denied">Denied</option>
           </select>
 
           <button onClick={() => setShowDocViewer(true)} style={{
             padding: '10px 16px', background: 'white', border: '1px solid #d1d5db',
             borderRadius: '8px', cursor: 'pointer', fontSize: '14px'
           }}>
-            📄 Documents
+            Documents
           </button>
 
           {isEditing ? (
@@ -384,7 +394,7 @@ export default function ApplicationDetailPage() {
                 padding: '10px 20px', background: '#275380', color: 'white',
                 border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 500
               }}>
-                {saving ? 'Saving...' : '✓ Save'}
+                {saving ? 'Saving...' : 'Save'}
               </button>
             </>
           ) : (
@@ -392,7 +402,7 @@ export default function ApplicationDetailPage() {
               padding: '10px 20px', background: '#275380', color: 'white',
               border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 500
             }}>
-              ✏️ Edit
+              Edit
             </button>
           )}
         </div>
@@ -406,7 +416,7 @@ export default function ApplicationDetailPage() {
             borderRadius: '12px', padding: '20px', marginBottom: '24px', color: 'white'
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-              <span style={{ fontWeight: 600, fontSize: '14px' }}>🤖 AI Summary</span>
+              <span style={{ fontWeight: 600, fontSize: '14px' }}>AI Summary</span>
               <span style={{ background: 'rgba(255,255,255,0.2)', padding: '4px 12px', borderRadius: '12px', fontSize: '13px' }}>
                 {app.confidence_score || 0}% confidence
               </span>
@@ -418,16 +428,16 @@ export default function ApplicationDetailPage() {
         {/* Quick Info Cards */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '24px' }}>
           {[
-            { label: 'Hospital', value: app.hospital, icon: '🏥' },
-            { label: 'Insurance', value: app.insurance, icon: '💳' },
-            { label: 'Care Level', value: app.care_level, icon: '📋' },
-            { label: 'Source', value: app.source, icon: '📨' },
+            { label: 'Hospital', value: app.hospital },
+            { label: 'Insurance', value: app.insurance },
+            { label: 'Care Level', value: app.care_level },
+            { label: 'Source', value: app.source },
           ].map((item, i) => (
             <div key={i} style={{
               background: 'white', borderRadius: '12px', padding: '16px',
               border: '1px solid #e5e7eb'
             }}>
-              <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>{item.icon} {item.label}</div>
+              <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{item.label}</div>
               <div style={{ fontSize: '15px', fontWeight: 500 }}>{item.value || '—'}</div>
             </div>
           ))}
@@ -510,13 +520,13 @@ export default function ApplicationDetailPage() {
                   background: docViewTab === 'original' ? '#275380' : '#f1f5f9',
                   color: docViewTab === 'original' ? 'white' : '#374151',
                   cursor: 'pointer', fontWeight: 500, fontSize: '13px'
-                }}>📄 Original</button>
+                }}>Original</button>
                 <button onClick={() => setDocViewTab('extracted')} style={{
                   padding: '8px 16px', border: 'none', borderRadius: '6px',
                   background: docViewTab === 'extracted' ? '#275380' : '#f1f5f9',
                   color: docViewTab === 'extracted' ? 'white' : '#374151',
                   cursor: 'pointer', fontWeight: 500, fontSize: '13px'
-                }}>🤖 Extracted</button>
+                }}>Extracted</button>
               </div>
               <button onClick={() => setShowDocViewer(false)} style={{
                 width: '32px', height: '32px', borderRadius: '6px',

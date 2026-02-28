@@ -15,11 +15,23 @@ import '../../mobile.css';
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://optalis-api-production.up.railway.app';
 
 // Field sections for mobile - optimized for touch
+// SVG Icons for mobile
+const SectionIcons: Record<string, React.ReactNode> = {
+  referral: <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>,
+  patient: <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>,
+  insurance: <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>,
+  dates: <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>,
+  clinical: <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>,
+  summary: <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8"/></svg>,
+  therapy: <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="5" r="3"/><path d="M12 8v8M8 20l4-4 4 4"/></svg>,
+  decision: <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>,
+};
+
 const SECTIONS = [
   {
     id: 'referral',
     title: 'Referral Info',
-    icon: '📋',
+    icon: SectionIcons.referral,
     color: '#275380',
     fields: [
       { key: 'referral_type', label: 'Type', type: 'select', options: ['New Referral', 'Return to Hospital'] },
@@ -33,7 +45,7 @@ const SECTIONS = [
   {
     id: 'patient',
     title: 'Patient Info',
-    icon: '👤',
+    icon: SectionIcons.patient,
     color: '#16a34a',
     fields: [
       { key: 'patient_name', label: 'Name', type: 'text' },
@@ -47,7 +59,7 @@ const SECTIONS = [
   {
     id: 'insurance',
     title: 'Insurance',
-    icon: '💳',
+    icon: SectionIcons.insurance,
     color: '#7c3aed',
     fields: [
       { key: 'insurance', label: 'Insurance', type: 'text' },
@@ -58,7 +70,7 @@ const SECTIONS = [
   {
     id: 'dates',
     title: 'Key Dates',
-    icon: '📅',
+    icon: SectionIcons.dates,
     color: '#ea580c',
     fields: [
       { key: 'date_admitted', label: 'Admitted', type: 'date' },
@@ -69,7 +81,7 @@ const SECTIONS = [
   {
     id: 'clinical',
     title: 'Clinical & Medical',
-    icon: '🏥',
+    icon: SectionIcons.clinical,
     color: '#dc2626',
     fields: [
       { key: 'diagnosis', label: 'Diagnosis', type: 'tags' },
@@ -91,7 +103,7 @@ const SECTIONS = [
   {
     id: 'summary',
     title: 'Clinical Summary',
-    icon: '📝',
+    icon: SectionIcons.summary,
     color: '#475569',
     fields: [
       { key: 'clinical_summary', label: 'Summary', type: 'textarea' },
@@ -102,7 +114,7 @@ const SECTIONS = [
   {
     id: 'therapy',
     title: 'Therapy',
-    icon: '🏃',
+    icon: SectionIcons.therapy,
     color: '#059669',
     fields: [
       { key: 'therapy_prior_level', label: 'Prior Level', type: 'textarea' },
@@ -115,7 +127,7 @@ const SECTIONS = [
   {
     id: 'decision',
     title: 'Decision',
-    icon: '✅',
+    icon: SectionIcons.decision,
     color: '#275380',
     fields: [
       { key: 'decision_status', label: 'Status', type: 'select', options: ['Accepting', 'Considering', 'Denying'] },
@@ -229,7 +241,7 @@ function ApplicationDetailContent() {
       if (field.type === 'toggle') {
         return (
           <span className={`mobile-badge ${value ? 'danger' : 'success'}`}>
-            {value ? '⚠️ Yes' : 'No'}
+            {value ? 'Yes' : 'No'}
           </span>
         );
       }
@@ -377,7 +389,7 @@ function ApplicationDetailContent() {
         {app.ai_summary && (
           <div className="mobile-ai-card">
             <div className="mobile-ai-header">
-              <span>🤖 AI Summary</span>
+              <span>AI Summary</span>
               <span className="mobile-confidence">{app.confidence_score || 0}%</span>
             </div>
             <p>{app.ai_summary}</p>
@@ -646,7 +658,15 @@ function ApplicationDetailContent() {
           text-align: left;
         }
         .mobile-section-icon {
-          font-size: 20px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 24px;
+          height: 24px;
+        }
+        .mobile-section-icon svg {
+          width: 20px;
+          height: 20px;
         }
         .mobile-section-title {
           flex: 1;
