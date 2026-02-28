@@ -182,20 +182,41 @@ export default function ApplicationDetailPage() {
 
   // Editable state for extracted data
   const [editedData, setEditedData] = useState({
-    name: app.name,
-    dob: app.dob,
-    phone: app.phone,
-    address: app.address,
-    facility: app.facility,
-    insurance: app.insurance,
-    policyNumber: app.policyNumber,
-    diagnosis: [...app.diagnosis],
-    medications: [...app.medications],
-    allergies: [...app.allergies],
-    physician: app.physician,
-    services: [...app.services],
+    name: '',
+    dob: '',
+    phone: '',
+    address: '',
+    facility: '',
+    insurance: '',
+    policyNumber: '',
+    diagnosis: [] as string[],
+    medications: [] as string[],
+    allergies: [] as string[],
+    physician: '',
+    services: [] as string[],
     customFields: [] as {label: string; value: string}[]
   });
+
+  // Sync editedData when app data loads from API
+  useEffect(() => {
+    if (app && !loading) {
+      setEditedData({
+        name: app.name || '',
+        dob: app.dob || '',
+        phone: app.phone || '',
+        address: app.address || '',
+        facility: app.facility || '',
+        insurance: app.insurance || '',
+        policyNumber: app.policyNumber || '',
+        diagnosis: Array.isArray(app.diagnosis) ? [...app.diagnosis] : [],
+        medications: Array.isArray(app.medications) ? [...app.medications] : [],
+        allergies: Array.isArray(app.allergies) ? [...app.allergies] : [],
+        physician: app.physician || '',
+        services: Array.isArray(app.services) ? [...app.services] : [],
+        customFields: []
+      });
+    }
+  }, [apiApp, loading]);
 
   const [newFieldLabel, setNewFieldLabel] = useState('');
   const [newFieldValue, setNewFieldValue] = useState('');

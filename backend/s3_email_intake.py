@@ -401,9 +401,21 @@ def generate_application_id() -> str:
 def create_application(email_data: Dict, extracted: Dict, s3_key: str) -> str:
     """Create application record via API."""
     import requests
+    from email.utils import parsedate_to_datetime
     
     app_id = generate_application_id()
     now = datetime.now(timezone.utc).isoformat()
+    
+    # Use email date if available, otherwise use current time
+    email_date = email_data.get("date", "")
+    created_at = now
+    if email_date:
+        try:
+            parsed_date = parsedate_to_datetime(email_date)
+            created_at = parsed_date.isoformat()
+            print(f"   📅 Using email date: {created_at}")
+        except Exception:
+            print(f"   📅 Could not parse email date, using current time")
     
     payload = {
         "id": app_id,
@@ -428,7 +440,7 @@ def create_application(email_data: Dict, extracted: Dict, s3_key: str) -> str:
         "raw_text": email_data.get("body", "")[:5000],
         "raw_email_subject": email_data.get("subject", ""),
         "s3_key": s3_key,
-        "created_at": now,
+        "created_at": created_at,
         "updated_at": now
     }
     
