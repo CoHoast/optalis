@@ -415,13 +415,11 @@ async def scan_document(file: UploadFile = File(None), images: UploadFile = File
         # Read file content
         content = await upload_file.read()
         
-        # Extract using vision
+        # Extract using vision - pass as list of image bytes
         result = extract_with_vision(
-            file_data=content,
-            filename=upload_file.filename,
+            image_data_list=[content],
             subject="Mobile Document Scan",
-            email_body="Document scanned via mobile app",
-            raw_text=""
+            email_body="Document scanned via mobile app"
         )
         
         # Flatten for response
