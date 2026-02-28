@@ -153,6 +153,38 @@ class ApplicationCreate(BaseModel):
     extra_data: Optional[dict] = None
     created_at: Optional[str] = None
     updated_at: Optional[str] = None
+    # Optalis-specific fields
+    referral_type: Optional[str] = None
+    hospital: Optional[str] = None
+    building: Optional[str] = None
+    care_level: Optional[str] = None
+    sex: Optional[str] = None
+    ssn_last4: Optional[str] = None
+    room_number: Optional[str] = None
+    date_admitted: Optional[str] = None
+    inpatient_date: Optional[str] = None
+    anticipated_discharge: Optional[str] = None
+    case_manager_name: Optional[str] = None
+    case_manager_phone: Optional[str] = None
+    fall_risk: Optional[bool] = None
+    smoking_status: Optional[str] = None
+    isolation: Optional[str] = None
+    barrier_precautions: Optional[str] = None
+    dme: Optional[str] = None
+    diet: Optional[str] = None
+    height: Optional[str] = None
+    weight: Optional[str] = None
+    infection_prevention: Optional[str] = None
+    iv_meds: Optional[str] = None
+    expensive_meds: Optional[str] = None
+    clinical_summary: Optional[str] = None
+    therapy_prior_level: Optional[str] = None
+    therapy_bed_mobility: Optional[str] = None
+    therapy_transfers: Optional[str] = None
+    therapy_gait: Optional[str] = None
+    decision_status: Optional[str] = None
+    decision_notes: Optional[str] = None
+    last_updated_by: Optional[str] = None
 
 
 class ApplicationUpdate(BaseModel):
@@ -171,6 +203,38 @@ class ApplicationUpdate(BaseModel):
     facility: Optional[str] = None
     services: Optional[List[str]] = None
     notes: Optional[str] = None
+    # Optalis-specific fields
+    referral_type: Optional[str] = None
+    hospital: Optional[str] = None
+    building: Optional[str] = None
+    care_level: Optional[str] = None
+    sex: Optional[str] = None
+    ssn_last4: Optional[str] = None
+    room_number: Optional[str] = None
+    date_admitted: Optional[str] = None
+    inpatient_date: Optional[str] = None
+    anticipated_discharge: Optional[str] = None
+    case_manager_name: Optional[str] = None
+    case_manager_phone: Optional[str] = None
+    fall_risk: Optional[bool] = None
+    smoking_status: Optional[str] = None
+    isolation: Optional[str] = None
+    barrier_precautions: Optional[str] = None
+    dme: Optional[str] = None
+    diet: Optional[str] = None
+    height: Optional[str] = None
+    weight: Optional[str] = None
+    infection_prevention: Optional[str] = None
+    iv_meds: Optional[str] = None
+    expensive_meds: Optional[str] = None
+    clinical_summary: Optional[str] = None
+    therapy_prior_level: Optional[str] = None
+    therapy_bed_mobility: Optional[str] = None
+    therapy_transfers: Optional[str] = None
+    therapy_gait: Optional[str] = None
+    decision_status: Optional[str] = None
+    decision_notes: Optional[str] = None
+    last_updated_by: Optional[str] = None
 
 
 # ============================================================

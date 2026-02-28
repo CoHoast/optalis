@@ -6,129 +6,137 @@ import Link from 'next/link';
 
 const API_URL = 'https://optalis-api-production.up.railway.app';
 
-const mockApplications: Record<string, {
-  id: string;
-  name: string;
-  initials: string;
-  facility: string;
-  status: string;
-  date: string;
-  priority: string;
-  source: string;
-  dob: string;
-  phone: string;
-  address: string;
-  insurance: string;
-  policyNumber: string;
-  diagnosis: string[];
-  medications: string[];
-  allergies: string[];
-  physician: string;
-  services: string[];
-  documents: { name: string; type: string; rawUrl: string; extractedUrl: string }[];
-  notes: string;
-  confidence: number;
-  aiSummary: string;
-  extraData?: Record<string, any> | null;
-}> = {
-  'APP-2026-004': {
-    id: 'APP-2026-004', name: 'Mary Johnson', initials: 'MJ', facility: 'Optalis of Grand Rapids',
-    status: 'pending', date: '2/25/2026', priority: 'high', source: 'Email (AI Intake)',
-    dob: '06/15/1941', phone: '(248) 555-0188', address: '456 Oak Lane, Troy, MI 48084',
-    insurance: 'Medicare Part A & B', policyNumber: '1AB2-CD3-EF45',
-    diagnosis: ['CHF', 'COPD', 'Type 2 Diabetes'],
-    medications: ['Lasix 40mg', 'Metformin 500mg', 'Spiriva'],
-    allergies: ['Penicillin'],
-    physician: 'Dr. Smith (Dr. Guiher\'s Office)', services: ['Skilled Nursing', 'Respiratory Therapy'],
-    documents: [
-      { name: 'Email_Referral.pdf', type: 'Application', rawUrl: '/documents/raw-intake-scan.html', extractedUrl: '/documents/intake-form-APP-2026-001.html' }
-    ],
-    notes: 'URGENT: Patient discharging tomorrow. Received via AI email intake from rewindtriviagames@gmail.com.',
-    confidence: 95,
-    aiSummary: 'Mary Johnson, a patient with CHF, COPD, and Type 2 Diabetes, is being referred for Skilled Nursing and Respiratory Therapy from Dr. Guiher\'s Office. The patient is discharging tomorrow and requires immediate processing. Insurance verified - Medicare Part A & B coverage confirmed.'
+// Field sections for the Optalis intake form
+const FIELD_SECTIONS = {
+  referral: {
+    title: 'Referral Information',
+    icon: '📋',
+    color: '#275380',
+    fields: [
+      { key: 'referral_type', label: 'New Referral or Return to Hospital?', type: 'select', options: ['New Referral', 'Return to Hospital'] },
+      { key: 'hospital', label: 'Hospital Patient is at *', type: 'text', required: true },
+      { key: 'building', label: 'Building Referral is for *', type: 'text', required: true },
+      { key: 'room_number', label: 'Room #', type: 'text' },
+      { key: 'case_manager_name', label: 'Case Manager Name', type: 'text' },
+      { key: 'case_manager_phone', label: 'Case Manager Phone #', type: 'text' },
+    ]
   },
-  'APP-2026-001': {
-    id: 'APP-2026-001', name: 'Margaret Thompson', initials: 'MT', facility: 'Cranberry Park at West Bloomfield',
-    status: 'pending', date: '2/24/2026', priority: 'high', source: 'Hospital Referral',
-    dob: '03/15/1942', phone: '(248) 555-0123', address: '1234 Oak Street, Bloomfield Hills, MI 48301',
-    insurance: 'Medicare Part A & B', policyNumber: '1EG4-TE5-MK72',
-    diagnosis: ['Dementia', 'Hypertension', 'Type 2 Diabetes'],
-    medications: ['Metformin 500mg', 'Lisinopril 10mg', 'Donepezil 5mg'],
-    allergies: ['Penicillin', 'Sulfa'],
-    physician: 'Dr. Robert Chen, MD', services: ['Memory Care', 'Medication Management', 'Physical Therapy'],
-    documents: [
-      { name: 'Intake_Form.pdf', type: 'Application', rawUrl: '/documents/raw-intake-scan.html', extractedUrl: '/documents/intake-form-APP-2026-001.html' },
-      { name: 'Insurance_Verification.pdf', type: 'Insurance', rawUrl: '/documents/raw-insurance-email.html', extractedUrl: '/documents/insurance-verification-APP-2026-001.html' },
-      { name: 'Medical_Records.pdf', type: 'Medical', rawUrl: '/documents/raw-medical-records.html', extractedUrl: '/documents/medical-records-APP-2026-001.html' }
-    ],
-    notes: 'Patient being discharged from Beaumont Hospital. Family requesting urgent placement.',
-    confidence: 94,
-    aiSummary: '83-year-old female with progressive dementia, well-controlled hypertension, and Type 2 diabetes managed with oral medication. Currently hospitalized at Beaumont, medically stable and cleared for discharge. Family seeking memory care placement with 24/7 supervision. Patient requires assistance with ADLs and medication management. Cognitive assessment indicates moderate dementia with preserved mobility. Good candidate for memory care unit with structured activities program. No behavioral concerns noted. Insurance verified - Medicare coverage confirmed for skilled nursing level of care.'
+  patient: {
+    title: 'Patient Information',
+    icon: '👤',
+    color: '#16a34a',
+    fields: [
+      { key: 'patient_name', label: 'Patient Name *', type: 'text', required: true },
+      { key: 'dob', label: 'Date of Birth *', type: 'text', required: true },
+      { key: 'sex', label: 'Sex *', type: 'select', options: ['Male', 'Female', 'Other'], required: true },
+      { key: 'ssn_last4', label: 'SS# (Last 4)', type: 'text', maxLength: 4 },
+      { key: 'phone', label: 'Phone', type: 'text' },
+      { key: 'address', label: 'Address', type: 'text' },
+    ]
   },
-  'APP-2026-002': {
-    id: 'APP-2026-002', name: 'Robert Williams', initials: 'RW', facility: 'Optalis of Grand Rapids',
-    status: 'review', date: '2/24/2026', priority: 'medium', source: 'Website',
-    dob: '07/22/1938', phone: '(616) 555-0456', address: '567 Maple Ave, Grand Rapids, MI 49503',
-    insurance: 'Blue Cross Blue Shield', policyNumber: 'XYZ123456789',
-    diagnosis: ['COPD', 'Congestive Heart Failure'],
-    medications: ['Lasix 40mg', 'Metoprolol 25mg', 'Spiriva'],
-    allergies: ['None known'],
-    physician: 'Dr. Sarah Johnson, MD', services: ['Skilled Nursing', 'Respiratory Therapy', 'Cardiac Rehab'],
-    documents: [
-      { name: 'Intake_Form.pdf', type: 'Application', rawUrl: '/documents/raw-intake-scan.html', extractedUrl: '/documents/intake-form-APP-2026-001.html' },
-      { name: 'Insurance_Verification.pdf', type: 'Insurance', rawUrl: '/documents/raw-insurance-email.html', extractedUrl: '/documents/insurance-verification-APP-2026-001.html' }
-    ],
-    notes: 'Insurance verification pending. Awaiting pre-authorization.',
-    confidence: 87,
-    aiSummary: '87-year-old male with chronic COPD and compensated CHF, recently hospitalized for acute exacerbation. Requires supplemental oxygen (2L NC) and nebulizer treatments. Cardiac function stable with current medication regimen. Needs skilled nursing for respiratory therapy and cardiac monitoring during recovery. Estimated rehab duration: 3-4 weeks. Insurance pre-authorization pending - BCBS requires additional documentation for skilled nursing level. Recommend follow-up with pulmonology within 2 weeks of admission.'
+  insurance: {
+    title: 'Insurance & Care Level',
+    icon: '💳',
+    color: '#7c3aed',
+    fields: [
+      { key: 'insurance', label: 'Insurance *', type: 'text', required: true },
+      { key: 'policy_number', label: 'Policy/Member ID', type: 'text' },
+      { key: 'care_level', label: 'SNF/LTC/AL/HOSPICE *', type: 'select', options: ['SNF', 'LTC', 'AL', 'Hospice'], required: true },
+    ]
   },
-  'APP-2026-003': {
-    id: 'APP-2026-003', name: 'Dorothy Martinez', initials: 'DM', facility: 'Cranberry Park at Milford',
-    status: 'approved', date: '2/24/2026', priority: 'normal', source: 'Email',
-    dob: '11/08/1945', phone: '(248) 555-0789', address: '890 Pine Road, Milford, MI 48381',
-    insurance: 'Medicare Advantage - Humana', policyNumber: 'H1234567890',
-    diagnosis: ['Mild Cognitive Impairment', 'Osteoarthritis'],
-    medications: ['Celebrex 200mg', 'Aricept 10mg', 'Vitamin D 1000IU'],
-    allergies: ['Aspirin'],
-    physician: 'Dr. Michael Brown, DO', services: ['Assisted Living', 'Memory Support', 'Occupational Therapy'],
-    documents: [
-      { name: 'Complete_Application.pdf', type: 'Application', rawUrl: '/documents/raw-intake-scan.html', extractedUrl: '/documents/intake-form-APP-2026-001.html' },
-      { name: 'Medical_History.pdf', type: 'Medical', rawUrl: '/documents/raw-medical-records.html', extractedUrl: '/documents/medical-records-APP-2026-001.html' },
-      { name: 'Insurance_Card.pdf', type: 'Insurance', rawUrl: '/documents/raw-insurance-email.html', extractedUrl: '/documents/insurance-verification-APP-2026-001.html' }
-    ],
-    notes: 'All documentation complete. Family tour completed 2/22. Move-in scheduled for 3/1.',
-    confidence: 96,
-    aiSummary: '80-year-old female with mild cognitive impairment (MCI) and moderate osteoarthritis affecting mobility. Lives alone, family concerned about safety and medication compliance. Cognitively appropriate for assisted living with memory support services. Independent with most ADLs but needs supervision for medication management and meal preparation. Would benefit from structured daily activities and social engagement. OT recommended for joint protection strategies. Excellent candidate for assisted living - all documentation complete, insurance verified, family engaged in care planning.'
-  }
+  dates: {
+    title: 'Key Dates',
+    icon: '📅',
+    color: '#ea580c',
+    fields: [
+      { key: 'date_admitted', label: 'Date Admitted *', type: 'date', required: true },
+      { key: 'inpatient_date', label: 'Inpatient Date *', type: 'date', required: true },
+      { key: 'anticipated_discharge', label: 'Anticipated Discharge *', type: 'date', required: true },
+    ]
+  },
+  clinical: {
+    title: 'Clinical Information',
+    icon: '🏥',
+    color: '#dc2626',
+    fields: [
+      { key: 'diagnosis', label: 'Admitting Diagnosis *', type: 'tags', required: true },
+      { key: 'fall_risk', label: 'Fall Risk', type: 'select', options: ['Yes', 'No'] },
+      { key: 'smoking_status', label: 'Smoking Status', type: 'select', options: ['Never', 'Former', 'Current'] },
+      { key: 'isolation', label: 'Isolation *', type: 'text', required: true },
+      { key: 'barrier_precautions', label: 'Enhanced Barrier Precautions *', type: 'text', required: true },
+      { key: 'infection_prevention', label: 'Infection Prevention', type: 'textarea' },
+    ]
+  },
+  medical: {
+    title: 'Medical Details',
+    icon: '💊',
+    color: '#0891b2',
+    fields: [
+      { key: 'dme', label: 'Durable Medical Equipment *', type: 'textarea', required: true },
+      { key: 'diet', label: 'Diet *', type: 'text', required: true },
+      { key: 'height', label: 'Height', type: 'text' },
+      { key: 'weight', label: 'Weight', type: 'text' },
+      { key: 'medications', label: 'Current Medications', type: 'tags' },
+      { key: 'allergies', label: 'Allergies', type: 'tags' },
+      { key: 'iv_meds', label: 'IV Meds (if discharging on IVs)', type: 'textarea' },
+      { key: 'expensive_meds', label: 'Expensive Meds/Carve Out/Chemo', type: 'textarea' },
+    ]
+  },
+  clinical_summary: {
+    title: 'Clinical Summary',
+    icon: '📝',
+    color: '#475569',
+    fields: [
+      { key: 'clinical_summary', label: 'Clinical Summary *', type: 'textarea', required: true, fullWidth: true },
+      { key: 'physician', label: 'Referring Physician', type: 'text' },
+    ]
+  },
+  therapy: {
+    title: 'Therapy Status',
+    icon: '🏃',
+    color: '#059669',
+    fields: [
+      { key: 'therapy_prior_level', label: 'Prior Level of Function', type: 'textarea', hint: 'Who do they live with, how many levels in home, stairs to enter home, prior assistance needed' },
+      { key: 'therapy_bed_mobility', label: 'Bed Mobility', type: 'text' },
+      { key: 'therapy_transfers', label: 'Transfers', type: 'text' },
+      { key: 'therapy_gait', label: 'Gait', type: 'text' },
+      { key: 'services', label: 'Services Requested', type: 'tags' },
+    ]
+  },
+  decision: {
+    title: 'Decision',
+    icon: '✅',
+    color: '#275380',
+    fields: [
+      { key: 'decision_status', label: 'Accepting, Considering or Denying?', type: 'select', options: ['Accepting', 'Considering', 'Denying'] },
+      { key: 'decision_notes', label: 'Decision Notes', type: 'textarea', hint: 'If considering, what additional info is needed?' },
+      { key: 'last_updated_by', label: 'Last Updated By', type: 'text' },
+    ]
+  },
 };
 
 export default function ApplicationDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const [showModal, setShowModal] = useState(false);
-  const [decision, setDecision] = useState('');
-  const [decisionNotes, setDecisionNotes] = useState('');
-  const [isEditing, setIsEditing] = useState(false);
-  const [showAddField, setShowAddField] = useState(false);
-  const [newNote, setNewNote] = useState('');
-  const [applicationNotes, setApplicationNotes] = useState<{text: string; author: string; time: string}[]>([]);
-  const [showDocViewer, setShowDocViewer] = useState(false);
-  const [selectedDoc, setSelectedDoc] = useState<{name: string; type: string; rawUrl: string; extractedUrl: string} | null>(null);
-  const [docViewTab, setDocViewTab] = useState<'original' | 'extracted'>('original');
-  const [docContent, setDocContent] = useState<{original: any; extracted: any}>({ original: null, extracted: null });
-  const [docLoading, setDocLoading] = useState(false);
-  
-  const [apiApp, setApiApp] = useState<any>(null);
+  const [app, setApp] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [showExtraData, setShowExtraData] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedData, setEditedData] = useState<any>({});
+  const [activeSection, setActiveSection] = useState('referral');
+  const [showDocViewer, setShowDocViewer] = useState(false);
+  const [docContent, setDocContent] = useState<{original: any; extracted: any}>({ original: null, extracted: null });
+  const [docViewTab, setDocViewTab] = useState<'original' | 'extracted'>('original');
+  const [docLoading, setDocLoading] = useState(false);
 
-  // Fetch from API first, fall back to mock data
+  // Fetch application data
   useEffect(() => {
     fetch(`${API_URL}/api/applications/${params.id}`)
       .then(res => res.ok ? res.json() : null)
       .then(data => {
         if (data) {
-          setApiApp(data);
+          setApp(data);
+          setEditedData(data);
         }
         setLoading(false);
       })
@@ -137,1329 +145,543 @@ export default function ApplicationDetailPage() {
 
   // Fetch document content when viewer opens
   useEffect(() => {
-    if (showDocViewer && selectedDoc && apiApp) {
+    if (showDocViewer && app) {
       setDocLoading(true);
       Promise.all([
-        fetch(selectedDoc.rawUrl).then(r => r.json()).catch(() => null),
-        fetch(selectedDoc.extractedUrl).then(r => r.json()).catch(() => null)
+        fetch(`${API_URL}/api/applications/${app.id}/document/original`).then(r => r.json()).catch(() => null),
+        fetch(`${API_URL}/api/applications/${app.id}/document/extracted`).then(r => r.json()).catch(() => null)
       ]).then(([original, extracted]) => {
         setDocContent({ original, extracted });
         setDocLoading(false);
       });
     }
-  }, [showDocViewer, selectedDoc, apiApp]);
+  }, [showDocViewer, app]);
 
-  // Use API data if available, otherwise fall back to mock
-  const mockApp = mockApplications[params.id as string] || mockApplications['APP-2026-001'];
-  
-  // For API-sourced applications, create documents pointing to API endpoints
-  const apiDocuments = apiApp ? [
-    { 
-      name: apiApp.raw_email_subject || 'Intake Document', 
-      type: 'Application', 
-      rawUrl: `${API_URL}/api/applications/${apiApp.id}/document/original`,
-      extractedUrl: `${API_URL}/api/applications/${apiApp.id}/document/extracted`
-    }
-  ] : [];
-  
-  // Helper: use API value if present, otherwise null (NOT mock data) for real apps
-  // This prevents fabricated data from appearing
-  const apiValue = <T,>(apiVal: T | null | undefined, mockVal: T): T | null => {
-    // For API apps, return API value (even if null) - don't fall back to mock
-    return apiVal !== undefined ? (apiVal as T | null) : null;
-  };
-
-  const app = apiApp ? {
-    ...mockApp,
-    id: apiApp.id,
-    name: apiApp.patient_name || 'Unknown Patient',
-    initials: (apiApp.patient_name || 'UP').split(' ').map((n: string) => n[0]).join('').toUpperCase(),
-    facility: apiApp.facility || 'Optalis Healthcare',
-    status: apiApp.status || 'pending',
-    date: apiApp.created_at ? new Date(apiApp.created_at).toLocaleDateString() : mockApp.date,
-    priority: apiApp.priority || 'normal',
-    source: apiApp.source || 'Unknown',
-    dob: apiApp.dob || null,
-    phone: apiApp.phone || null,  // Don't fall back to mock - show null if not in original
-    address: apiApp.address || null,  // Don't fall back to mock - show null if not in original
-    insurance: apiApp.insurance || null,
-    policyNumber: apiApp.policy_number || null,
-    diagnosis: apiApp.diagnosis || [],
-    medications: apiApp.medications || [],
-    allergies: apiApp.allergies || [],
-    physician: apiApp.physician || null,
-    services: apiApp.services || [],
-    confidence: apiApp.confidence_score || 50,
-    aiSummary: apiApp.ai_summary || 'AI summary not available.',
-    notes: apiApp.raw_text ? `Source: ${apiApp.source_email || 'Email'}\n\nOriginal content preview:\n${apiApp.raw_text.substring(0, 200)}...` : mockApp.notes,
-    documents: apiDocuments.length > 0 ? apiDocuments : mockApp.documents,
-    extraData: apiApp.extra_data ? (typeof apiApp.extra_data === 'string' ? JSON.parse(apiApp.extra_data) : apiApp.extra_data) : null
-  } : mockApp;
-
-  // Editable state for extracted data
-  const [editedData, setEditedData] = useState({
-    name: '',
-    dob: '',
-    phone: '',
-    address: '',
-    facility: '',
-    insurance: '',
-    policyNumber: '',
-    diagnosis: [] as string[],
-    medications: [] as string[],
-    allergies: [] as string[],
-    physician: '',
-    services: [] as string[],
-    customFields: [] as {label: string; value: string}[]
-  });
-
-  // Sync editedData when app data loads from API
-  useEffect(() => {
-    if (app && !loading) {
-      setEditedData({
-        name: app.name || '',
-        dob: app.dob || '',
-        phone: app.phone || '',
-        address: app.address || '',
-        facility: app.facility || '',
-        insurance: app.insurance || '',
-        policyNumber: app.policyNumber || '',
-        diagnosis: Array.isArray(app.diagnosis) ? [...app.diagnosis] : [],
-        medications: Array.isArray(app.medications) ? [...app.medications] : [],
-        allergies: Array.isArray(app.allergies) ? [...app.allergies] : [],
-        physician: app.physician || '',
-        services: Array.isArray(app.services) ? [...app.services] : [],
-        customFields: []
-      });
-    }
-  }, [apiApp, loading]);
-
-  const [newFieldLabel, setNewFieldLabel] = useState('');
-  const [newFieldValue, setNewFieldValue] = useState('');
-
-  const handleDecision = (type: string) => {
-    setDecision(type);
-    setShowModal(true);
-  };
-
-  const submitDecision = async () => {
+  const handleSave = async () => {
+    setSaving(true);
     try {
-      // Update status via API
       const response = await fetch(`${API_URL}/api/applications/${params.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          status: decision,
-          decision_notes: decisionNotes
-        })
+        body: JSON.stringify(editedData)
       });
-      
-      if (response.ok && apiApp) {
-        setApiApp({ ...apiApp, status: decision });
+      if (response.ok) {
+        const updated = await response.json();
+        setApp({ ...app, ...editedData });
+        setIsEditing(false);
       }
     } catch (error) {
-      console.error('Error updating decision:', error);
+      console.error('Save error:', error);
+    }
+    setSaving(false);
+  };
+
+  const handleStatusChange = async (newStatus: string) => {
+    try {
+      await fetch(`${API_URL}/api/applications/${params.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus })
+      });
+      setApp({ ...app, status: newStatus });
+    } catch (error) {
+      console.error('Status change error:', error);
+    }
+  };
+
+  const getFieldValue = (key: string) => {
+    const value = isEditing ? editedData[key] : app?.[key];
+    if (Array.isArray(value)) return value;
+    return value || '';
+  };
+
+  const setFieldValue = (key: string, value: any) => {
+    setEditedData({ ...editedData, [key]: value });
+  };
+
+  const renderField = (field: any) => {
+    const value = getFieldValue(field.key);
+    
+    if (!isEditing) {
+      // Display mode
+      if (field.type === 'tags' && Array.isArray(value)) {
+        return value.length > 0 ? (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+            {value.map((tag: string, i: number) => (
+              <span key={i} style={{ 
+                background: '#e5e7eb', 
+                padding: '4px 10px', 
+                borderRadius: '12px', 
+                fontSize: '13px' 
+              }}>{tag}</span>
+            ))}
+          </div>
+        ) : <span style={{ color: '#9ca3af' }}>—</span>;
+      }
+      if (field.type === 'select' && field.key === 'fall_risk') {
+        return value === true || value === 'Yes' ? (
+          <span style={{ color: '#dc2626', fontWeight: 600 }}>⚠️ YES</span>
+        ) : value === false || value === 'No' ? (
+          <span style={{ color: '#16a34a' }}>No</span>
+        ) : <span style={{ color: '#9ca3af' }}>—</span>;
+      }
+      return value || <span style={{ color: '#9ca3af' }}>—</span>;
+    }
+
+    // Edit mode
+    if (field.type === 'select') {
+      return (
+        <select
+          value={value || ''}
+          onChange={(e) => setFieldValue(field.key, e.target.value)}
+          style={{
+            width: '100%',
+            padding: '10px 12px',
+            border: '1px solid #d1d5db',
+            borderRadius: '8px',
+            fontSize: '14px',
+            background: 'white'
+          }}
+        >
+          <option value="">Select...</option>
+          {field.options?.map((opt: string) => (
+            <option key={opt} value={opt}>{opt}</option>
+          ))}
+        </select>
+      );
     }
     
-    setShowModal(false);
-    router.push('/dashboard/applications');
-  };
-
-  const handleSaveEdits = async () => {
-    try {
-      // Save edits to API and auto-move to review status
-      const response = await fetch(`${API_URL}/api/applications/${params.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...editedData,
-          status: 'review' // Auto-move to Review tab after editing
-        })
-      });
-      
-      if (response.ok) {
-        // Update local state
-        if (apiApp) {
-          setApiApp({ ...apiApp, status: 'review' });
-        }
-        setIsEditing(false);
-      } else {
-        // Still close editing even if API fails (mock data)
-        setIsEditing(false);
-      }
-    } catch (error) {
-      console.error('Error saving edits:', error);
-      setIsEditing(false);
+    if (field.type === 'textarea') {
+      return (
+        <textarea
+          value={value || ''}
+          onChange={(e) => setFieldValue(field.key, e.target.value)}
+          rows={3}
+          style={{
+            width: '100%',
+            padding: '10px 12px',
+            border: '1px solid #d1d5db',
+            borderRadius: '8px',
+            fontSize: '14px',
+            resize: 'vertical'
+          }}
+        />
+      );
     }
-  };
 
-  const addCustomField = () => {
-    if (newFieldLabel && newFieldValue) {
-      setEditedData({
-        ...editedData,
-        customFields: [...editedData.customFields, { label: newFieldLabel, value: newFieldValue }]
-      });
-      setNewFieldLabel('');
-      setNewFieldValue('');
-      setShowAddField(false);
+    if (field.type === 'tags') {
+      const tags = Array.isArray(value) ? value : [];
+      return (
+        <div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '8px' }}>
+            {tags.map((tag: string, i: number) => (
+              <span key={i} style={{ 
+                background: '#e5e7eb', 
+                padding: '4px 10px', 
+                borderRadius: '12px', 
+                fontSize: '13px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}>
+                {tag}
+                <button 
+                  onClick={() => setFieldValue(field.key, tags.filter((_: string, idx: number) => idx !== i))}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: '#6b7280' }}
+                >×</button>
+              </span>
+            ))}
+          </div>
+          <input
+            type="text"
+            placeholder="Type and press Enter to add..."
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && e.currentTarget.value.trim()) {
+                setFieldValue(field.key, [...tags, e.currentTarget.value.trim()]);
+                e.currentTarget.value = '';
+                e.preventDefault();
+              }
+            }}
+            style={{
+              width: '100%',
+              padding: '8px 12px',
+              border: '1px solid #d1d5db',
+              borderRadius: '8px',
+              fontSize: '14px'
+            }}
+          />
+        </div>
+      );
     }
+
+    return (
+      <input
+        type={field.type === 'date' ? 'date' : 'text'}
+        value={value || ''}
+        onChange={(e) => setFieldValue(field.key, e.target.value)}
+        maxLength={field.maxLength}
+        style={{
+          width: '100%',
+          padding: '10px 12px',
+          border: '1px solid #d1d5db',
+          borderRadius: '8px',
+          fontSize: '14px'
+        }}
+      />
+    );
   };
 
-  const addNote = () => {
-    if (newNote.trim()) {
-      setApplicationNotes([
-        { text: newNote, author: 'Jennifer Walsh', time: 'Just now' },
-        ...applicationNotes
-      ]);
-      setNewNote('');
-    }
-  };
+  if (loading) {
+    return (
+      <div className="main-content">
+        <div style={{ padding: '60px', textAlign: 'center' }}>Loading...</div>
+      </div>
+    );
+  }
 
-  const addArrayItem = (field: 'diagnosis' | 'medications' | 'allergies' | 'services', value: string) => {
-    if (value.trim()) {
-      setEditedData({
-        ...editedData,
-        [field]: [...editedData[field], value.trim()]
-      });
-    }
-  };
+  if (!app) {
+    return (
+      <div className="main-content">
+        <div style={{ padding: '60px', textAlign: 'center' }}>Application not found</div>
+      </div>
+    );
+  }
 
-  const removeArrayItem = (field: 'diagnosis' | 'medications' | 'allergies' | 'services', index: number) => {
-    setEditedData({
-      ...editedData,
-      [field]: editedData[field].filter((_, i) => i !== index)
-    });
+  const getInitials = (name: string) => {
+    if (!name) return '??';
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
   };
 
   return (
-    <div className="main-content">
+    <div className="main-content" style={{ maxWidth: '1400px' }}>
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <Link href="/dashboard/applications" style={{ 
-            width: '40px', height: '40px', borderRadius: '8px', background: 'white', 
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.05)', textDecoration: 'none'
-          }}>
-            <svg width="20" height="20" fill="none" stroke="#666" strokeWidth="2" viewBox="0 0 24 24">
-              <path d="M19 12H5M12 19l-7-7 7-7"/>
-            </svg>
-          </Link>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-              <h1 style={{ fontSize: '28px' }}>{isEditing ? editedData.name : app.name}</h1>
-              <span className={`status-badge status-${app.status}`}>
-                {app.status === 'pending' && 'Pending'}
-                {app.status === 'approved' && 'Approved'}
-                {app.status === 'denied' && 'Denied'}
-                {app.status === 'review' && 'Needs Review'}
-              </span>
+      <div style={{ marginBottom: '24px' }}>
+        <Link href="/dashboard/applications" style={{ color: '#275380', textDecoration: 'none', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '16px' }}>
+          ← Back to Applications
+        </Link>
+        
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{ 
+              width: '64px', height: '64px', borderRadius: '16px', 
+              background: '#275380', color: 'white', 
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: '24px', fontWeight: 600
+            }}>
+              {getInitials(app.patient_name)}
             </div>
-            <p style={{ color: '#666' }}>{app.id} • {isEditing ? editedData.facility : app.facility}</p>
-          </div>
-        </div>
-
-        {(app.status === 'pending' || app.status === 'review') && (
-          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-            <button onClick={() => handleDecision('approved')} className="btn btn-success">
-              <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <polyline points="20 6 9 17 4 12"/>
-              </svg>
-              Approve
-            </button>
-            <button onClick={() => handleDecision('denied')} className="btn btn-danger">
-              <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
-              </svg>
-              Deny
-            </button>
-            <button onClick={() => handleDecision('review')} className="btn btn-warning">
-              <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-              </svg>
-              Review
-            </button>
-          </div>
-        )}
-      </div>
-
-      {/* AI Summary Card */}
-      <div style={{ 
-        background: 'linear-gradient(135deg, #275380 0%, #1e3f61 100%)',
-        borderRadius: '16px',
-        padding: '24px',
-        marginBottom: '24px',
-        color: 'white'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
-          <div style={{ 
-            width: '48px', height: '48px', borderRadius: '12px', 
-            background: 'rgba(255,255,255,0.2)', 
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            flexShrink: 0
-          }}>
-            <svg width="24" height="24" fill="none" stroke="white" strokeWidth="2" viewBox="0 0 24 24">
-              <path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2M7.5 13a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3m9 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3"/>
-            </svg>
-          </div>
-          <div style={{ flex: 1 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-              <h3 style={{ fontSize: '18px', fontWeight: 600 }}>AI Medical Summary</h3>
-              <span style={{ 
-                padding: '2px 8px', 
-                background: 'rgba(255,255,255,0.2)', 
-                borderRadius: '10px', 
-                fontSize: '11px' 
-              }}>
-                {app.confidence}% confidence
-              </span>
-            </div>
-            <p style={{ fontSize: '15px', lineHeight: 1.7, opacity: 0.95 }}>{app.aiSummary}</p>
-          </div>
-        </div>
-      </div>
-
-      {/* AI Confidence & Edit Banner */}
-      <div style={{ 
-        background: isEditing ? '#fef9c3' : 'linear-gradient(135deg, rgba(39,83,128,0.05) 0%, rgba(58,124,165,0.05) 100%)',
-        border: isEditing ? '1px solid #fde047' : '1px solid rgba(39,83,128,0.2)',
-        borderRadius: '12px',
-        padding: '16px 24px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        marginBottom: '24px',
-        flexWrap: 'wrap',
-        gap: '12px'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{ width: '40px', height: '40px', borderRadius: '8px', background: isEditing ? '#fde047' : 'rgba(39,83,128,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <svg width="20" height="20" fill="none" stroke={isEditing ? '#854d0e' : '#275380'} strokeWidth="2" viewBox="0 0 24 24">
-              {isEditing ? (
-                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-              ) : (
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-              )}
-            </svg>
-          </div>
-          <div>
-            <div style={{ fontWeight: 600, color: isEditing ? '#854d0e' : '#275380' }}>
-              {isEditing ? 'Editing Mode' : 'AI Data Extraction'}
-            </div>
-            <div style={{ fontSize: '14px', color: isEditing ? '#92400e' : '#666' }}>
-              {isEditing ? 'Make changes to any field below' : `Confidence: ${app.confidence}%`}
+            <div>
+              <h1 style={{ fontSize: '28px', marginBottom: '4px' }}>{app.patient_name || 'Unknown Patient'}</h1>
+              <div style={{ color: '#6b7280', fontSize: '14px' }}>
+                {app.id} • {app.facility || 'Optalis Healthcare'}
+              </div>
             </div>
           </div>
-        </div>
-        <div style={{ display: 'flex', gap: '8px' }}>
-          {isEditing ? (
-            <>
-              <button 
-                onClick={() => setShowAddField(true)}
-                style={{ padding: '8px 16px', background: 'white', border: '1px solid #e0e0e0', borderRadius: '6px', cursor: 'pointer', fontSize: '14px' }}
-              >
-                + Add Field
-              </button>
-              <button 
-                onClick={() => setIsEditing(false)}
-                style={{ padding: '8px 16px', background: 'white', border: '1px solid #e0e0e0', borderRadius: '6px', cursor: 'pointer', fontSize: '14px' }}
-              >
-                Cancel
-              </button>
-              <button 
-                onClick={handleSaveEdits}
-                style={{ padding: '8px 16px', background: '#275380', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: 500 }}
-              >
-                Save Changes
-              </button>
-            </>
-          ) : (
-            <button 
-              onClick={() => setIsEditing(true)}
-              style={{ padding: '8px 16px', background: 'white', border: '1px solid #e0e0e0', borderRadius: '6px', cursor: 'pointer', fontSize: '14px' }}
+          
+          <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+            <select
+              value={app.status}
+              onChange={(e) => handleStatusChange(e.target.value)}
+              style={{
+                padding: '10px 16px',
+                borderRadius: '8px',
+                border: '1px solid #d1d5db',
+                fontSize: '14px',
+                fontWeight: 500,
+                background: app.status === 'approved' ? '#dcfce7' : app.status === 'denied' ? '#fee2e2' : app.status === 'review' ? '#dbeafe' : '#fef3c7',
+                cursor: 'pointer'
+              }}
             >
-              Edit Extracted Data
-            </button>
-          )}
-        </div>
-      </div>
-
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: '24px' }}>
-        {/* Main Content */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-          {/* Patient Info */}
-          <div className="card">
-            <h2 style={{ fontSize: '18px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <svg width="20" height="20" fill="none" stroke="#275380" strokeWidth="2" viewBox="0 0 24 24">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
-              </svg>
-              Patient Information
-            </h2>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-              <div>
-                <div style={{ fontSize: '13px', color: '#888', marginBottom: '4px' }}>Full Name</div>
-                {isEditing ? (
-                  <input 
-                    type="text" 
-                    value={editedData.name} 
-                    onChange={(e) => setEditedData({...editedData, name: e.target.value})}
-                    style={{ width: '100%', padding: '8px 12px', border: '1px solid #e0e0e0', borderRadius: '6px', fontSize: '15px', boxSizing: 'border-box' }}
-                  />
-                ) : (
-                  <div style={{ fontWeight: 500 }}>{app.name}</div>
-                )}
-              </div>
-              <div>
-                <div style={{ fontSize: '13px', color: '#888', marginBottom: '4px' }}>Date of Birth</div>
-                {isEditing ? (
-                  <input 
-                    type="text" 
-                    value={editedData.dob || ''} 
-                    onChange={(e) => setEditedData({...editedData, dob: e.target.value})}
-                    placeholder="MM/DD/YYYY"
-                    style={{ width: '100%', padding: '8px 12px', border: '1px solid #e0e0e0', borderRadius: '6px', fontSize: '15px', boxSizing: 'border-box' }}
-                  />
-                ) : (
-                  <div style={{ fontWeight: 500, color: app.dob ? 'inherit' : '#9ca3af', fontStyle: app.dob ? 'normal' : 'italic' }}>
-                    {app.dob || 'Not provided'}
-                  </div>
-                )}
-              </div>
-              <div>
-                <div style={{ fontSize: '13px', color: '#888', marginBottom: '4px' }}>Phone</div>
-                {isEditing ? (
-                  <input 
-                    type="text" 
-                    value={editedData.phone || ''} 
-                    onChange={(e) => setEditedData({...editedData, phone: e.target.value})}
-                    placeholder="Enter phone number"
-                    style={{ width: '100%', padding: '8px 12px', border: '1px solid #e0e0e0', borderRadius: '6px', fontSize: '15px', boxSizing: 'border-box' }}
-                  />
-                ) : (
-                  <div style={{ fontWeight: 500, color: app.phone ? 'inherit' : '#9ca3af', fontStyle: app.phone ? 'normal' : 'italic' }}>
-                    {app.phone || 'Not provided'}
-                  </div>
-                )}
-              </div>
-              <div>
-                <div style={{ fontSize: '13px', color: '#888', marginBottom: '4px' }}>Requested Facility</div>
-                {isEditing ? (
-                  <input 
-                    type="text" 
-                    value={editedData.facility} 
-                    onChange={(e) => setEditedData({...editedData, facility: e.target.value})}
-                    style={{ width: '100%', padding: '8px 12px', border: '1px solid #e0e0e0', borderRadius: '6px', fontSize: '15px', boxSizing: 'border-box' }}
-                  />
-                ) : (
-                  <div style={{ fontWeight: 500 }}>{app.facility}</div>
-                )}
-              </div>
-              <div style={{ gridColumn: 'span 2' }}>
-                <div style={{ fontSize: '13px', color: '#888', marginBottom: '4px' }}>Address</div>
-                {isEditing ? (
-                  <input 
-                    type="text" 
-                    value={editedData.address || ''} 
-                    onChange={(e) => setEditedData({...editedData, address: e.target.value})}
-                    placeholder="Enter address"
-                    style={{ width: '100%', padding: '8px 12px', border: '1px solid #e0e0e0', borderRadius: '6px', fontSize: '15px', boxSizing: 'border-box' }}
-                  />
-                ) : (
-                  <div style={{ fontWeight: 500, color: app.address ? 'inherit' : '#9ca3af', fontStyle: app.address ? 'normal' : 'italic' }}>
-                    {app.address || 'Not provided'}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Insurance Info */}
-          <div className="card">
-            <h2 style={{ fontSize: '18px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <svg width="20" height="20" fill="none" stroke="#275380" strokeWidth="2" viewBox="0 0 24 24">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-              </svg>
-              Insurance Information
-            </h2>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-              <div>
-                <div style={{ fontSize: '13px', color: '#888', marginBottom: '4px' }}>Primary Insurance</div>
-                {isEditing ? (
-                  <input 
-                    type="text" 
-                    value={editedData.insurance || ''} 
-                    onChange={(e) => setEditedData({...editedData, insurance: e.target.value})}
-                    placeholder="Enter insurance provider"
-                    style={{ width: '100%', padding: '8px 12px', border: '1px solid #e0e0e0', borderRadius: '6px', fontSize: '15px', boxSizing: 'border-box' }}
-                  />
-                ) : (
-                  <div style={{ fontWeight: 500, color: app.insurance ? 'inherit' : '#9ca3af', fontStyle: app.insurance ? 'normal' : 'italic' }}>
-                    {app.insurance || 'Not provided'}
-                  </div>
-                )}
-              </div>
-              <div>
-                <div style={{ fontSize: '13px', color: '#888', marginBottom: '4px' }}>Policy Number</div>
-                {isEditing ? (
-                  <input 
-                    type="text" 
-                    value={editedData.policyNumber || ''} 
-                    onChange={(e) => setEditedData({...editedData, policyNumber: e.target.value})}
-                    placeholder="Enter policy number"
-                    style={{ width: '100%', padding: '8px 12px', border: '1px solid #e0e0e0', borderRadius: '6px', fontSize: '15px', boxSizing: 'border-box' }}
-                  />
-                ) : (
-                  <div style={{ fontWeight: 500, color: app.policyNumber ? 'inherit' : '#9ca3af', fontStyle: app.policyNumber ? 'normal' : 'italic' }}>
-                    {app.policyNumber || 'Not provided'}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Medical Info */}
-          <div className="card">
-            <h2 style={{ fontSize: '18px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <svg width="20" height="20" fill="none" stroke="#275380" strokeWidth="2" viewBox="0 0 24 24">
-                <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
-              </svg>
-              Medical Information
-            </h2>
+              <option value="pending">Pending</option>
+              <option value="review">In Review</option>
+              <option value="approved">Approved</option>
+              <option value="denied">Denied</option>
+            </select>
             
-            {/* Diagnosis */}
-            <div style={{ marginBottom: '20px' }}>
-              <div style={{ fontSize: '13px', color: '#888', marginBottom: '8px' }}>Diagnosis</div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                {(isEditing ? editedData.diagnosis : app.diagnosis).map((d: string, i: number) => (
-                  <span key={i} style={{ 
-                    padding: '6px 12px', 
-                    background: '#fee2e2', 
-                    color: '#991b1b', 
-                    borderRadius: '20px', 
-                    fontSize: '13px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px'
-                  }}>
-                    {d}
-                    {isEditing && (
-                      <button onClick={() => removeArrayItem('diagnosis', i)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex' }}>
-                        <svg width="14" height="14" fill="none" stroke="#991b1b" strokeWidth="2" viewBox="0 0 24 24">
-                          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-                        </svg>
-                      </button>
-                    )}
-                  </span>
-                ))}
-                {isEditing && (
-                  <input 
-                    type="text" 
-                    placeholder="Add diagnosis..."
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        addArrayItem('diagnosis', (e.target as HTMLInputElement).value);
-                        (e.target as HTMLInputElement).value = '';
-                      }
-                    }}
-                    style={{ padding: '6px 12px', border: '1px dashed #e0e0e0', borderRadius: '20px', fontSize: '13px', width: '150px' }}
-                  />
-                )}
-              </div>
-            </div>
-
-            {/* Medications */}
-            <div style={{ marginBottom: '20px' }}>
-              <div style={{ fontSize: '13px', color: '#888', marginBottom: '8px' }}>Medications</div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                {(isEditing ? editedData.medications : app.medications).map((m: string, i: number) => (
-                  <span key={i} style={{ 
-                    padding: '6px 12px', 
-                    background: '#dbeafe', 
-                    color: '#1e40af', 
-                    borderRadius: '20px', 
-                    fontSize: '13px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px'
-                  }}>
-                    {m}
-                    {isEditing && (
-                      <button onClick={() => removeArrayItem('medications', i)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex' }}>
-                        <svg width="14" height="14" fill="none" stroke="#1e40af" strokeWidth="2" viewBox="0 0 24 24">
-                          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-                        </svg>
-                      </button>
-                    )}
-                  </span>
-                ))}
-                {isEditing && (
-                  <input 
-                    type="text" 
-                    placeholder="Add medication..."
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        addArrayItem('medications', (e.target as HTMLInputElement).value);
-                        (e.target as HTMLInputElement).value = '';
-                      }
-                    }}
-                    style={{ padding: '6px 12px', border: '1px dashed #e0e0e0', borderRadius: '20px', fontSize: '13px', width: '150px' }}
-                  />
-                )}
-              </div>
-            </div>
-
-            {/* Allergies */}
-            <div style={{ marginBottom: '20px' }}>
-              <div style={{ fontSize: '13px', color: '#888', marginBottom: '8px' }}>Allergies</div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                {(isEditing ? editedData.allergies : app.allergies).map((a: string, i: number) => (
-                  <span key={i} style={{ 
-                    padding: '6px 12px', 
-                    background: '#fef9c3', 
-                    color: '#854d0e', 
-                    borderRadius: '20px', 
-                    fontSize: '13px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px'
-                  }}>
-                    {a}
-                    {isEditing && (
-                      <button onClick={() => removeArrayItem('allergies', i)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex' }}>
-                        <svg width="14" height="14" fill="none" stroke="#854d0e" strokeWidth="2" viewBox="0 0 24 24">
-                          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-                        </svg>
-                      </button>
-                    )}
-                  </span>
-                ))}
-                {isEditing && (
-                  <input 
-                    type="text" 
-                    placeholder="Add allergy..."
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        addArrayItem('allergies', (e.target as HTMLInputElement).value);
-                        (e.target as HTMLInputElement).value = '';
-                      }
-                    }}
-                    style={{ padding: '6px 12px', border: '1px dashed #e0e0e0', borderRadius: '20px', fontSize: '13px', width: '150px' }}
-                  />
-                )}
-              </div>
-            </div>
-
-            {/* Physician */}
-            <div style={{ paddingTop: '20px', borderTop: '1px solid #f0f0f0' }}>
-              <div style={{ fontSize: '13px', color: '#888', marginBottom: '4px' }}>Referring Physician</div>
-              {isEditing ? (
-                <input 
-                  type="text" 
-                  value={editedData.physician || ''} 
-                  onChange={(e) => setEditedData({...editedData, physician: e.target.value})}
-                  placeholder="Enter physician name"
-                  style={{ width: '100%', padding: '8px 12px', border: '1px solid #e0e0e0', borderRadius: '6px', fontSize: '15px', boxSizing: 'border-box' }}
-                />
-              ) : (
-                <div style={{ fontWeight: 500, color: app.physician ? 'inherit' : '#9ca3af', fontStyle: app.physician ? 'normal' : 'italic' }}>
-                  {app.physician || 'Not provided'}
-                </div>
-              )}
-            </div>
-
-            {/* Services */}
-            <div style={{ marginTop: '20px' }}>
-              <div style={{ fontSize: '13px', color: '#888', marginBottom: '8px' }}>Requested Services</div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                {(isEditing ? editedData.services : app.services).map((s: string, i: number) => (
-                  <span key={i} style={{ 
-                    padding: '6px 12px', 
-                    background: 'rgba(39,83,128,0.1)', 
-                    color: '#275380', 
-                    borderRadius: '20px', 
-                    fontSize: '13px', 
-                    fontWeight: 500,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px'
-                  }}>
-                    {s}
-                    {isEditing && (
-                      <button onClick={() => removeArrayItem('services', i)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex' }}>
-                        <svg width="14" height="14" fill="none" stroke="#275380" strokeWidth="2" viewBox="0 0 24 24">
-                          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-                        </svg>
-                      </button>
-                    )}
-                  </span>
-                ))}
-                {isEditing && (
-                  <input 
-                    type="text" 
-                    placeholder="Add service..."
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        addArrayItem('services', (e.target as HTMLInputElement).value);
-                        (e.target as HTMLInputElement).value = '';
-                      }
-                    }}
-                    style={{ padding: '6px 12px', border: '1px dashed #e0e0e0', borderRadius: '20px', fontSize: '13px', width: '150px' }}
-                  />
-                )}
-              </div>
-            </div>
-
-            {/* Custom Fields */}
-            {editedData.customFields.length > 0 && (
-              <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid #f0f0f0' }}>
-                <div style={{ fontSize: '13px', color: '#888', marginBottom: '12px' }}>Additional Fields</div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                  {editedData.customFields.map((field, i) => (
-                    <div key={i}>
-                      <div style={{ fontSize: '13px', color: '#888', marginBottom: '4px' }}>{field.label}</div>
-                      <div style={{ fontWeight: 500 }}>{field.value}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+            <button
+              onClick={() => setShowDocViewer(true)}
+              style={{
+                padding: '10px 20px',
+                background: 'white',
+                border: '1px solid #d1d5db',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}
+            >
+              📄 View Documents
+            </button>
+            
+            {isEditing ? (
+              <>
+                <button
+                  onClick={() => { setIsEditing(false); setEditedData(app); }}
+                  style={{ padding: '10px 20px', background: 'white', border: '1px solid #d1d5db', borderRadius: '8px', cursor: 'pointer' }}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSave}
+                  disabled={saving}
+                  style={{ padding: '10px 24px', background: '#275380', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 500 }}
+                >
+                  {saving ? 'Saving...' : 'Save Changes'}
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => setIsEditing(true)}
+                style={{ padding: '10px 24px', background: '#275380', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 500 }}
+              >
+                ✏️ Edit Application
+              </button>
             )}
           </div>
         </div>
-
-        {/* Sidebar */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-          {/* Application Details */}
-          <div className="card">
-            <h3 style={{ fontSize: '16px', marginBottom: '16px' }}>Application Details</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '14px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: '#888' }}>Submitted</span>
-                <span style={{ fontWeight: 500 }}>{app.date}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: '#888' }}>Source</span>
-                <span style={{ fontWeight: 500 }}>{app.source}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: '#888' }}>Priority</span>
-                <span style={{ fontWeight: 500, color: app.priority === 'high' ? '#dc2626' : '#4a4a4a', textTransform: 'capitalize' }}>{app.priority}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Documents */}
-          <div className="card">
-            <h3 style={{ fontSize: '16px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <svg width="18" height="18" fill="none" stroke="#275380" strokeWidth="2" viewBox="0 0 24 24">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
-              </svg>
-              Documents ({app.documents.length})
-            </h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {app.documents.map((doc, i) => (
-                <button 
-                  key={i} 
-                  onClick={() => {
-                    setSelectedDoc(doc);
-                    setDocViewTab('original');
-                    setShowDocViewer(true);
-                  }}
-                  style={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    justifyContent: 'space-between', 
-                    padding: '12px', 
-                    background: '#f9f7f4', 
-                    borderRadius: '8px',
-                    textDecoration: 'none',
-                    color: 'inherit',
-                    cursor: 'pointer',
-                    transition: 'background 0.2s',
-                    border: 'none',
-                    width: '100%',
-                    textAlign: 'left'
-                  }}
-                  onMouseOver={(e) => e.currentTarget.style.background = '#f0ebe4'}
-                  onMouseOut={(e) => e.currentTarget.style.background = '#f9f7f4'}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <svg width="20" height="20" fill="none" stroke="#666" strokeWidth="2" viewBox="0 0 24 24">
-                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                    </svg>
-                    <div>
-                      <div style={{ fontSize: '14px', fontWeight: 500 }}>{doc.name}</div>
-                      <div style={{ fontSize: '12px', color: '#888' }}>{doc.type}</div>
-                    </div>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ fontSize: '12px', color: '#275380', fontWeight: 500 }}>View</span>
-                    <svg width="18" height="18" fill="none" stroke="#275380" strokeWidth="2" viewBox="0 0 24 24">
-                      <path d="M15 3h6v6M10 14L21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-                    </svg>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Additional Extracted Data Section */}
-          {app.extraData && Object.keys(app.extraData).length > 0 && (
-            <div className="card">
-              <button
-                onClick={() => setShowExtraData(!showExtraData)}
-                style={{
-                  width: '100%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  padding: 0,
-                  textAlign: 'left'
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <div style={{ 
-                    width: '32px', height: '32px', borderRadius: '8px', 
-                    background: 'rgba(39,83,128,0.1)', 
-                    display: 'flex', alignItems: 'center', justifyContent: 'center' 
-                  }}>
-                    <svg width="16" height="16" fill="none" stroke="#275380" strokeWidth="2" viewBox="0 0 24 24">
-                      <path d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 style={{ fontSize: '16px', margin: 0 }}>Additional Extracted Data</h3>
-                    <p style={{ fontSize: '13px', color: '#888', margin: '2px 0 0 0' }}>
-                      {Object.keys(app.extraData).length} additional field(s) found
-                    </p>
-                  </div>
-                </div>
-                <svg 
-                  width="20" height="20" fill="none" stroke="#666" strokeWidth="2" viewBox="0 0 24 24"
-                  style={{ transform: showExtraData ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}
-                >
-                  <path d="M19 9l-7 7-7-7"/>
-                </svg>
-              </button>
-              
-              {showExtraData && (
-                <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #eee' }}>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px' }}>
-                    {Object.entries(app.extraData).map(([key, value]) => {
-                      if (!value || (Array.isArray(value) && value.length === 0) || (typeof value === 'object' && Object.keys(value).length === 0)) {
-                        return null;
-                      }
-                      
-                      const label = key
-                        .replace(/_/g, ' ')
-                        .replace(/([A-Z])/g, ' $1')
-                        .split(' ')
-                        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-                        .join(' ')
-                        .trim();
-                      
-                      let displayValue: React.ReactNode = '';
-                      if (Array.isArray(value)) {
-                        displayValue = (
-                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                            {value.map((item, i) => (
-                              <span key={i} style={{ 
-                                background: '#f0f0f0', 
-                                padding: '4px 10px', 
-                                borderRadius: '4px', 
-                                fontSize: '13px' 
-                              }}>
-                                {String(item)}
-                              </span>
-                            ))}
-                          </div>
-                        );
-                      } else if (typeof value === 'object') {
-                        displayValue = <pre style={{ fontSize: '12px', margin: 0, whiteSpace: 'pre-wrap' }}>{JSON.stringify(value, null, 2)}</pre>;
-                      } else {
-                        displayValue = <span style={{ color: '#333' }}>{String(value)}</span>;
-                      }
-                      
-                      return (
-                        <div key={key} style={{ padding: '12px', background: '#f9f7f4', borderRadius: '8px' }}>
-                          <div style={{ fontSize: '12px', color: '#666', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                            {label}
-                          </div>
-                          <div style={{ fontSize: '14px' }}>{displayValue}</div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Notes Section */}
-          <div className="card">
-            <h3 style={{ fontSize: '16px', marginBottom: '16px' }}>Notes</h3>
-            
-            {/* Add Note Input */}
-            <div style={{ marginBottom: '16px' }}>
-              <textarea
-                value={newNote}
-                onChange={(e) => setNewNote(e.target.value)}
-                placeholder="Add a note..."
-                rows={3}
-                style={{ 
-                  width: '100%', 
-                  padding: '12px', 
-                  border: '1px solid #e0e0e0', 
-                  borderRadius: '8px', 
-                  resize: 'none',
-                  fontSize: '14px',
-                  boxSizing: 'border-box'
-                }}
-              />
-              <button 
-                onClick={addNote}
-                disabled={!newNote.trim()}
-                style={{ 
-                  marginTop: '8px',
-                  padding: '8px 16px', 
-                  background: newNote.trim() ? '#275380' : '#e0e0e0', 
-                  color: newNote.trim() ? 'white' : '#888',
-                  border: 'none', 
-                  borderRadius: '6px', 
-                  cursor: newNote.trim() ? 'pointer' : 'not-allowed', 
-                  fontSize: '13px',
-                  fontWeight: 500
-                }}
-              >
-                Add Note
-              </button>
-            </div>
-
-            {/* Notes List */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {applicationNotes.map((note, i) => (
-                <div key={i} style={{ padding: '12px', background: '#f9f7f4', borderRadius: '8px' }}>
-                  <p style={{ fontSize: '14px', color: '#4a4a4a', marginBottom: '8px' }}>{note.text}</p>
-                  <div style={{ fontSize: '12px', color: '#888' }}>{note.author} • {note.time}</div>
-                </div>
-              ))}
-              {app.notes && (
-                <div style={{ padding: '12px', background: '#f9f7f4', borderRadius: '8px' }}>
-                  <p style={{ fontSize: '14px', color: '#4a4a4a', marginBottom: '8px' }}>{app.notes}</p>
-                  <div style={{ fontSize: '12px', color: '#888' }}>System • On submission</div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
       </div>
 
-      {/* Decision Modal */}
-      {showModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '16px' }}>
-          <div style={{ background: 'white', borderRadius: '16px', padding: '32px', width: '100%', maxWidth: '440px' }}>
-            <h3 style={{ fontSize: '22px', marginBottom: '8px' }}>
-              {decision === 'approved' && 'Approve Application'}
-              {decision === 'denied' && 'Deny Application'}
-              {decision === 'review' && 'Mark for Review'}
-            </h3>
-            <p style={{ color: '#666', marginBottom: '24px' }}>
-              {decision === 'approved' && 'This will approve the application and sync to CRM.'}
-              {decision === 'denied' && 'Please provide a reason for denial.'}
-              {decision === 'review' && 'This will flag the application for additional review.'}
-            </p>
-            <textarea
-              value={decisionNotes}
-              onChange={(e) => setDecisionNotes(e.target.value)}
-              rows={4}
-              placeholder={decision === 'denied' ? 'Reason for denial (required)...' : 'Notes (optional)...'}
-              style={{ width: '100%', padding: '12px', border: '1px solid #e0e0e0', borderRadius: '8px', resize: 'none', marginBottom: '24px', boxSizing: 'border-box' }}
-            />
-            <div style={{ display: 'flex', gap: '12px' }}>
-              <button onClick={() => setShowModal(false)} style={{ flex: 1, padding: '12px', border: '1px solid #e0e0e0', background: 'white', borderRadius: '8px', cursor: 'pointer' }}>
-                Cancel
-              </button>
-              <button 
-                onClick={submitDecision}
-                disabled={decision === 'denied' && !decisionNotes}
-                style={{ 
-                  flex: 1, padding: '12px', border: 'none', borderRadius: '8px', cursor: 'pointer', color: 'white',
-                  background: decision === 'approved' ? '#16a34a' : decision === 'denied' ? '#dc2626' : '#2563eb',
-                  opacity: (decision === 'denied' && !decisionNotes) ? 0.5 : 1
-                }}
-              >
-                Confirm
-              </button>
-            </div>
+      {/* AI Summary Banner */}
+      {app.ai_summary && (
+        <div style={{ 
+          background: 'linear-gradient(135deg, #275380 0%, #1e4060 100%)', 
+          borderRadius: '12px', 
+          padding: '20px 24px', 
+          marginBottom: '24px',
+          color: 'white'
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+            <span style={{ fontWeight: 600 }}>🤖 AI Summary</span>
+            <span style={{ background: 'rgba(255,255,255,0.2)', padding: '4px 12px', borderRadius: '12px', fontSize: '13px' }}>
+              {app.confidence_score || 0}% confidence
+            </span>
           </div>
+          <p style={{ margin: 0, lineHeight: '1.6', opacity: 0.95 }}>{app.ai_summary}</p>
         </div>
       )}
 
-      {/* Add Custom Field Modal */}
-      {showAddField && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '16px' }}>
-          <div style={{ background: 'white', borderRadius: '16px', padding: '32px', width: '100%', maxWidth: '400px' }}>
-            <h3 style={{ fontSize: '20px', marginBottom: '24px' }}>Add Custom Field</h3>
-            <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '8px' }}>Field Label</label>
-              <input
-                type="text"
-                value={newFieldLabel}
-                onChange={(e) => setNewFieldLabel(e.target.value)}
-                placeholder="e.g., Emergency Contact"
-                style={{ width: '100%', padding: '10px 12px', border: '1px solid #e0e0e0', borderRadius: '6px', fontSize: '15px', boxSizing: 'border-box' }}
-              />
+      {/* Section Navigation */}
+      <div style={{ 
+        display: 'flex', 
+        gap: '8px', 
+        marginBottom: '24px', 
+        overflowX: 'auto',
+        paddingBottom: '8px'
+      }}>
+        {Object.entries(FIELD_SECTIONS).map(([key, section]) => (
+          <button
+            key={key}
+            onClick={() => setActiveSection(key)}
+            style={{
+              padding: '10px 16px',
+              background: activeSection === key ? section.color : 'white',
+              color: activeSection === key ? 'white' : '#374151',
+              border: `1px solid ${activeSection === key ? section.color : '#d1d5db'}`,
+              borderRadius: '8px',
+              cursor: 'pointer',
+              whiteSpace: 'nowrap',
+              fontWeight: activeSection === key ? 600 : 400,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              transition: 'all 0.2s'
+            }}
+          >
+            <span>{section.icon}</span>
+            {section.title}
+          </button>
+        ))}
+      </div>
+
+      {/* Active Section Content */}
+      <div style={{ 
+        background: 'white', 
+        borderRadius: '16px', 
+        border: '1px solid #e5e7eb',
+        overflow: 'hidden'
+      }}>
+        {Object.entries(FIELD_SECTIONS).map(([key, section]) => (
+          <div 
+            key={key} 
+            style={{ display: activeSection === key ? 'block' : 'none' }}
+          >
+            <div style={{ 
+              padding: '20px 24px', 
+              borderBottom: `3px solid ${section.color}`,
+              background: '#fafafa'
+            }}>
+              <h2 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '10px', color: section.color }}>
+                <span style={{ fontSize: '24px' }}>{section.icon}</span>
+                {section.title}
+              </h2>
             </div>
-            <div style={{ marginBottom: '24px' }}>
-              <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, marginBottom: '8px' }}>Field Value</label>
-              <input
-                type="text"
-                value={newFieldValue}
-                onChange={(e) => setNewFieldValue(e.target.value)}
-                placeholder="e.g., John Smith (248) 555-0100"
-                style={{ width: '100%', padding: '10px 12px', border: '1px solid #e0e0e0', borderRadius: '6px', fontSize: '15px', boxSizing: 'border-box' }}
-              />
-            </div>
-            <div style={{ display: 'flex', gap: '12px' }}>
-              <button onClick={() => setShowAddField(false)} style={{ flex: 1, padding: '12px', border: '1px solid #e0e0e0', background: 'white', borderRadius: '8px', cursor: 'pointer' }}>
-                Cancel
-              </button>
-              <button 
-                onClick={addCustomField}
-                disabled={!newFieldLabel || !newFieldValue}
-                style={{ 
-                  flex: 1, padding: '12px', border: 'none', borderRadius: '8px', cursor: 'pointer', color: 'white',
-                  background: '#275380',
-                  opacity: (newFieldLabel && newFieldValue) ? 1 : 0.5
-                }}
-              >
-                Add Field
-              </button>
+            
+            <div style={{ padding: '24px' }}>
+              <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', 
+                gap: '20px' 
+              }}>
+                {section.fields.map((field: any) => (
+                  <div 
+                    key={field.key} 
+                    style={{ 
+                      gridColumn: field.fullWidth ? '1 / -1' : 'auto'
+                    }}
+                  >
+                    <label style={{ 
+                      display: 'block', 
+                      marginBottom: '6px', 
+                      fontSize: '13px', 
+                      fontWeight: 500, 
+                      color: '#374151' 
+                    }}>
+                      {field.label}
+                    </label>
+                    {field.hint && !isEditing && (
+                      <div style={{ fontSize: '12px', color: '#9ca3af', marginBottom: '4px' }}>{field.hint}</div>
+                    )}
+                    <div style={{ fontSize: '15px' }}>
+                      {renderField(field)}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        ))}
+      </div>
+
+      {/* Source Information */}
+      <div style={{ 
+        marginTop: '24px', 
+        padding: '16px 20px', 
+        background: '#f9fafb', 
+        borderRadius: '12px',
+        fontSize: '13px',
+        color: '#6b7280'
+      }}>
+        <strong>Source:</strong> {app.source || 'Unknown'} • 
+        <strong style={{ marginLeft: '12px' }}>Created:</strong> {app.created_at ? new Date(app.created_at).toLocaleString() : 'Unknown'} •
+        <strong style={{ marginLeft: '12px' }}>Updated:</strong> {app.updated_at ? new Date(app.updated_at).toLocaleString() : 'Unknown'}
+      </div>
 
       {/* Document Viewer Modal */}
-      {showDocViewer && selectedDoc && (
+      {showDocViewer && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '16px' }}>
-          <div style={{ background: 'white', borderRadius: '16px', width: '100%', maxWidth: '1200px', height: '90vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-            {/* Modal Header */}
-            <div style={{ padding: '20px 24px', borderBottom: '1px solid #e0e0e0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
-              <div>
-                <h3 style={{ fontSize: '20px', marginBottom: '4px' }}>{selectedDoc.name}</h3>
-                <p style={{ fontSize: '14px', color: '#666' }}>{selectedDoc.type} Document</p>
-              </div>
+          <div style={{ background: 'white', borderRadius: '16px', width: '100%', maxWidth: '1000px', height: '85vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+            <div style={{ padding: '20px 24px', borderBottom: '1px solid #e0e0e0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3 style={{ margin: 0 }}>Application Documents</h3>
               <button 
                 onClick={() => setShowDocViewer(false)}
-                style={{ width: '40px', height: '40px', borderRadius: '8px', border: '1px solid #e0e0e0', background: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                style={{ width: '36px', height: '36px', borderRadius: '8px', border: '1px solid #e0e0e0', background: 'white', cursor: 'pointer' }}
               >
-                <svg width="20" height="20" fill="none" stroke="#666" strokeWidth="2" viewBox="0 0 24 24">
-                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-                </svg>
+                ✕
               </button>
             </div>
 
-            {/* Tabs */}
-            <div style={{ padding: '0 24px', borderBottom: '1px solid #e0e0e0', display: 'flex', gap: '0', flexShrink: 0 }}>
+            <div style={{ padding: '0 24px', borderBottom: '1px solid #e0e0e0', display: 'flex', gap: '0' }}>
               <button
                 onClick={() => setDocViewTab('original')}
                 style={{
-                  padding: '16px 24px',
+                  padding: '14px 20px',
                   background: 'none',
                   border: 'none',
                   borderBottom: docViewTab === 'original' ? '3px solid #275380' : '3px solid transparent',
                   color: docViewTab === 'original' ? '#275380' : '#666',
                   fontWeight: docViewTab === 'original' ? 600 : 400,
-                  cursor: 'pointer',
-                  fontSize: '15px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px'
+                  cursor: 'pointer'
                 }}
               >
-                <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
-                </svg>
-                Original Document
+                📄 Original Document
               </button>
               <button
                 onClick={() => setDocViewTab('extracted')}
                 style={{
-                  padding: '16px 24px',
+                  padding: '14px 20px',
                   background: 'none',
                   border: 'none',
                   borderBottom: docViewTab === 'extracted' ? '3px solid #275380' : '3px solid transparent',
                   color: docViewTab === 'extracted' ? '#275380' : '#666',
                   fontWeight: docViewTab === 'extracted' ? 600 : 400,
-                  cursor: 'pointer',
-                  fontSize: '15px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px'
+                  cursor: 'pointer'
                 }}
               >
-                <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                </svg>
-                Extracted Data
-                <span style={{ 
-                  fontSize: '11px', 
-                  padding: '2px 8px', 
-                  background: docViewTab === 'extracted' ? '#275380' : '#e0e0e0', 
-                  color: docViewTab === 'extracted' ? 'white' : '#666',
-                  borderRadius: '10px' 
-                }}>
-                  AI
-                </span>
+                🤖 Extracted Data
               </button>
             </div>
 
-            {/* Tab Description */}
-            <div style={{ padding: '12px 24px', background: docViewTab === 'original' ? '#f9f7f4' : '#f0f9ff', borderBottom: '1px solid #e0e0e0', flexShrink: 0 }}>
-              {docViewTab === 'original' ? (
-                <p style={{ fontSize: '13px', color: '#666', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <svg width="16" height="16" fill="none" stroke="#888" strokeWidth="2" viewBox="0 0 24 24">
-                    <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
-                  </svg>
-                  This is the original document as received (scanned fax, email, or uploaded file)
-                </p>
-              ) : (
-                <p style={{ fontSize: '13px', color: '#0369a1', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <svg width="16" height="16" fill="none" stroke="#0369a1" strokeWidth="2" viewBox="0 0 24 24">
-                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                  </svg>
-                  AI-extracted and structured data from the original document ({app.confidence}% confidence)
-                </p>
-              )}
-            </div>
-
-            {/* Document Content */}
-            <div style={{ flex: 1, overflow: 'auto', padding: '24px', background: docViewTab === 'original' ? '#faf9f7' : '#f8fafc' }}>
+            <div style={{ flex: 1, overflow: 'auto', padding: '24px', background: '#f9fafb' }}>
               {docLoading ? (
-                <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>Loading document...</div>
+                <div style={{ textAlign: 'center', padding: '40px' }}>Loading...</div>
               ) : docViewTab === 'original' ? (
-                /* ORIGINAL DOCUMENT TAB */
-                <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+                <div style={{ maxWidth: '700px', margin: '0 auto', background: 'white', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', overflow: 'hidden' }}>
                   {docContent.original ? (
-                    <div style={{ background: 'white', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', overflow: 'hidden' }}>
-                      {/* Email Header */}
+                    <>
                       <div style={{ padding: '20px 24px', borderBottom: '1px solid #eee', background: '#fafafa' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
                           <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#275380', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 600 }}>
                             {(docContent.original.from || 'U')[0].toUpperCase()}
                           </div>
                           <div>
-                            <div style={{ fontWeight: 600, color: '#333' }}>{docContent.original.from || 'Unknown Sender'}</div>
+                            <div style={{ fontWeight: 600 }}>{docContent.original.from || 'Unknown'}</div>
                             <div style={{ fontSize: '13px', color: '#666' }}>
                               {docContent.original.received_at ? new Date(docContent.original.received_at).toLocaleString() : ''}
                             </div>
                           </div>
                         </div>
-                        <div style={{ fontSize: '18px', fontWeight: 600, color: '#275380' }}>
+                        <div style={{ fontSize: '16px', fontWeight: 600, color: '#275380' }}>
                           {docContent.original.subject || 'No Subject'}
                         </div>
                       </div>
-                      {/* Email Body */}
-                      <div style={{ padding: '24px', fontSize: '15px', lineHeight: '1.7', color: '#333' }}>
+                      <div style={{ padding: '24px', fontSize: '15px', lineHeight: '1.7' }}>
                         {(docContent.original.body || 'No content').split('\n').map((line: string, i: number) => (
                           <p key={i} style={{ margin: '0 0 8px 0' }}>{line || '\u00A0'}</p>
                         ))}
                       </div>
-                    </div>
+                    </>
                   ) : (
-                    <div style={{ textAlign: 'center', color: '#666', padding: '60px', background: 'white', borderRadius: '12px' }}>
-                      <svg width="48" height="48" fill="none" stroke="#ccc" strokeWidth="1.5" viewBox="0 0 24 24" style={{ marginBottom: '16px' }}>
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
-                      </svg>
-                      <div>No original document available</div>
-                    </div>
+                    <div style={{ padding: '60px', textAlign: 'center', color: '#666' }}>No document available</div>
                   )}
                 </div>
               ) : (
-                /* EXTRACTED DATA TAB - Branded Optalis Style */
-                <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+                <div style={{ maxWidth: '800px', margin: '0 auto' }}>
                   {docContent.extracted ? (
-                    <div>
-                      {/* AI Confidence Banner */}
-                      <div style={{ 
-                        background: 'linear-gradient(135deg, #275380 0%, #1e4060 100%)', 
-                        borderRadius: '12px', 
-                        padding: '20px 24px', 
-                        marginBottom: '20px',
-                        color: 'white',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center'
-                      }}>
-                        <div>
-                          <div style={{ fontSize: '13px', opacity: 0.9, marginBottom: '4px' }}>AI Extraction Confidence</div>
-                          <div style={{ fontSize: '28px', fontWeight: 700 }}>{docContent.extracted.confidence_score || 0}%</div>
-                        </div>
-                        <div style={{ 
-                          background: 'rgba(255,255,255,0.2)', 
-                          padding: '8px 16px', 
-                          borderRadius: '20px',
-                          fontSize: '13px',
-                          fontWeight: 500
-                        }}>
-                          ✓ Verified by AI
-                        </div>
+                    <div style={{ display: 'grid', gap: '16px' }}>
+                      <div style={{ background: 'linear-gradient(135deg, #275380, #1e4060)', borderRadius: '12px', padding: '20px', color: 'white' }}>
+                        <div style={{ fontSize: '13px', opacity: 0.9 }}>AI Confidence</div>
+                        <div style={{ fontSize: '28px', fontWeight: 700 }}>{docContent.extracted.confidence_score || 0}%</div>
                       </div>
-
-                      {/* AI Summary Card */}
                       {docContent.extracted.ai_summary && (
-                        <div style={{ 
-                          background: 'white', 
-                          borderRadius: '12px', 
-                          padding: '20px 24px', 
-                          marginBottom: '20px',
-                          border: '1px solid #e5e7eb',
-                          boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
-                        }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-                            <svg width="20" height="20" fill="none" stroke="#275380" strokeWidth="2" viewBox="0 0 24 24">
-                              <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"/>
-                              <path d="M12 6v6l4 2"/>
-                            </svg>
-                            <span style={{ fontWeight: 600, color: '#275380' }}>AI Summary</span>
-                          </div>
-                          <p style={{ margin: 0, lineHeight: '1.7', color: '#4a5568' }}>{docContent.extracted.ai_summary}</p>
+                        <div style={{ background: 'white', borderRadius: '12px', padding: '20px', border: '1px solid #e5e7eb' }}>
+                          <div style={{ fontWeight: 600, marginBottom: '8px', color: '#275380' }}>AI Summary</div>
+                          <p style={{ margin: 0, lineHeight: '1.6' }}>{docContent.extracted.ai_summary}</p>
                         </div>
                       )}
-
-                      {/* Data Cards Grid */}
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
-                        {/* Patient Info Card */}
                         <div style={{ background: 'white', borderRadius: '12px', padding: '20px', border: '1px solid #e5e7eb' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px', paddingBottom: '12px', borderBottom: '2px solid #275380' }}>
-                            <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: '#e8f0f7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                              <svg width="18" height="18" fill="none" stroke="#275380" strokeWidth="2" viewBox="0 0 24 24">
-                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
-                              </svg>
-                            </div>
-                            <span style={{ fontWeight: 600, color: '#275380' }}>Patient Information</span>
-                          </div>
-                          <div style={{ display: 'grid', gap: '10px', fontSize: '14px' }}>
+                          <div style={{ fontWeight: 600, marginBottom: '12px', color: '#16a34a' }}>Patient Info</div>
+                          <div style={{ fontSize: '14px', lineHeight: '1.8' }}>
                             <div><span style={{ color: '#6b7280' }}>Name:</span> <strong>{docContent.extracted.patient_name || '—'}</strong></div>
                             <div><span style={{ color: '#6b7280' }}>DOB:</span> <strong>{docContent.extracted.dob || '—'}</strong></div>
                             <div><span style={{ color: '#6b7280' }}>Phone:</span> <strong>{docContent.extracted.phone || '—'}</strong></div>
-                            <div><span style={{ color: '#6b7280' }}>Address:</span> <strong>{docContent.extracted.address || '—'}</strong></div>
                           </div>
                         </div>
-
-                        {/* Insurance Card */}
                         <div style={{ background: 'white', borderRadius: '12px', padding: '20px', border: '1px solid #e5e7eb' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px', paddingBottom: '12px', borderBottom: '2px solid #16a34a' }}>
-                            <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: '#dcfce7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                              <svg width="18" height="18" fill="none" stroke="#16a34a" strokeWidth="2" viewBox="0 0 24 24">
-                                <rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>
-                              </svg>
-                            </div>
-                            <span style={{ fontWeight: 600, color: '#16a34a' }}>Insurance</span>
-                          </div>
-                          <div style={{ display: 'grid', gap: '10px', fontSize: '14px' }}>
+                          <div style={{ fontWeight: 600, marginBottom: '12px', color: '#7c3aed' }}>Insurance</div>
+                          <div style={{ fontSize: '14px', lineHeight: '1.8' }}>
                             <div><span style={{ color: '#6b7280' }}>Provider:</span> <strong>{docContent.extracted.insurance || '—'}</strong></div>
-                            <div><span style={{ color: '#6b7280' }}>Policy #:</span> <strong>{docContent.extracted.policy_number || '—'}</strong></div>
-                          </div>
-                        </div>
-
-                        {/* Medical Card */}
-                        <div style={{ background: 'white', borderRadius: '12px', padding: '20px', border: '1px solid #e5e7eb' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px', paddingBottom: '12px', borderBottom: '2px solid #dc2626' }}>
-                            <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: '#fee2e2', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                              <svg width="18" height="18" fill="none" stroke="#dc2626" strokeWidth="2" viewBox="0 0 24 24">
-                                <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
-                              </svg>
-                            </div>
-                            <span style={{ fontWeight: 600, color: '#dc2626' }}>Medical Information</span>
-                          </div>
-                          <div style={{ display: 'grid', gap: '10px', fontSize: '14px' }}>
-                            <div><span style={{ color: '#6b7280' }}>Physician:</span> <strong>{docContent.extracted.physician || '—'}</strong></div>
-                            <div><span style={{ color: '#6b7280' }}>Facility:</span> <strong>{docContent.extracted.facility || '—'}</strong></div>
-                            <div><span style={{ color: '#6b7280' }}>Diagnosis:</span> <strong>{Array.isArray(docContent.extracted.diagnosis) ? docContent.extracted.diagnosis.join(', ') : docContent.extracted.diagnosis || '—'}</strong></div>
-                            <div><span style={{ color: '#6b7280' }}>Allergies:</span> <strong style={{ color: docContent.extracted.allergies?.length ? '#dc2626' : 'inherit' }}>{Array.isArray(docContent.extracted.allergies) ? docContent.extracted.allergies.join(', ') : docContent.extracted.allergies || 'None reported'}</strong></div>
-                          </div>
-                        </div>
-
-                        {/* Services Card */}
-                        <div style={{ background: 'white', borderRadius: '12px', padding: '20px', border: '1px solid #e5e7eb' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px', paddingBottom: '12px', borderBottom: '2px solid #7c3aed' }}>
-                            <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: '#ede9fe', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                              <svg width="18" height="18" fill="none" stroke="#7c3aed" strokeWidth="2" viewBox="0 0 24 24">
-                                <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
-                                <rect x="9" y="3" width="6" height="4" rx="1"/>
-                                <path d="M9 12h6m-6 4h6"/>
-                              </svg>
-                            </div>
-                            <span style={{ fontWeight: 600, color: '#7c3aed' }}>Services & Medications</span>
-                          </div>
-                          <div style={{ display: 'grid', gap: '10px', fontSize: '14px' }}>
-                            <div><span style={{ color: '#6b7280' }}>Services:</span> <strong>{Array.isArray(docContent.extracted.services) ? docContent.extracted.services.join(', ') : docContent.extracted.services || '—'}</strong></div>
-                            <div><span style={{ color: '#6b7280' }}>Medications:</span> <strong>{Array.isArray(docContent.extracted.medications) ? docContent.extracted.medications.join(', ') : docContent.extracted.medications || '—'}</strong></div>
+                            <div><span style={{ color: '#6b7280' }}>Policy:</span> <strong>{docContent.extracted.policy_number || '—'}</strong></div>
                           </div>
                         </div>
                       </div>
                     </div>
                   ) : (
-                    <div style={{ textAlign: 'center', color: '#666', padding: '60px', background: 'white', borderRadius: '12px' }}>
-                      <svg width="48" height="48" fill="none" stroke="#ccc" strokeWidth="1.5" viewBox="0 0 24 24" style={{ marginBottom: '16px' }}>
-                        <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                      </svg>
-                      <div>No extracted data available</div>
-                    </div>
+                    <div style={{ padding: '60px', textAlign: 'center', color: '#666', background: 'white', borderRadius: '12px' }}>No extracted data</div>
                   )}
                 </div>
               )}
-            </div>
-
-            {/* Modal Footer */}
-            <div style={{ padding: '16px 24px', borderTop: '1px solid #e0e0e0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
-              <div style={{ fontSize: '13px', color: '#888' }}>
-                Viewing: {docViewTab === 'original' ? 'Original submission' : 'AI-extracted data'}
-              </div>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <a
-                  href={docViewTab === 'original' ? selectedDoc.rawUrl : selectedDoc.extractedUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    padding: '10px 20px',
-                    background: 'white',
-                    border: '1px solid #e0e0e0',
-                    borderRadius: '8px',
-                    textDecoration: 'none',
-                    color: '#333',
-                    fontSize: '14px',
-                    fontWeight: 500,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px'
-                  }}
-                >
-                  <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/>
-                  </svg>
-                  Open in New Tab
-                </a>
-                <button
-                  onClick={() => setShowDocViewer(false)}
-                  style={{
-                    padding: '10px 20px',
-                    background: '#275380',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '8px',
-                    fontSize: '14px',
-                    fontWeight: 500,
-                    cursor: 'pointer'
-                  }}
-                >
-                  Close
-                </button>
-              </div>
             </div>
           </div>
         </div>
