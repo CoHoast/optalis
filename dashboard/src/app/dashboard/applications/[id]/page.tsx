@@ -87,7 +87,7 @@ const FIELD_GROUPS = {
     ]
   },
   summary: {
-    title: 'Clinical Summary & Decision',
+    title: 'Summary & Decision',
     icon: Icons.summary,
     fields: [
       { key: 'clinical_summary', label: 'Clinical Summary', type: 'textarea', span: 2, rows: 4 },

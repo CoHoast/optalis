@@ -102,7 +102,7 @@ const SECTIONS = [
   },
   {
     id: 'summary',
-    title: 'Clinical Summary',
+    title: 'Summary',
     icon: SectionIcons.summary,
     color: '#475569',
     fields: [
