@@ -380,6 +380,46 @@ async def delete_application(app_id: str):
     return {"status": "deleted", "id": app_id}
 
 
+@app.get("/api/applications/{app_id}/documents")
+async def get_application_documents(app_id: str):
+    """Get documents/raw data for an application."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        SELECT id, raw_text, raw_email_subject, source_email, s3_key, 
+               ai_summary, confidence_score, created_at
+        FROM optalis_applications 
+        WHERE id = %s
+    """, (app_id,))
+    
+    row = cursor.fetchone()
+    cursor.close()
+    conn.close()
+    
+    if not row:
+        raise HTTPException(status_code=404, detail="Application not found")
+    
+    app_data = dict(row)
+    
+    # Return document data in expected format
+    return {
+        "original": {
+            "type": "email",
+            "subject": app_data.get('raw_email_subject', ''),
+            "from": app_data.get('source_email', ''),
+            "body": app_data.get('raw_text', ''),
+            "s3_key": app_data.get('s3_key', ''),
+            "received_at": app_data.get('created_at', '')
+        },
+        "extracted": {
+            "ai_summary": app_data.get('ai_summary', ''),
+            "confidence_score": app_data.get('confidence_score', 0),
+            "application_id": app_data.get('id', '')
+        }
+    }
+
+
 @app.get("/api/stats")
 async def get_stats():
     """Get application statistics."""
