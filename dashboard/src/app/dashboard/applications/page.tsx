@@ -6,9 +6,9 @@ import Link from 'next/link';
 
 const API_URL = 'https://optalis-api-production.up.railway.app';
 
-// Retention policy: 30 days for pending/review, 7 days for approved/denied
+// Retention policy: 30 days for all applications
 const PENDING_RETENTION_DAYS = 30;
-const PROCESSED_RETENTION_DAYS = 7;
+const PROCESSED_RETENTION_DAYS = 30;
 
 interface Application {
   id: string;
