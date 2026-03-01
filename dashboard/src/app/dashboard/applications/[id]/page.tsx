@@ -418,7 +418,7 @@ export default function ApplicationDetailPage() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
               <span style={{ fontWeight: 600, fontSize: '14px' }}>AI Summary</span>
               <span style={{ background: 'rgba(255,255,255,0.2)', padding: '4px 12px', borderRadius: '12px', fontSize: '13px' }}>
-                {app.confidence_score || 0}% confidence
+                {app.confidence_score || 0}% extraction accuracy
               </span>
             </div>
             <p style={{ margin: 0, lineHeight: 1.6, opacity: 0.95, fontSize: '14px' }}>{app.ai_summary}</p>

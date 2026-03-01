@@ -350,7 +350,7 @@ export default function MobileInbox() {
                   />
                 </div>
                 <div className="confidence-label">
-                  <span>AI Confidence</span>
+                  <span>Extraction Accuracy</span>
                   <span>{app.confidence_score || 0}%</span>
                 </div>
                 

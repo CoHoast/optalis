@@ -65,7 +65,7 @@ export default function NewApplicationPage() {
       'Identifying medical data...',
       'Verifying insurance details...',
       'Generating AI summary...',
-      'Calculating confidence score...'
+      'Calculating extraction accuracy...'
     ];
 
     for (const step of steps) {
@@ -979,7 +979,7 @@ Please contact family at (248) 555-0123..."
               fontSize: '14px',
               fontWeight: 600
             }}>
-              {extractedData.confidence}% confidence
+              {extractedData.confidence}% extraction accuracy
             </div>
           </div>
 

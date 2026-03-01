@@ -611,7 +611,7 @@ export default function DemoLauncherPage() {
             <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#275380', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '14px' }}>2</div>
             <div>
               <strong>Confidence Scoring</strong>
-              <p style={{ fontSize: '13px', color: '#666', margin: '4px 0 0' }}>Each extraction receives a confidence score. If below 85%, automatic re-analysis is triggered</p>
+              <p style={{ fontSize: '13px', color: '#666', margin: '4px 0 0' }}>Each extraction receives an accuracy score. If below 85%, automatic re-analysis is triggered</p>
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>

@@ -11,7 +11,7 @@ const auditLogs = [
   { id: 6, action: 'Team Member Invited', user: 'Jennifer Walsh', target: 'emily.rodriguez@optalis.com', timestamp: '2/24/2026 10:30 AM', ip: '192.168.1.100', details: 'Role: Viewer. Status: Pending.' },
   { id: 7, action: 'Login Success', user: 'Jennifer Walsh', target: '—', timestamp: '2/24/2026 9:00 AM', ip: '192.168.1.100', details: '2FA verified. Session started.' },
   { id: 8, action: 'Field Mapping Updated', user: 'Michael Chen', target: 'Insurance Provider → Contact.Insurance__c', timestamp: '2/23/2026 4:00 PM', ip: '192.168.1.105', details: 'Added new field mapping to Salesforce.' },
-  { id: 9, action: 'Application Submitted', user: 'System', target: 'Robert Williams (APP-2026-002)', timestamp: '2/23/2026 3:30 PM', ip: '—', details: 'Source: Website form. AI extraction confidence: 87%.' },
+  { id: 9, action: 'Application Submitted', user: 'System', target: 'Robert Williams (APP-2026-002)', timestamp: '2/23/2026 3:30 PM', ip: '—', details: 'Source: Website form. AI extraction accuracy: 87%.' },
   { id: 10, action: 'CRM Connected', user: 'Jennifer Walsh', target: 'Salesforce', timestamp: '2/22/2026 2:00 PM', ip: '192.168.1.100', details: 'OAuth connection established. Org: Optalis Healthcare.' },
 ];
 

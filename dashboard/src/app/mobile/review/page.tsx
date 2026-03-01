@@ -150,7 +150,7 @@ export default function MobileReview() {
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" style={{ width: 20, height: 20, flexShrink: 0 }}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
             </svg>
-            <span>These applications have low AI confidence and need manual verification.</span>
+            <span>These applications have low extraction accuracy and need manual verification.</span>
           </div>
         </div>
       )}
@@ -176,7 +176,7 @@ export default function MobileReview() {
               onClick={() => router.push(`/mobile/application/${app.id}`)}
             >
               <div className="app-card" style={{ cursor: 'pointer' }}>
-                {/* Low Confidence Badge */}
+                {/* Low Extraction Accuracy Badge */}
                 <div 
                   style={{ 
                     display: 'inline-flex',
@@ -193,7 +193,7 @@ export default function MobileReview() {
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" style={{ width: 12, height: 12, flexShrink: 0 }}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
                   </svg>
-                  Low Confidence ({app.confidence_score}%)
+                  Low Accuracy ({app.confidence_score}%)
                 </div>
                 
                 <div className="app-card-header" style={{ marginTop: 10 }}>
