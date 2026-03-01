@@ -334,7 +334,17 @@ async def create_application(request: ApplicationCreate):
             physician, facility, services,
             ai_summary, confidence_score,
             raw_text, raw_email_subject, s3_key, notes, extra_data,
-            created_at, updated_at
+            created_at, updated_at,
+            -- Optalis-specific fields
+            referral_type, hospital, building, care_level,
+            sex, ssn_last4, room_number,
+            date_admitted, inpatient_date, anticipated_discharge,
+            case_manager_name, case_manager_phone,
+            fall_risk, smoking_status, isolation, barrier_precautions,
+            dme, diet, height, weight, infection_prevention,
+            iv_meds, expensive_meds, clinical_summary,
+            therapy_prior_level, therapy_bed_mobility, therapy_transfers, therapy_gait,
+            decision_status, decision_notes, last_updated_by
         ) VALUES (
             %s, %s, %s, %s, %s,
             %s, %s, %s, %s,
@@ -343,7 +353,17 @@ async def create_application(request: ApplicationCreate):
             %s, %s, %s,
             %s, %s,
             %s, %s, %s, %s, %s,
-            %s, %s
+            %s, %s,
+            -- Optalis-specific values
+            %s, %s, %s, %s,
+            %s, %s, %s,
+            %s, %s, %s,
+            %s, %s,
+            %s, %s, %s, %s,
+            %s, %s, %s, %s, %s,
+            %s, %s, %s,
+            %s, %s, %s, %s,
+            %s, %s, %s
         )
         RETURNING *
     """, (
@@ -372,7 +392,39 @@ async def create_application(request: ApplicationCreate):
         request.notes,
         json.dumps(request.extra_data) if request.extra_data else None,
         request.created_at or now,
-        request.updated_at or now
+        request.updated_at or now,
+        # Optalis-specific fields
+        request.referral_type,
+        request.hospital,
+        request.building,
+        request.care_level,
+        request.sex,
+        request.ssn_last4,
+        request.room_number,
+        request.date_admitted,
+        request.inpatient_date,
+        request.anticipated_discharge,
+        request.case_manager_name,
+        request.case_manager_phone,
+        request.fall_risk,
+        request.smoking_status,
+        request.isolation,
+        request.barrier_precautions,
+        request.dme,
+        request.diet,
+        request.height,
+        request.weight,
+        request.infection_prevention,
+        request.iv_meds,
+        request.expensive_meds,
+        request.clinical_summary,
+        request.therapy_prior_level,
+        request.therapy_bed_mobility,
+        request.therapy_transfers,
+        request.therapy_gait,
+        request.decision_status,
+        request.decision_notes,
+        request.last_updated_by
     ))
     
     row = cursor.fetchone()
