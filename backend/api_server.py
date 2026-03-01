@@ -632,6 +632,26 @@ async def get_stats():
     return dict(row)
 
 
+@app.get("/api/locations")
+async def get_locations():
+    """Get list of unique facility locations."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        SELECT DISTINCT facility as name
+        FROM optalis_applications
+        WHERE facility IS NOT NULL AND facility != ''
+        ORDER BY facility
+    """)
+    
+    rows = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    
+    return [dict(row) for row in rows]
+
+
 @app.post("/api/scan")
 async def scan_document(file: UploadFile = File(None), images: UploadFile = File(None)):
     """Scan a document and extract patient information using AI Vision."""
@@ -900,92 +920,91 @@ async def analytics_referrals(
 @app.get("/api/analytics/payer-mix")
 async def analytics_payer_mix(period: str = "month"):
     """Get insurance/payer breakdown."""
-    start, end = get_date_range(period)
-    
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    
-    cursor.execute("""
-        SELECT 
-            COALESCE(
-                CASE 
-                    WHEN LOWER(insurance) LIKE '%medicare%' THEN 'Medicare'
-                    WHEN LOWER(insurance) LIKE '%medicaid%' THEN 'Medicaid'
-                    WHEN LOWER(insurance) LIKE '%private%' OR LOWER(insurance) LIKE '%self%' THEN 'Private Pay'
-                    WHEN insurance IS NULL OR insurance = '' THEN 'Unknown'
-                    ELSE 'Commercial'
-                END,
-                'Unknown'
-            ) as payer,
-            COUNT(*) as count
-        FROM optalis_applications
-        WHERE created_at >= %s AND created_at <= %s
-        GROUP BY 1
-        ORDER BY count DESC
-    """, (start, end))
-    
-    rows = cursor.fetchall()
-    cursor.close()
-    conn.close()
-    
-    total = sum(r['count'] for r in rows)
-    result = []
-    for row in rows:
-        r = dict(row)
-        r['percentage'] = round((r['count'] / total * 100), 1) if total > 0 else 0
-        result.append(r)
-    
-    return result
+    try:
+        start, end = get_date_range(period)
+        
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        cursor.execute("""
+            SELECT 
+                COALESCE(
+                    CASE 
+                        WHEN LOWER(insurance) LIKE '%medicare%' THEN 'Medicare'
+                        WHEN LOWER(insurance) LIKE '%medicaid%' THEN 'Medicaid'
+                        WHEN LOWER(insurance) LIKE '%private%' OR LOWER(insurance) LIKE '%self%' THEN 'Private Pay'
+                        WHEN insurance IS NULL OR insurance = '' THEN 'Unknown'
+                        ELSE 'Commercial'
+                    END,
+                    'Unknown'
+                ) as payer,
+                COUNT(*) as count
+            FROM optalis_applications
+            WHERE created_at >= %s AND created_at <= %s
+            GROUP BY 1
+            ORDER BY 2 DESC
+        """, (start, end))
+        
+        rows = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        
+        total = sum(r['count'] for r in rows)
+        result = []
+        for row in rows:
+            r = dict(row)
+            r['percentage'] = round((r['count'] / total * 100), 1) if total > 0 else 0
+            result.append(r)
+        
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"payer-mix error: {str(e)}")
 
 
 @app.get("/api/analytics/response-time")
 async def analytics_response_time(period: str = "month"):
     """Get time-to-decision distribution."""
-    start, end = get_date_range(period)
-    
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    
-    cursor.execute("""
-        SELECT 
-            CASE 
-                WHEN hours < 2 THEN '<2hr'
-                WHEN hours < 4 THEN '2-4hr'
-                WHEN hours < 8 THEN '4-8hr'
-                WHEN hours < 24 THEN '8-24hr'
-                WHEN hours < 48 THEN '1-2d'
-                ELSE '>2d'
-            END as bucket,
-            COUNT(*) as count
-        FROM (
+    try:
+        start, end = get_date_range(period)
+        
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # Simpler query - calculate buckets in Python for reliability
+        cursor.execute("""
             SELECT 
                 EXTRACT(EPOCH FROM (updated_at::timestamp - created_at::timestamp)) / 3600 as hours
             FROM optalis_applications
             WHERE status IN ('approved', 'denied')
             AND created_at >= %s AND created_at <= %s
             AND updated_at IS NOT NULL
-        ) sub
-        GROUP BY 1
-        ORDER BY 
-            CASE bucket
-                WHEN '<2hr' THEN 1
-                WHEN '2-4hr' THEN 2
-                WHEN '4-8hr' THEN 3
-                WHEN '8-24hr' THEN 4
-                WHEN '1-2d' THEN 5
-                ELSE 6
-            END
-    """, (start, end))
-    
-    rows = cursor.fetchall()
-    cursor.close()
-    conn.close()
-    
-    # Ensure all buckets exist
-    buckets = ['<2hr', '2-4hr', '4-8hr', '8-24hr', '1-2d', '>2d']
-    result_map = {r['bucket']: r['count'] for r in rows}
-    
-    return [{'bucket': b, 'count': result_map.get(b, 0)} for b in buckets]
+        """, (start, end))
+        
+        rows = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        
+        # Count into buckets
+        bucket_counts = {'<2hr': 0, '2-4hr': 0, '4-8hr': 0, '8-24hr': 0, '1-2d': 0, '>2d': 0}
+        for row in rows:
+            hours = row['hours'] or 0
+            if hours < 2:
+                bucket_counts['<2hr'] += 1
+            elif hours < 4:
+                bucket_counts['2-4hr'] += 1
+            elif hours < 8:
+                bucket_counts['4-8hr'] += 1
+            elif hours < 24:
+                bucket_counts['8-24hr'] += 1
+            elif hours < 48:
+                bucket_counts['1-2d'] += 1
+            else:
+                bucket_counts['>2d'] += 1
+        
+        buckets = ['<2hr', '2-4hr', '4-8hr', '8-24hr', '1-2d', '>2d']
+        return [{'bucket': b, 'count': bucket_counts[b]} for b in buckets]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"response-time error: {str(e)}")
 
 
 @app.get("/api/analytics/locations")
@@ -1035,44 +1054,47 @@ async def analytics_locations(period: str = "month"):
 @app.get("/api/analytics/denial-reasons")
 async def analytics_denial_reasons(period: str = "month"):
     """Get denial reason breakdown from decision_notes."""
-    start, end = get_date_range(period)
-    
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    
-    # Categorize denial reasons based on keywords in decision_notes
-    cursor.execute("""
-        SELECT 
-            CASE 
-                WHEN LOWER(COALESCE(decision_notes, '')) LIKE '%capacity%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%bed%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%full%' THEN 'Capacity/No Beds'
-                WHEN LOWER(COALESCE(decision_notes, '')) LIKE '%insurance%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%coverage%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%payer%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%authorization%' THEN 'Insurance/Coverage'
-                WHEN LOWER(COALESCE(decision_notes, '')) LIKE '%clinical%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%acuity%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%medical%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%condition%' THEN 'Clinical/Acuity'
-                WHEN LOWER(COALESCE(decision_notes, '')) LIKE '%behavior%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%psych%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%mental%' THEN 'Behavioral/Psych'
-                WHEN LOWER(COALESCE(decision_notes, '')) LIKE '%document%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%incomplete%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%missing%' THEN 'Incomplete Documentation'
-                WHEN LOWER(COALESCE(decision_notes, '')) LIKE '%service%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%level%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%care%' THEN 'Service Level Mismatch'
-                WHEN decision_notes IS NULL OR decision_notes = '' THEN 'Not Specified'
-                ELSE 'Other'
-            END as reason,
-            COUNT(*) as count
-        FROM optalis_applications
-        WHERE status = 'denied'
-        AND created_at >= %s AND created_at <= %s
-        GROUP BY 1
-        ORDER BY count DESC
-    """, (start, end))
-    
-    rows = cursor.fetchall()
-    cursor.close()
-    conn.close()
-    
-    total = sum(r['count'] for r in rows)
-    result = []
-    for row in rows:
-        r = dict(row)
-        r['percentage'] = round((r['count'] / total * 100), 1) if total > 0 else 0
-        result.append(r)
-    
-    return result
+    try:
+        start, end = get_date_range(period)
+        
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # Categorize denial reasons based on keywords in decision_notes
+        cursor.execute("""
+            SELECT 
+                CASE 
+                    WHEN LOWER(COALESCE(decision_notes, '')) LIKE '%capacity%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%bed%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%full%' THEN 'Capacity/No Beds'
+                    WHEN LOWER(COALESCE(decision_notes, '')) LIKE '%insurance%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%coverage%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%payer%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%authorization%' THEN 'Insurance/Coverage'
+                    WHEN LOWER(COALESCE(decision_notes, '')) LIKE '%clinical%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%acuity%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%medical%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%condition%' THEN 'Clinical/Acuity'
+                    WHEN LOWER(COALESCE(decision_notes, '')) LIKE '%behavior%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%psych%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%mental%' THEN 'Behavioral/Psych'
+                    WHEN LOWER(COALESCE(decision_notes, '')) LIKE '%document%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%incomplete%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%missing%' THEN 'Incomplete Documentation'
+                    WHEN LOWER(COALESCE(decision_notes, '')) LIKE '%service%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%level%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%care%' THEN 'Service Level Mismatch'
+                    WHEN decision_notes IS NULL OR decision_notes = '' THEN 'Not Specified'
+                    ELSE 'Other'
+                END as reason,
+                COUNT(*) as count
+            FROM optalis_applications
+            WHERE status = 'denied'
+            AND created_at >= %s AND created_at <= %s
+            GROUP BY 1
+            ORDER BY 2 DESC
+        """, (start, end))
+        
+        rows = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        
+        total = sum(r['count'] for r in rows)
+        result = []
+        for row in rows:
+            r = dict(row)
+            r['percentage'] = round((r['count'] / total * 100), 1) if total > 0 else 0
+            result.append(r)
+        
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"denial-reasons error: {str(e)}")
 
 
 @app.get("/api/analytics/reviewers")
