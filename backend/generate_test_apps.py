@@ -158,13 +158,10 @@ def generate_application():
     last = random.choice(LAST_NAMES)
     patient_name = f"{first} {last}"
     
-    # Random dates - use very recent times so they appear at top
-    # Created within last 2 hours
+    # Use current timestamp so apps appear at top of list
     now = datetime.now()
-    random_minutes = random.randint(0, 120)
-    created_datetime = now - timedelta(minutes=random_minutes)
-    created_date = created_datetime.strftime("%Y-%m-%d")
-    created_time = created_datetime.strftime("%H:%M:%S")
+    created_date = now.strftime("%Y-%m-%d")
+    created_time = now.strftime("%H:%M:%S")
     dob_year = random.randint(1935, 1960)
     dob = f"{dob_year}-{random.randint(1,12):02d}-{random.randint(1,28):02d}"
     
