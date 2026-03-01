@@ -924,7 +924,7 @@ async def analytics_payer_mix(period: str = "month"):
         start, end = get_date_range(period)
         
         conn = get_db_connection()
-        cursor = conn.cursor()
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
         
         cursor.execute("""
             SELECT 
@@ -949,6 +949,9 @@ async def analytics_payer_mix(period: str = "month"):
         cursor.close()
         conn.close()
         
+        if not rows:
+            return []
+        
         total = sum(r['count'] for r in rows)
         result = []
         for row in rows:
@@ -958,7 +961,8 @@ async def analytics_payer_mix(period: str = "month"):
         
         return result
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"payer-mix error: {str(e)}")
+        import traceback
+        raise HTTPException(status_code=500, detail=f"payer-mix error: {str(e)} | {traceback.format_exc()}")
 
 
 @app.get("/api/analytics/response-time")
@@ -1058,7 +1062,7 @@ async def analytics_denial_reasons(period: str = "month"):
         start, end = get_date_range(period)
         
         conn = get_db_connection()
-        cursor = conn.cursor()
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
         
         # Categorize denial reasons based on keywords in decision_notes
         cursor.execute("""
@@ -1085,6 +1089,9 @@ async def analytics_denial_reasons(period: str = "month"):
         cursor.close()
         conn.close()
         
+        if not rows:
+            return []
+        
         total = sum(r['count'] for r in rows)
         result = []
         for row in rows:
@@ -1094,7 +1101,8 @@ async def analytics_denial_reasons(period: str = "month"):
         
         return result
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"denial-reasons error: {str(e)}")
+        import traceback
+        raise HTTPException(status_code=500, detail=f"denial-reasons error: {str(e)} | {traceback.format_exc()}")
 
 
 @app.get("/api/analytics/reviewers")
