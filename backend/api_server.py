@@ -930,9 +930,9 @@ async def analytics_payer_mix(period: str = "month"):
             SELECT 
                 COALESCE(
                     CASE 
-                        WHEN LOWER(insurance) LIKE '%medicare%' THEN 'Medicare'
-                        WHEN LOWER(insurance) LIKE '%medicaid%' THEN 'Medicaid'
-                        WHEN LOWER(insurance) LIKE '%private%' OR LOWER(insurance) LIKE '%self%' THEN 'Private Pay'
+                        WHEN LOWER(insurance) LIKE '%%medicare%%' THEN 'Medicare'
+                        WHEN LOWER(insurance) LIKE '%%medicaid%%' THEN 'Medicaid'
+                        WHEN LOWER(insurance) LIKE '%%private%%' OR LOWER(insurance) LIKE '%%self%%' THEN 'Private Pay'
                         WHEN insurance IS NULL OR insurance = '' THEN 'Unknown'
                         ELSE 'Commercial'
                     END,
@@ -1068,12 +1068,12 @@ async def analytics_denial_reasons(period: str = "month"):
         cursor.execute("""
             SELECT 
                 CASE 
-                    WHEN LOWER(COALESCE(decision_notes, '')) LIKE '%capacity%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%bed%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%full%' THEN 'Capacity/No Beds'
-                    WHEN LOWER(COALESCE(decision_notes, '')) LIKE '%insurance%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%coverage%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%payer%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%authorization%' THEN 'Insurance/Coverage'
-                    WHEN LOWER(COALESCE(decision_notes, '')) LIKE '%clinical%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%acuity%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%medical%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%condition%' THEN 'Clinical/Acuity'
-                    WHEN LOWER(COALESCE(decision_notes, '')) LIKE '%behavior%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%psych%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%mental%' THEN 'Behavioral/Psych'
-                    WHEN LOWER(COALESCE(decision_notes, '')) LIKE '%document%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%incomplete%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%missing%' THEN 'Incomplete Documentation'
-                    WHEN LOWER(COALESCE(decision_notes, '')) LIKE '%service%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%level%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%care%' THEN 'Service Level Mismatch'
+                    WHEN LOWER(COALESCE(decision_notes, '')) LIKE '%%capacity%%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%%bed%%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%%full%%' THEN 'Capacity/No Beds'
+                    WHEN LOWER(COALESCE(decision_notes, '')) LIKE '%%insurance%%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%%coverage%%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%%payer%%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%%authorization%%' THEN 'Insurance/Coverage'
+                    WHEN LOWER(COALESCE(decision_notes, '')) LIKE '%%clinical%%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%%acuity%%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%%medical%%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%%condition%%' THEN 'Clinical/Acuity'
+                    WHEN LOWER(COALESCE(decision_notes, '')) LIKE '%%behavior%%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%%psych%%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%%mental%%' THEN 'Behavioral/Psych'
+                    WHEN LOWER(COALESCE(decision_notes, '')) LIKE '%%document%%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%%incomplete%%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%%missing%%' THEN 'Incomplete Documentation'
+                    WHEN LOWER(COALESCE(decision_notes, '')) LIKE '%%service%%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%%level%%' OR LOWER(COALESCE(decision_notes, '')) LIKE '%%care%%' THEN 'Service Level Mismatch'
                     WHEN decision_notes IS NULL OR decision_notes = '' THEN 'Not Specified'
                     ELSE 'Other'
                 END as reason,
