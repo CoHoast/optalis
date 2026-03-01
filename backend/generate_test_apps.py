@@ -158,8 +158,13 @@ def generate_application():
     last = random.choice(LAST_NAMES)
     patient_name = f"{first} {last}"
     
-    # Random dates
-    created_date = random_date(14, 0)  # Within last 2 weeks
+    # Random dates - use very recent times so they appear at top
+    # Created within last 2 hours
+    now = datetime.now()
+    random_minutes = random.randint(0, 120)
+    created_datetime = now - timedelta(minutes=random_minutes)
+    created_date = created_datetime.strftime("%Y-%m-%d")
+    created_time = created_datetime.strftime("%H:%M:%S")
     dob_year = random.randint(1935, 1960)
     dob = f"{dob_year}-{random.randint(1,12):02d}-{random.randint(1,28):02d}"
     
@@ -294,7 +299,7 @@ def generate_application():
         # Summary
         "clinical_summary": ai_summary,
         "ai_summary": ai_summary,
-        "confidence_score": round(random.uniform(0.85, 0.98), 2),
+        "confidence_score": round(random.uniform(85, 98), 0),
         
         # Decision
         "decision_status": status,
@@ -303,7 +308,7 @@ def generate_application():
         
         # Metadata
         "services": random.sample(["Skilled Nursing", "Physical Therapy", "Occupational Therapy", "Speech Therapy", "Wound Care", "IV Therapy"], random.randint(2, 4)),
-        "created_at": f"{created_date}T{random.randint(8,17):02d}:{random.randint(0,59):02d}:00Z",
+        "created_at": f"{created_date}T{created_time}Z",
     }
     
     return app
@@ -314,7 +319,7 @@ def main():
     print(f"📡 API: {API_URL}")
     print("-" * 50)
     
-    num_apps = 18
+    num_apps = 15
     success = 0
     failed = 0
     

@@ -1120,6 +1120,42 @@ async def analytics_reviewers(period: str = "month"):
 
 
 # ============================================================
+# Migrations
+# ============================================================
+
+@app.post("/api/migrate/fix-confidence-scores")
+async def migrate_fix_confidence_scores(secret: str = ""):
+    """One-time migration to fix confidence scores from decimals (0.95) to percentages (95)."""
+    # Simple protection
+    if secret != "optalis2026":
+        raise HTTPException(status_code=403, detail="Invalid secret")
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    # Count before
+    cursor.execute("SELECT COUNT(*) as cnt FROM optalis_applications WHERE confidence_score IS NOT NULL AND confidence_score < 1")
+    before = cursor.fetchone()['cnt']
+    
+    # Update
+    cursor.execute("""
+        UPDATE optalis_applications 
+        SET confidence_score = confidence_score * 100 
+        WHERE confidence_score IS NOT NULL AND confidence_score < 1
+    """)
+    updated = cursor.rowcount
+    conn.commit()
+    
+    cursor.close()
+    conn.close()
+    
+    return {
+        "success": True,
+        "message": f"Fixed {updated} applications (found {before} with decimal confidence scores)"
+    }
+
+
+# ============================================================
 # Main
 # ============================================================
 
