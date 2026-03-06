@@ -32,6 +32,7 @@ const SectionIcon = ({ type, color }: { type: string; color: string }) => {
     summary: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8"/></svg>,
     therapy: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2"><circle cx="12" cy="5" r="3"/><path d="M12 8v8M8 20l4-4 4 4"/></svg>,
     decision: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>,
+    precert: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2"><path d="M9 12l2 2 4-4"/><path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9c1.5 0 2.91.37 4.15 1.02"/><path d="M22 4L12 14.01l-3-3"/></svg>,
   };
   return icons[type] || null;
 };
@@ -93,6 +94,9 @@ const SECTIONS = [
   { id: 'decision', title: 'Decision', color: '#275380', fields: [
     { key: 'decision_status', label: 'Status', type: 'select', options: ['Accepting', 'Considering', 'Denying'] },
     { key: 'decision_notes', label: 'Notes', type: 'textarea' },
+  ]},
+  { id: 'precert', title: 'PreCert Status', color: '#0891b2', fields: [
+    { key: 'precert_status', label: 'Pre-Certification Status', type: 'precert_buttons' },
   ]},
 ];
 
@@ -189,8 +193,65 @@ function ApplicationDetailContent() {
     setConfirmModal({ show: true, action, ...configs[action] });
   };
 
+  const handlePrecertChange = async (newStatus: string) => {
+    try {
+      await fetch(`${API_URL}/api/applications/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ precert_status: newStatus })
+      });
+      setApp({ ...app, precert_status: newStatus });
+      setEditedData({ ...editedData, precert_status: newStatus });
+    } catch (error) {
+      console.error('PreCert status error:', error);
+    }
+  };
+
   const renderField = (field: any) => {
     const value = getValue(field.key);
+    
+    // Special handling for PreCert buttons - always interactive
+    if (field.type === 'precert_buttons') {
+      const currentStatus = value || 'pending';
+      const statuses = [
+        { key: 'pending', label: 'Pending', color: '#f59e0b', bg: '#fef3c7' },
+        { key: 'approved', label: 'Approved', color: '#16a34a', bg: '#dcfce7' },
+        { key: 'denied', label: 'Denied', color: '#dc2626', bg: '#fee2e2' },
+      ];
+      
+      return (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          {statuses.map((status) => (
+            <button
+              key={status.key}
+              onClick={() => handlePrecertChange(status.key)}
+              style={{
+                padding: '16px 20px',
+                borderRadius: '12px',
+                border: currentStatus === status.key ? `3px solid ${status.color}` : '2px solid #e5e7eb',
+                background: currentStatus === status.key ? status.bg : 'white',
+                color: currentStatus === status.key ? status.color : '#6b7280',
+                cursor: 'pointer',
+                fontSize: '16px',
+                fontWeight: currentStatus === status.key ? 700 : 500,
+                transition: 'all 0.2s ease',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                justifyContent: 'center',
+              }}
+            >
+              {currentStatus === status.key && (
+                <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                  <path d="M5 12l5 5L20 7" />
+                </svg>
+              )}
+              {status.label}
+            </button>
+          ))}
+        </div>
+      );
+    }
     
     if (!isEditing) {
       if (field.type === 'tags') {

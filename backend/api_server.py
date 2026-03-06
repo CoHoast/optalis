@@ -202,6 +202,7 @@ class ApplicationCreate(BaseModel):
     decision_status: Optional[str] = None
     decision_notes: Optional[str] = None
     last_updated_by: Optional[str] = None
+    precert_status: Optional[str] = "pending"
 
 
 class ApplicationUpdate(BaseModel):
@@ -252,6 +253,7 @@ class ApplicationUpdate(BaseModel):
     decision_status: Optional[str] = None
     decision_notes: Optional[str] = None
     last_updated_by: Optional[str] = None
+    precert_status: Optional[str] = None
 
 
 # ============================================================

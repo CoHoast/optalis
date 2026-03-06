@@ -14,6 +14,7 @@ const Icons = {
   clinical: <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>,
   therapy: <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"/><path d="M20 13c-1 2-3.5 3-5.5 3s-4.5-1-5.5-3"/><path d="M8.5 10c-.83 0-1.5-.67-1.5-1.5v-5C7 2.67 7.67 2 8.5 2S10 2.67 10 3.5v5c0 .83-.67 1.5-1.5 1.5z"/><path d="M12 22v-6"/><circle cx="12" cy="22" r="2"/></svg>,
   summary: <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>,
+  precert: <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4"/><path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9c1.5 0 2.91.37 4.15 1.02"/><path d="M22 4L12 14.01l-3-3"/></svg>,
 };
 
 // Organized field groups
@@ -94,6 +95,13 @@ const FIELD_GROUPS = {
       { key: 'decision_status', label: 'Decision', type: 'select', options: ['Accepting', 'Considering', 'Denying'], span: 1 },
       { key: 'decision_notes', label: 'Decision Notes', type: 'textarea', span: 1 },
       { key: 'last_updated_by', label: 'Last Updated By', type: 'text', span: 2 },
+    ]
+  },
+  precert: {
+    title: 'PreCert Status',
+    icon: Icons.precert,
+    fields: [
+      { key: 'precert_status', label: 'Pre-Certification Status', type: 'precert_buttons', span: 2 },
     ]
   },
 };
@@ -187,8 +195,66 @@ export default function ApplicationDetailPage() {
     return Math.round((filled.length / requiredFields.length) * 100);
   };
 
+  const handlePrecertChange = async (newStatus: string) => {
+    try {
+      await fetch(`${API_URL}/api/applications/${params.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ precert_status: newStatus })
+      });
+      setApp({ ...app, precert_status: newStatus });
+      setEditedData({ ...editedData, precert_status: newStatus });
+    } catch (error) {
+      console.error('PreCert status error:', error);
+    }
+  };
+
   const renderField = (field: any) => {
     const value = getValue(field.key);
+    
+    // Special handling for PreCert buttons - always interactive
+    if (field.type === 'precert_buttons') {
+      const currentStatus = value || 'pending';
+      const statuses = [
+        { key: 'pending', label: 'Pending', color: '#f59e0b', bg: '#fef3c7' },
+        { key: 'approved', label: 'Approved', color: '#16a34a', bg: '#dcfce7' },
+        { key: 'denied', label: 'Denied', color: '#dc2626', bg: '#fee2e2' },
+      ];
+      
+      return (
+        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+          {statuses.map((status) => (
+            <button
+              key={status.key}
+              onClick={() => handlePrecertChange(status.key)}
+              style={{
+                padding: '16px 32px',
+                borderRadius: '12px',
+                border: currentStatus === status.key ? `3px solid ${status.color}` : '2px solid #e5e7eb',
+                background: currentStatus === status.key ? status.bg : 'white',
+                color: currentStatus === status.key ? status.color : '#6b7280',
+                cursor: 'pointer',
+                fontSize: '16px',
+                fontWeight: currentStatus === status.key ? 700 : 500,
+                transition: 'all 0.2s ease',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                minWidth: '140px',
+                justifyContent: 'center',
+              }}
+            >
+              {currentStatus === status.key && (
+                <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                  <path d="M5 12l5 5L20 7" />
+                </svg>
+              )}
+              {status.label}
+            </button>
+          ))}
+        </div>
+      );
+    }
     
     if (!isEditing) {
       if (field.type === 'tags') {
