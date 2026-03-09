@@ -91,12 +91,26 @@ def init_db():
                 s3_key VARCHAR(500),
                 notes TEXT,
                 extra_data JSONB,
+                precert_status VARCHAR(50) DEFAULT 'pending',
                 created_at TIMESTAMP DEFAULT NOW(),
                 updated_at TIMESTAMP DEFAULT NOW()
             )
         """)
         conn.commit()
         print("✅ Created optalis_applications table")
+    else:
+        # Add precert_status column if it doesn't exist (migration for existing tables)
+        cursor.execute("""
+            SELECT EXISTS (
+                SELECT FROM information_schema.columns 
+                WHERE table_name = 'optalis_applications' AND column_name = 'precert_status'
+            )
+        """)
+        has_precert = cursor.fetchone()['exists']
+        if not has_precert:
+            cursor.execute("ALTER TABLE optalis_applications ADD COLUMN precert_status VARCHAR(50) DEFAULT 'pending'")
+            conn.commit()
+            print("✅ Added precert_status column")
     
     cursor.close()
     conn.close()
