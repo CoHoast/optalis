@@ -361,9 +361,11 @@ function ApplicationDetailContent() {
 
   return (
     <MobileLayout title="Application" showBack>
-      {/* Sticky Top Action Bar */}
+      {/* Sticky Top Action Bar - positioned below header + safe area */}
       <div style={{ 
-        position: 'fixed', top: 56, left: 0, right: 0, zIndex: 50,
+        position: 'fixed', 
+        top: 'calc(56px + env(safe-area-inset-top, 0px))', 
+        left: 0, right: 0, zIndex: 50,
         padding: '12px 16px', background: 'white', 
         borderBottom: '1px solid #e5e7eb',
         display: 'flex', gap: '10px'
@@ -386,7 +388,8 @@ function ApplicationDetailContent() {
         )}
       </div>
 
-      <div style={{ padding: '16px', paddingTop: '65px', paddingBottom: '160px' }}>
+      {/* Content area - paddingTop accounts for header (56px) + action bar (~56px) + safe area */}
+      <div style={{ padding: '16px', paddingTop: 'calc(120px + env(safe-area-inset-top, 0px))', paddingBottom: '160px' }}>
         
         {/* Success Banner */}
         {showNewBanner && (
