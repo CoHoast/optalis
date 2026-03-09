@@ -606,10 +606,17 @@ async def get_extracted_document(app_id: str):
     conn = get_db_connection()
     cursor = conn.cursor()
     
+    # Select all fields that AI extraction populates
     cursor.execute("""
         SELECT id, patient_name, dob, phone, address, insurance, policy_number,
                diagnosis, medications, allergies, physician, facility, services,
-               ai_summary, confidence_score
+               ai_summary, confidence_score,
+               referral_type, hospital, building, care_level, sex, ssn_last4,
+               room_number, date_admitted, inpatient_date, anticipated_discharge,
+               case_manager_name, case_manager_phone, fall_risk, smoking_status,
+               isolation, barrier_precautions, dme, diet, height, weight,
+               clinical_summary, therapy_prior_level, therapy_bed_mobility,
+               therapy_transfers, therapy_gait
         FROM optalis_applications 
         WHERE id = %s
     """, (app_id,))
@@ -625,18 +632,50 @@ async def get_extracted_document(app_id: str):
     
     return {
         "application_id": data.get('id', ''),
+        # Patient Info
         "patient_name": data.get('patient_name', ''),
         "dob": data.get('dob', ''),
+        "sex": data.get('sex', ''),
         "phone": data.get('phone', ''),
         "address": data.get('address', ''),
+        "ssn_last4": data.get('ssn_last4', ''),
+        "height": data.get('height', ''),
+        "weight": data.get('weight', ''),
+        # Referral Info
+        "referral_type": data.get('referral_type', ''),
+        "hospital": data.get('hospital', ''),
+        "building": data.get('building', ''),
+        "room_number": data.get('room_number', ''),
+        "case_manager_name": data.get('case_manager_name', ''),
+        "case_manager_phone": data.get('case_manager_phone', ''),
+        # Insurance & Dates
         "insurance": data.get('insurance', ''),
         "policy_number": data.get('policy_number', ''),
+        "care_level": data.get('care_level', ''),
+        "date_admitted": data.get('date_admitted', ''),
+        "inpatient_date": data.get('inpatient_date', ''),
+        "anticipated_discharge": data.get('anticipated_discharge', ''),
+        # Medical Info
+        "physician": data.get('physician', ''),
+        "facility": data.get('facility', ''),
         "diagnosis": data.get('diagnosis', []),
         "medications": data.get('medications', []),
         "allergies": data.get('allergies', []),
-        "physician": data.get('physician', ''),
-        "facility": data.get('facility', ''),
         "services": data.get('services', []),
+        # Clinical
+        "fall_risk": data.get('fall_risk', False),
+        "smoking_status": data.get('smoking_status', ''),
+        "isolation": data.get('isolation', ''),
+        "barrier_precautions": data.get('barrier_precautions', ''),
+        "dme": data.get('dme', ''),
+        "diet": data.get('diet', ''),
+        "clinical_summary": data.get('clinical_summary', ''),
+        # Therapy
+        "therapy_prior_level": data.get('therapy_prior_level', ''),
+        "therapy_bed_mobility": data.get('therapy_bed_mobility', ''),
+        "therapy_transfers": data.get('therapy_transfers', ''),
+        "therapy_gait": data.get('therapy_gait', ''),
+        # AI Analysis
         "ai_summary": data.get('ai_summary', ''),
         "confidence_score": data.get('confidence_score', 0)
     }

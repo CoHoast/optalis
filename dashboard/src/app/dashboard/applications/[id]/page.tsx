@@ -619,21 +619,148 @@ export default function ApplicationDetailPage() {
                   ) : <div style={{ padding: '60px', textAlign: 'center', color: '#6b7280' }}>No document</div>}
                 </div>
               ) : (
-                <div style={{ maxWidth: '700px', margin: '0 auto' }}>
+                <div style={{ maxWidth: '800px', margin: '0 auto' }}>
                   {docContent.extracted ? (
                     <div style={{ display: 'grid', gap: '16px' }}>
-                      <div style={{ background: '#275380', borderRadius: '12px', padding: '16px', color: 'white' }}>
-                        <div style={{ fontSize: '12px', opacity: 0.8 }}>Confidence</div>
-                        <div style={{ fontSize: '24px', fontWeight: 700 }}>{docContent.extracted.confidence_score || 0}%</div>
+                      {/* Confidence Score Header */}
+                      <div style={{ background: '#275380', borderRadius: '12px', padding: '16px', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div>
+                          <div style={{ fontSize: '12px', opacity: 0.8 }}>AI Extraction Confidence</div>
+                          <div style={{ fontSize: '24px', fontWeight: 700 }}>{docContent.extracted.confidence_score || 0}%</div>
+                        </div>
+                        <div style={{ fontSize: '13px', opacity: 0.8 }}>All fields below were automatically extracted</div>
                       </div>
+
+                      {/* AI Summary */}
                       {docContent.extracted.ai_summary && (
+                        <div style={{ background: '#f0fdf4', borderRadius: '12px', padding: '16px', border: '1px solid #bbf7d0' }}>
+                          <div style={{ fontWeight: 600, marginBottom: '8px', color: '#166534' }}>📋 AI Summary</div>
+                          <p style={{ margin: 0, lineHeight: 1.6, fontSize: '14px', color: '#15803d' }}>{docContent.extracted.ai_summary}</p>
+                        </div>
+                      )}
+
+                      {/* Patient Information */}
+                      <div style={{ background: 'white', borderRadius: '12px', padding: '16px', border: '1px solid #e5e7eb' }}>
+                        <div style={{ fontWeight: 600, marginBottom: '12px', color: '#275380', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>👤 Patient Information</div>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
+                          <div><span style={{ fontSize: '12px', color: '#6b7280' }}>Name</span><div style={{ fontWeight: 500 }}>{docContent.extracted.patient_name || '—'}</div></div>
+                          <div><span style={{ fontSize: '12px', color: '#6b7280' }}>Date of Birth</span><div style={{ fontWeight: 500 }}>{docContent.extracted.dob || '—'}</div></div>
+                          <div><span style={{ fontSize: '12px', color: '#6b7280' }}>Sex</span><div style={{ fontWeight: 500 }}>{docContent.extracted.sex || '—'}</div></div>
+                          <div><span style={{ fontSize: '12px', color: '#6b7280' }}>Phone</span><div style={{ fontWeight: 500 }}>{docContent.extracted.phone || '—'}</div></div>
+                          <div><span style={{ fontSize: '12px', color: '#6b7280' }}>Address</span><div style={{ fontWeight: 500 }}>{docContent.extracted.address || '—'}</div></div>
+                          <div><span style={{ fontSize: '12px', color: '#6b7280' }}>Height / Weight</span><div style={{ fontWeight: 500 }}>{docContent.extracted.height || '—'} / {docContent.extracted.weight || '—'}</div></div>
+                        </div>
+                      </div>
+
+                      {/* Referral Information */}
+                      <div style={{ background: 'white', borderRadius: '12px', padding: '16px', border: '1px solid #e5e7eb' }}>
+                        <div style={{ fontWeight: 600, marginBottom: '12px', color: '#275380', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>📋 Referral Information</div>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
+                          <div><span style={{ fontSize: '12px', color: '#6b7280' }}>Referral Type</span><div style={{ fontWeight: 500 }}>{docContent.extracted.referral_type || '—'}</div></div>
+                          <div><span style={{ fontSize: '12px', color: '#6b7280' }}>Hospital</span><div style={{ fontWeight: 500 }}>{docContent.extracted.hospital || '—'}</div></div>
+                          <div><span style={{ fontSize: '12px', color: '#6b7280' }}>Building/Facility</span><div style={{ fontWeight: 500 }}>{docContent.extracted.building || '—'}</div></div>
+                          <div><span style={{ fontSize: '12px', color: '#6b7280' }}>Room #</span><div style={{ fontWeight: 500 }}>{docContent.extracted.room_number || '—'}</div></div>
+                          <div><span style={{ fontSize: '12px', color: '#6b7280' }}>Case Manager</span><div style={{ fontWeight: 500 }}>{docContent.extracted.case_manager_name || '—'}</div></div>
+                          <div><span style={{ fontSize: '12px', color: '#6b7280' }}>CM Phone</span><div style={{ fontWeight: 500 }}>{docContent.extracted.case_manager_phone || '—'}</div></div>
+                        </div>
+                      </div>
+
+                      {/* Insurance & Dates */}
+                      <div style={{ background: 'white', borderRadius: '12px', padding: '16px', border: '1px solid #e5e7eb' }}>
+                        <div style={{ fontWeight: 600, marginBottom: '12px', color: '#275380', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>💳 Insurance & Dates</div>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
+                          <div><span style={{ fontSize: '12px', color: '#6b7280' }}>Insurance</span><div style={{ fontWeight: 500 }}>{docContent.extracted.insurance || '—'}</div></div>
+                          <div><span style={{ fontSize: '12px', color: '#6b7280' }}>Policy Number</span><div style={{ fontWeight: 500 }}>{docContent.extracted.policy_number || '—'}</div></div>
+                          <div><span style={{ fontSize: '12px', color: '#6b7280' }}>Care Level</span><div style={{ fontWeight: 500 }}>{docContent.extracted.care_level || '—'}</div></div>
+                          <div><span style={{ fontSize: '12px', color: '#6b7280' }}>Date Admitted</span><div style={{ fontWeight: 500 }}>{docContent.extracted.date_admitted || '—'}</div></div>
+                          <div><span style={{ fontSize: '12px', color: '#6b7280' }}>Inpatient Date</span><div style={{ fontWeight: 500 }}>{docContent.extracted.inpatient_date || '—'}</div></div>
+                          <div><span style={{ fontSize: '12px', color: '#6b7280' }}>Expected Discharge</span><div style={{ fontWeight: 500 }}>{docContent.extracted.anticipated_discharge || '—'}</div></div>
+                        </div>
+                      </div>
+
+                      {/* Clinical Information */}
+                      <div style={{ background: 'white', borderRadius: '12px', padding: '16px', border: '1px solid #e5e7eb' }}>
+                        <div style={{ fontWeight: 600, marginBottom: '12px', color: '#275380', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>🏥 Clinical Information</div>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
+                          <div><span style={{ fontSize: '12px', color: '#6b7280' }}>Physician</span><div style={{ fontWeight: 500 }}>{docContent.extracted.physician || '—'}</div></div>
+                          <div><span style={{ fontSize: '12px', color: '#6b7280' }}>Facility</span><div style={{ fontWeight: 500 }}>{docContent.extracted.facility || '—'}</div></div>
+                          <div><span style={{ fontSize: '12px', color: '#6b7280' }}>Fall Risk</span><div style={{ fontWeight: 500, color: docContent.extracted.fall_risk ? '#dc2626' : '#16a34a' }}>{docContent.extracted.fall_risk ? '⚠️ Yes' : 'No'}</div></div>
+                          <div><span style={{ fontSize: '12px', color: '#6b7280' }}>Smoking Status</span><div style={{ fontWeight: 500 }}>{docContent.extracted.smoking_status || '—'}</div></div>
+                          <div><span style={{ fontSize: '12px', color: '#6b7280' }}>Isolation</span><div style={{ fontWeight: 500 }}>{docContent.extracted.isolation || '—'}</div></div>
+                          <div><span style={{ fontSize: '12px', color: '#6b7280' }}>Barrier Precautions</span><div style={{ fontWeight: 500 }}>{docContent.extracted.barrier_precautions || '—'}</div></div>
+                          <div><span style={{ fontSize: '12px', color: '#6b7280' }}>DME</span><div style={{ fontWeight: 500 }}>{docContent.extracted.dme || '—'}</div></div>
+                          <div><span style={{ fontSize: '12px', color: '#6b7280' }}>Diet</span><div style={{ fontWeight: 500 }}>{docContent.extracted.diet || '—'}</div></div>
+                        </div>
+                        {docContent.extracted.clinical_summary && (
+                          <div style={{ marginTop: '12px', padding: '12px', background: '#f9fafb', borderRadius: '8px' }}>
+                            <span style={{ fontSize: '12px', color: '#6b7280' }}>Clinical Summary</span>
+                            <div style={{ fontSize: '14px', marginTop: '4px' }}>{docContent.extracted.clinical_summary}</div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Therapy Status */}
+                      {(docContent.extracted.therapy_prior_level || docContent.extracted.therapy_bed_mobility || docContent.extracted.therapy_transfers || docContent.extracted.therapy_gait) && (
                         <div style={{ background: 'white', borderRadius: '12px', padding: '16px', border: '1px solid #e5e7eb' }}>
-                          <div style={{ fontWeight: 600, marginBottom: '8px' }}>AI Summary</div>
-                          <p style={{ margin: 0, lineHeight: 1.6, fontSize: '14px' }}>{docContent.extracted.ai_summary}</p>
+                          <div style={{ fontWeight: 600, marginBottom: '12px', color: '#275380', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>🏃 Therapy Assessment</div>
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
+                            <div><span style={{ fontSize: '12px', color: '#6b7280' }}>Prior Level</span><div style={{ fontWeight: 500 }}>{docContent.extracted.therapy_prior_level || '—'}</div></div>
+                            <div><span style={{ fontSize: '12px', color: '#6b7280' }}>Bed Mobility</span><div style={{ fontWeight: 500 }}>{docContent.extracted.therapy_bed_mobility || '—'}</div></div>
+                            <div><span style={{ fontSize: '12px', color: '#6b7280' }}>Transfers</span><div style={{ fontWeight: 500 }}>{docContent.extracted.therapy_transfers || '—'}</div></div>
+                            <div><span style={{ fontSize: '12px', color: '#6b7280' }}>Gait</span><div style={{ fontWeight: 500 }}>{docContent.extracted.therapy_gait || '—'}</div></div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Diagnosis */}
+                      {docContent.extracted.diagnosis && docContent.extracted.diagnosis.length > 0 && (
+                        <div style={{ background: 'white', borderRadius: '12px', padding: '16px', border: '1px solid #e5e7eb' }}>
+                          <div style={{ fontWeight: 600, marginBottom: '12px', color: '#275380', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>🩺 Diagnosis</div>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                            {docContent.extracted.diagnosis.map((d: string, i: number) => (
+                              <span key={i} style={{ background: '#fef3c7', color: '#92400e', padding: '4px 12px', borderRadius: '16px', fontSize: '13px' }}>{d}</span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Medications */}
+                      {docContent.extracted.medications && docContent.extracted.medications.length > 0 && (
+                        <div style={{ background: 'white', borderRadius: '12px', padding: '16px', border: '1px solid #e5e7eb' }}>
+                          <div style={{ fontWeight: 600, marginBottom: '12px', color: '#275380', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>💊 Medications</div>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                            {docContent.extracted.medications.map((m: string, i: number) => (
+                              <span key={i} style={{ background: '#dbeafe', color: '#1e40af', padding: '4px 12px', borderRadius: '16px', fontSize: '13px' }}>{m}</span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Allergies */}
+                      {docContent.extracted.allergies && docContent.extracted.allergies.length > 0 && (
+                        <div style={{ background: 'white', borderRadius: '12px', padding: '16px', border: '1px solid #e5e7eb' }}>
+                          <div style={{ fontWeight: 600, marginBottom: '12px', color: '#dc2626', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>⚠️ Allergies</div>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                            {docContent.extracted.allergies.map((a: string, i: number) => (
+                              <span key={i} style={{ background: '#fee2e2', color: '#dc2626', padding: '4px 12px', borderRadius: '16px', fontSize: '13px', fontWeight: 500 }}>{a}</span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Services Needed */}
+                      {docContent.extracted.services && docContent.extracted.services.length > 0 && (
+                        <div style={{ background: 'white', borderRadius: '12px', padding: '16px', border: '1px solid #e5e7eb' }}>
+                          <div style={{ fontWeight: 600, marginBottom: '12px', color: '#275380', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>🛠️ Services Needed</div>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                            {docContent.extracted.services.map((s: string, i: number) => (
+                              <span key={i} style={{ background: '#f3e8ff', color: '#7c3aed', padding: '4px 12px', borderRadius: '16px', fontSize: '13px' }}>{s}</span>
+                            ))}
+                          </div>
                         </div>
                       )}
                     </div>
-                  ) : <div style={{ padding: '60px', textAlign: 'center', color: '#6b7280', background: 'white', borderRadius: '12px' }}>No data</div>}
+                  ) : <div style={{ padding: '60px', textAlign: 'center', color: '#6b7280', background: 'white', borderRadius: '12px' }}>No extracted data available</div>}
                 </div>
               )}
             </div>
