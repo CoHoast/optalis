@@ -388,8 +388,8 @@ function ApplicationDetailContent() {
         )}
       </div>
 
-      {/* Content area - paddingTop accounts for header (56px) + action bar (~56px) + safe area */}
-      <div style={{ padding: '16px', paddingTop: 'calc(120px + env(safe-area-inset-top, 0px))', paddingBottom: '160px' }}>
+      {/* Content area - paddingTop accounts for header (56px) + action bar (~48px) */}
+      <div style={{ padding: '16px', paddingTop: '72px', paddingBottom: '160px' }}>
         
         {/* Success Banner */}
         {showNewBanner && (
