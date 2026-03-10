@@ -486,6 +486,24 @@ export default function ApplicationDetailPage() {
             Documents
           </button>
 
+          <button 
+            onClick={async () => {
+              const res = await fetch(`${API_URL}/api/applications/${app.id}/analyze`, { method: 'POST' });
+              const data = await res.json();
+              if (data.success) {
+                setApp({ ...app, ...data.analysis });
+                alert('✅ Analysis complete!');
+              }
+            }}
+            style={{
+              padding: '10px 16px', background: '#7c3aed', color: 'white',
+              border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px',
+              display: 'flex', alignItems: 'center', gap: '6px'
+            }}
+          >
+            🤖 Analyze
+          </button>
+
           {isEditing ? (
             <>
               <button onClick={() => { setIsEditing(false); setEditedData(app); }} style={{
