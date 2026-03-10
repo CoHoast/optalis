@@ -1703,6 +1703,176 @@ async def global_beds_summary():
 
 
 # ============================================================
+# User Management Endpoints
+# ============================================================
+
+@app.get("/api/users")
+async def list_users():
+    """List all users with their facility assignments."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT u.*, f.name as facility_name 
+        FROM users u
+        LEFT JOIN facilities f ON u.facility_id = f.id
+        WHERE u.is_active = true
+        ORDER BY u.name
+    """)
+    users = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return [dict(u) for u in users]
+
+
+@app.post("/api/users")
+async def create_user(request: Request):
+    """Create a new user with role and facility assignment."""
+    data = await request.json()
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    # Check if email already exists
+    cursor.execute("SELECT id FROM users WHERE email = %s", (data.get('email'),))
+    if cursor.fetchone():
+        cursor.close()
+        conn.close()
+        raise HTTPException(status_code=400, detail="Email already exists")
+    
+    cursor.execute("""
+        INSERT INTO users (email, name, role, facility_id, is_active)
+        VALUES (%s, %s, %s, %s, true)
+        RETURNING *
+    """, (
+        data.get('email'),
+        data.get('name'),
+        data.get('role', 'reviewer'),
+        data.get('facility_id')  # NULL for admins (access all facilities)
+    ))
+    user = cursor.fetchone()
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return dict(user)
+
+
+@app.get("/api/users/{user_id}")
+async def get_user(user_id: str):
+    """Get a single user by ID."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT u.*, f.name as facility_name 
+        FROM users u
+        LEFT JOIN facilities f ON u.facility_id = f.id
+        WHERE u.id = %s
+    """, (user_id,))
+    user = cursor.fetchone()
+    cursor.close()
+    conn.close()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return dict(user)
+
+
+@app.patch("/api/users/{user_id}")
+async def update_user(user_id: str, request: Request):
+    """Update a user's role, facility, or status."""
+    data = await request.json()
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    updates = []
+    values = []
+    
+    if 'name' in data:
+        updates.append("name = %s")
+        values.append(data['name'])
+    if 'role' in data:
+        updates.append("role = %s")
+        values.append(data['role'])
+    if 'facility_id' in data:
+        updates.append("facility_id = %s")
+        values.append(data['facility_id'] if data['facility_id'] else None)
+    if 'is_active' in data:
+        updates.append("is_active = %s")
+        values.append(data['is_active'])
+    
+    if not updates:
+        cursor.close()
+        conn.close()
+        raise HTTPException(status_code=400, detail="No fields to update")
+    
+    values.append(user_id)
+    cursor.execute(f"""
+        UPDATE users SET {', '.join(updates)}, updated_at = NOW()
+        WHERE id = %s RETURNING *
+    """, values)
+    user = cursor.fetchone()
+    conn.commit()
+    cursor.close()
+    conn.close()
+    
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return dict(user)
+
+
+@app.delete("/api/users/{user_id}")
+async def delete_user(user_id: str):
+    """Soft-delete a user (set is_active = false)."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        UPDATE users SET is_active = false, updated_at = NOW()
+        WHERE id = %s RETURNING id
+    """, (user_id,))
+    result = cursor.fetchone()
+    conn.commit()
+    cursor.close()
+    conn.close()
+    
+    if not result:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {"message": "User deactivated", "id": user_id}
+
+
+@app.post("/api/users/login")
+async def login_user(request: Request):
+    """
+    Demo login - in production this would validate credentials.
+    Returns user info including facility assignment.
+    """
+    data = await request.json()
+    email = data.get('email', '').lower()
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT u.*, f.name as facility_name 
+        FROM users u
+        LEFT JOIN facilities f ON u.facility_id = f.id
+        WHERE LOWER(u.email) = %s AND u.is_active = true
+    """, (email,))
+    user = cursor.fetchone()
+    cursor.close()
+    conn.close()
+    
+    if not user:
+        # For demo: create user on first login or return demo admin
+        return {
+            "id": "demo-admin",
+            "email": email,
+            "name": email.split('@')[0].replace('.', ' ').title(),
+            "role": "admin",
+            "facility_id": None,
+            "facility_name": None,
+            "is_demo": True
+        }
+    
+    return dict(user)
+
+
+# ============================================================
 # Main
 # ============================================================
 
