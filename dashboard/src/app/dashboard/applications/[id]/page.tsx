@@ -123,29 +123,10 @@ export default function ApplicationDetailPage() {
   useEffect(() => {
     fetch(`${API_URL}/api/applications/${params.id}`)
       .then(res => res.ok ? res.json() : null)
-      .then(async (data) => {
+      .then((data) => {
         if (data) {
           setApp(data);
           setEditedData(data);
-          
-          // Auto-analyze if not yet analyzed
-          if (!data.suggested_decision && data.status !== 'approved' && data.status !== 'denied') {
-            setAnalyzing(true);
-            try {
-              const res = await fetch(`${API_URL}/api/applications/${params.id}/analyze`, { method: 'POST' });
-              const result = await res.json();
-              if (result.success) {
-                // Refresh to get updated data
-                const appRes = await fetch(`${API_URL}/api/applications/${params.id}`);
-                const appData = await appRes.json();
-                setApp(appData);
-                setEditedData(appData);
-              }
-            } catch (err) {
-              console.error('Auto-analysis failed:', err);
-            }
-            setAnalyzing(false);
-          }
         }
         setLoading(false);
       })
