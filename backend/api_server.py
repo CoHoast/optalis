@@ -1722,6 +1722,201 @@ async def update_sex_offender_check(app_id: str, request: Request):
 
 
 # ============================================================
+# AI ANALYSIS - Apply rules and flag conditions
+# ============================================================
+
+@app.post("/api/applications/{app_id}/analyze")
+async def analyze_application(app_id: str):
+    """
+    Analyze an application against configured rules and conditions.
+    Populates: flagged_items, suggested_decision, suggested_decision_reason, ai_overview
+    """
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    # Get the application
+    cursor.execute("SELECT * FROM optalis_applications WHERE id = %s", (app_id,))
+    app = cursor.fetchone()
+    if not app:
+        cursor.close()
+        conn.close()
+        raise HTTPException(status_code=404, detail="Application not found")
+    
+    app = dict(app)
+    
+    # Get active flagged conditions
+    cursor.execute("SELECT * FROM flagged_conditions WHERE is_active = true")
+    conditions = [dict(c) for c in cursor.fetchall()]
+    
+    # Get active decision rules (ordered by priority)
+    cursor.execute("SELECT * FROM decision_rules WHERE is_active = true ORDER BY priority DESC")
+    rules = [dict(r) for r in cursor.fetchall()]
+    
+    # Fields to search for conditions
+    searchable_text = ' '.join([
+        str(app.get('diagnosis') or ''),
+        str(app.get('medications') or ''),
+        str(app.get('services') or ''),
+        str(app.get('dme') or ''),
+        str(app.get('clinical_summary') or ''),
+        str(app.get('ai_summary') or ''),
+        str(app.get('notes') or ''),
+    ]).lower()
+    
+    # Find flagged items
+    flagged_items = []
+    flagged_types = {}  # Track types: auto_deny, auto_approve, needs_review, flag
+    
+    for condition in conditions:
+        condition_name = condition['condition_name'].lower()
+        if condition_name in searchable_text:
+            flagged_items.append(condition['condition_name'])
+            condition_type = condition['condition_type']
+            if condition_type not in flagged_types:
+                flagged_types[condition_type] = []
+            flagged_types[condition_type].append(condition['condition_name'])
+    
+    # Apply decision rules
+    suggested_decision = 'review'  # Default
+    suggested_reason = 'Standard review required'
+    
+    # Check sex offender first (highest priority)
+    if app.get('sex_offender_check') == True:
+        suggested_decision = 'deny'
+        suggested_reason = 'Patient is on the sex offender registry'
+    else:
+        # Apply rules in priority order
+        for rule in rules:
+            field = rule['field_to_check']
+            operator = rule['operator']
+            value = str(rule['value']).lower()
+            field_value = str(app.get(field) or '').lower()
+            
+            match = False
+            if operator == 'contains':
+                match = value in field_value or value in searchable_text
+            elif operator == 'equals':
+                match = field_value == value
+            elif operator == 'greater_than':
+                try:
+                    match = float(field_value) > float(value)
+                except:
+                    pass
+            elif operator == 'less_than':
+                try:
+                    match = float(field_value) < float(value)
+                except:
+                    pass
+            
+            if match:
+                if rule['rule_type'] == 'auto_deny':
+                    suggested_decision = 'deny'
+                    suggested_reason = rule['reason_template']
+                    break  # Deny takes precedence
+                elif rule['rule_type'] == 'auto_approve' and suggested_decision != 'deny':
+                    suggested_decision = 'approve'
+                    suggested_reason = rule['reason_template']
+                elif rule['rule_type'] == 'needs_review' and suggested_decision not in ['deny', 'approve']:
+                    suggested_decision = 'review'
+                    suggested_reason = rule['reason_template']
+    
+    # If we found auto_deny conditions, override decision
+    if 'auto_deny' in flagged_types:
+        suggested_decision = 'deny'
+        suggested_reason = f"Flagged conditions: {', '.join(flagged_types['auto_deny'])}"
+    elif 'needs_review' in flagged_types and suggested_decision == 'approve':
+        suggested_decision = 'review'
+        suggested_reason = f"Review needed for: {', '.join(flagged_types['needs_review'])}"
+    
+    # Generate AI overview
+    diagnosis = app.get('diagnosis')
+    if isinstance(diagnosis, list):
+        diagnosis = ', '.join(diagnosis)
+    
+    overview_parts = []
+    if app.get('patient_name'):
+        overview_parts.append(f"Patient: {app['patient_name']}")
+    if diagnosis:
+        overview_parts.append(f"Primary conditions: {diagnosis}")
+    if app.get('insurance'):
+        overview_parts.append(f"Insurance: {app['insurance']}")
+    if app.get('care_level'):
+        overview_parts.append(f"Care level: {app['care_level']}")
+    if flagged_items:
+        overview_parts.append(f"⚠️ Flagged: {', '.join(flagged_items)}")
+    
+    ai_overview = '. '.join(overview_parts) if overview_parts else app.get('ai_summary', 'No summary available')
+    
+    # Update the application with analysis results
+    cursor.execute("""
+        UPDATE optalis_applications 
+        SET flagged_items = %s,
+            suggested_decision = %s,
+            suggested_decision_reason = %s,
+            ai_overview = %s,
+            updated_at = NOW()
+        WHERE id = %s
+        RETURNING id, flagged_items, suggested_decision, suggested_decision_reason, ai_overview
+    """, (
+        json.dumps(flagged_items),
+        suggested_decision,
+        suggested_reason,
+        ai_overview,
+        app_id
+    ))
+    
+    result = cursor.fetchone()
+    conn.commit()
+    cursor.close()
+    conn.close()
+    
+    return {
+        "success": True,
+        "application_id": app_id,
+        "analysis": {
+            "flagged_items": flagged_items,
+            "suggested_decision": suggested_decision,
+            "suggested_decision_reason": suggested_reason,
+            "ai_overview": ai_overview,
+            "conditions_checked": len(conditions),
+            "rules_applied": len(rules)
+        }
+    }
+
+
+@app.post("/api/applications/analyze-all")
+async def analyze_all_applications():
+    """Analyze all pending applications that haven't been analyzed yet."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    # Get applications without analysis
+    cursor.execute("""
+        SELECT id FROM optalis_applications 
+        WHERE suggested_decision IS NULL 
+        AND status IN ('pending', 'review')
+        LIMIT 50
+    """)
+    apps = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    
+    results = []
+    for app in apps:
+        try:
+            result = await analyze_application(app['id'])
+            results.append({"id": app['id'], "success": True})
+        except Exception as e:
+            results.append({"id": app['id'], "success": False, "error": str(e)})
+    
+    return {
+        "analyzed": len([r for r in results if r['success']]),
+        "failed": len([r for r in results if not r['success']]),
+        "results": results
+    }
+
+
+# ============================================================
 # GLOBAL BED SUMMARY (All Facilities)
 # ============================================================
 

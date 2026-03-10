@@ -119,14 +119,52 @@ export default function ApplicationDetailPage() {
   const [docContent, setDocContent] = useState<{original: any; extracted: any}>({ original: null, extracted: null });
   const [docViewTab, setDocViewTab] = useState<'original' | 'extracted'>('original');
   const [docLoading, setDocLoading] = useState(false);
+  const [analyzing, setAnalyzing] = useState(false);
+
+  const analyzeApplication = async () => {
+    setAnalyzing(true);
+    try {
+      const res = await fetch(`${API_URL}/api/applications/${params.id}/analyze`, { method: 'POST' });
+      const data = await res.json();
+      if (data.success) {
+        // Refresh application data
+        const appRes = await fetch(`${API_URL}/api/applications/${params.id}`);
+        const appData = await appRes.json();
+        setApp(appData);
+        setEditedData(appData);
+      }
+    } catch (err) {
+      console.error('Analysis failed:', err);
+    }
+    setAnalyzing(false);
+  };
 
   useEffect(() => {
     fetch(`${API_URL}/api/applications/${params.id}`)
       .then(res => res.ok ? res.json() : null)
-      .then(data => {
+      .then(async (data) => {
         if (data) {
           setApp(data);
           setEditedData(data);
+          
+          // Auto-analyze if not yet analyzed
+          if (!data.suggested_decision && data.status !== 'approved' && data.status !== 'denied') {
+            setAnalyzing(true);
+            try {
+              const res = await fetch(`${API_URL}/api/applications/${params.id}/analyze`, { method: 'POST' });
+              const result = await res.json();
+              if (result.success) {
+                // Refresh to get updated data
+                const appRes = await fetch(`${API_URL}/api/applications/${params.id}`);
+                const appData = await appRes.json();
+                setApp(appData);
+                setEditedData(appData);
+              }
+            } catch (err) {
+              console.error('Auto-analysis failed:', err);
+            }
+            setAnalyzing(false);
+          }
         }
         setLoading(false);
       })
@@ -491,6 +529,17 @@ export default function ApplicationDetailPage() {
               <span style={{ background: 'rgba(255,255,255,0.2)', padding: '4px 12px', borderRadius: '12px', fontSize: '12px' }}>
                 {app.confidence_score || 0}% accuracy
               </span>
+              <button
+                onClick={analyzeApplication}
+                disabled={analyzing}
+                style={{
+                  background: 'rgba(255,255,255,0.2)', padding: '6px 14px', borderRadius: '8px',
+                  border: '1px solid rgba(255,255,255,0.3)', color: 'white',
+                  cursor: analyzing ? 'wait' : 'pointer', fontSize: '12px', fontWeight: 500
+                }}
+              >
+                {analyzing ? '⏳ Analyzing...' : '🔄 Re-Analyze'}
+              </button>
             </div>
             {/* Suggested Decision Badge */}
             <div style={{
