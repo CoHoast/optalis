@@ -119,25 +119,6 @@ export default function ApplicationDetailPage() {
   const [docContent, setDocContent] = useState<{original: any; extracted: any}>({ original: null, extracted: null });
   const [docViewTab, setDocViewTab] = useState<'original' | 'extracted'>('original');
   const [docLoading, setDocLoading] = useState(false);
-  const [analyzing, setAnalyzing] = useState(false);
-
-  const analyzeApplication = async () => {
-    setAnalyzing(true);
-    try {
-      const res = await fetch(`${API_URL}/api/applications/${params.id}/analyze`, { method: 'POST' });
-      const data = await res.json();
-      if (data.success) {
-        // Refresh application data
-        const appRes = await fetch(`${API_URL}/api/applications/${params.id}`);
-        const appData = await appRes.json();
-        setApp(appData);
-        setEditedData(appData);
-      }
-    } catch (err) {
-      console.error('Analysis failed:', err);
-    }
-    setAnalyzing(false);
-  };
 
   useEffect(() => {
     fetch(`${API_URL}/api/applications/${params.id}`)
@@ -486,24 +467,6 @@ export default function ApplicationDetailPage() {
             Documents
           </button>
 
-          <button 
-            onClick={async () => {
-              const res = await fetch(`${API_URL}/api/applications/${app.id}/analyze`, { method: 'POST' });
-              const data = await res.json();
-              if (data.success) {
-                setApp({ ...app, ...data.analysis });
-                alert('✅ Analysis complete!');
-              }
-            }}
-            style={{
-              padding: '10px 16px', background: '#7c3aed', color: 'white',
-              border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px',
-              display: 'flex', alignItems: 'center', gap: '6px'
-            }}
-          >
-            🤖 Analyze
-          </button>
-
           {isEditing ? (
             <>
               <button onClick={() => { setIsEditing(false); setEditedData(app); }} style={{
@@ -544,20 +507,11 @@ export default function ApplicationDetailPage() {
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <span style={{ fontSize: '16px', fontWeight: 600 }}>🤖 AI Summary</span>
-              <span style={{ background: 'rgba(255,255,255,0.2)', padding: '4px 12px', borderRadius: '12px', fontSize: '12px' }}>
-                {app.confidence_score || 0}% accuracy
-              </span>
-              <button
-                onClick={analyzeApplication}
-                disabled={analyzing}
-                style={{
-                  background: 'rgba(255,255,255,0.2)', padding: '6px 14px', borderRadius: '8px',
-                  border: '1px solid rgba(255,255,255,0.3)', color: 'white',
-                  cursor: analyzing ? 'wait' : 'pointer', fontSize: '12px', fontWeight: 500
-                }}
-              >
-                {analyzing ? '⏳ Analyzing...' : '🔄 Re-Analyze'}
-              </button>
+              {app.confidence_score > 0 && (
+                <span style={{ background: 'rgba(255,255,255,0.2)', padding: '4px 12px', borderRadius: '12px', fontSize: '12px' }}>
+                  {app.confidence_score}% confidence
+                </span>
+              )}
             </div>
             {/* Suggested Decision Badge */}
             <div style={{
@@ -571,35 +525,45 @@ export default function ApplicationDetailPage() {
             </div>
           </div>
 
-          {/* Decision reason */}
-          {app.suggested_decision_reason && (
-            <div style={{ padding: '12px 20px', background: '#fafafa', borderBottom: '1px solid #e5e7eb', fontSize: '13px', color: '#374151' }}>
-              <strong>Reason:</strong> {app.suggested_decision_reason}
-            </div>
-          )}
-
           {/* Overview */}
           <div style={{ padding: '16px 20px', borderBottom: '1px solid #e5e7eb' }}>
-            <div style={{ fontWeight: 600, marginBottom: '8px', fontSize: '13px', color: '#275380' }}>📋 OVERVIEW</div>
             <p style={{ margin: 0, lineHeight: 1.6, fontSize: '14px', color: '#374151' }}>
-              {app.ai_summary || 'No AI summary available. Process the application to generate.'}
+              {app.ai_overview || app.ai_summary || 'AI summary will be generated when the application is processed.'}
             </p>
           </div>
 
-          {/* Flagged Items */}
+          {/* Flagged Conditions - as boxes */}
           {app.flagged_items && app.flagged_items.length > 0 && (
-            <div style={{ padding: '16px 20px', borderBottom: '1px solid #e5e7eb', background: '#fef3c7' }}>
-              <div style={{ fontWeight: 600, marginBottom: '8px', fontSize: '13px', color: '#92400e' }}>⚠️ FLAGGED ITEMS</div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+            <div style={{ padding: '16px 20px', borderBottom: '1px solid #e5e7eb' }}>
+              <div style={{ fontWeight: 600, marginBottom: '12px', fontSize: '13px', color: '#92400e', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                ⚠️ FLAGGED CONDITIONS
+              </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
                 {app.flagged_items.map((item: string, i: number) => (
-                  <span key={i} style={{
-                    background: '#fbbf24', color: '#78350f', padding: '4px 12px',
-                    borderRadius: '16px', fontSize: '13px', fontWeight: 500
+                  <div key={i} style={{
+                    background: '#fef3c7',
+                    border: '1px solid #fbbf24',
+                    borderRadius: '8px',
+                    padding: '10px 16px',
+                    fontSize: '13px',
+                    fontWeight: 500,
+                    color: '#92400e',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
                   }}>
+                    <span style={{ fontSize: '16px' }}>⚠️</span>
                     {item}
-                  </span>
+                  </div>
                 ))}
               </div>
+            </div>
+          )}
+
+          {/* Decision reason - subtle note */}
+          {app.suggested_decision_reason && (
+            <div style={{ padding: '12px 20px', background: '#f9fafb', fontSize: '13px', color: '#6b7280' }}>
+              <strong style={{ color: '#374151' }}>Decision Note:</strong> {app.suggested_decision_reason}
             </div>
           )}
 

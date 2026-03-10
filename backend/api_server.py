@@ -499,7 +499,15 @@ async def create_application(request: ApplicationCreate):
     cursor.close()
     conn.close()
     
-    return row_to_dict(row)
+    result = row_to_dict(row)
+    
+    # Auto-analyze the new application
+    try:
+        await analyze_application(app_id)
+    except Exception as e:
+        print(f"Auto-analysis failed for {app_id}: {e}")
+    
+    return result
 
 
 @app.patch("/api/applications/{app_id}")
@@ -858,12 +866,27 @@ async def scan_document(file: UploadFile = File(None), images: UploadFile = File
         
         app_data = row_to_dict(row)
         
+        # Auto-analyze the new application
+        try:
+            await analyze_application(app_data['id'])
+            # Re-fetch to get analysis results
+            conn2 = get_db_connection()
+            cursor2 = conn2.cursor()
+            cursor2.execute("SELECT * FROM optalis_applications WHERE id = %s", (app_data['id'],))
+            app_data = row_to_dict(cursor2.fetchone())
+            cursor2.close()
+            conn2.close()
+        except Exception as e:
+            print(f"Auto-analysis failed for scan: {e}")
+        
         # Return format expected by mobile app
         return {
             "success": True,
             "applicationId": app_data['id'],
             "patientName": app_data.get('patient_name'),
             "confidence": app_data.get('confidence_score'),
+            "suggestedDecision": app_data.get('suggested_decision'),
+            "flaggedItems": app_data.get('flagged_items', []),
             "application": app_data
         }
         
