@@ -203,7 +203,12 @@ export default function DashboardPage() {
         alignItems: 'center'
       }}>
         <div>
-          <h3 style={{ fontSize: '18px', marginBottom: '8px', fontWeight: 600 }}>📧 Email Intake Address</h3>
+          <h3 style={{ fontSize: '18px', marginBottom: '8px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <svg width="20" height="20" fill="none" stroke="#275380" strokeWidth="2" viewBox="0 0 24 24">
+                <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+              </svg>
+              Email Intake Address
+            </h3>
           <p style={{ fontSize: '24px', fontFamily: 'monospace', marginBottom: '8px' }}>intake@optalis.dokit.ai</p>
           <p style={{ fontSize: '13px', opacity: 0.8 }}>Forward applications here for automatic AI processing</p>
         </div>
@@ -228,11 +233,15 @@ export default function DashboardPage() {
       <h2 style={{ fontSize: '18px', marginBottom: '16px', fontWeight: 600 }}>Quick Actions</h2>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '32px' }}>
         <Link href="/dashboard/applications?status=pending" className="quick-action pending">
-          <span style={{ fontSize: '24px' }}>📋</span>
+          <svg width="24" height="24" fill="none" stroke="#275380" strokeWidth="2" viewBox="0 0 24 24">
+              <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+            </svg>
           <span>Review Pending</span>
         </Link>
         <Link href="/dashboard/applications?status=review" className="quick-action review">
-          <span style={{ fontSize: '24px' }}>🔍</span>
+          <svg width="24" height="24" fill="none" stroke="#275380" strokeWidth="2" viewBox="0 0 24 24">
+              <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+            </svg>
           <span>Check Reviews</span>
         </Link>
         <Link href="/dashboard/applications/new" className="quick-action new">
@@ -245,7 +254,12 @@ export default function DashboardPage() {
       {bedSummary.length > 0 && (
         <div style={{ marginBottom: '32px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-            <h2 style={{ fontSize: '18px', fontWeight: 600 }}>🛏️ Bed Availability</h2>
+            <h2 style={{ fontSize: '18px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path d="M3 13h18v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6zM3 13V8a2 2 0 012-2h3v7M21 13V8a2 2 0 00-2-2h-9v7"/>
+              </svg>
+              Bed Availability
+            </h2>
             <Link href="/dashboard/beds" style={{ color: '#275380', textDecoration: 'none', fontSize: '14px', fontWeight: 500 }}>
               Manage Beds →
             </Link>

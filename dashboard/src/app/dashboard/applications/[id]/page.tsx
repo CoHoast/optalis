@@ -506,7 +506,13 @@ export default function ApplicationDetailPage() {
             display: 'flex', justifyContent: 'space-between', alignItems: 'center'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <span style={{ fontSize: '16px', fontWeight: 600 }}>🤖 AI Summary</span>
+              <span style={{ fontSize: '16px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path d="M12 2a2 2 0 012 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 017 7h1a1 1 0 011 1v3a1 1 0 01-1 1h-1v1a2 2 0 01-2 2H5a2 2 0 01-2-2v-1H2a1 1 0 01-1-1v-3a1 1 0 011-1h1a7 7 0 017-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 012-2z"/>
+                  <circle cx="9" cy="13" r="1"/><circle cx="15" cy="13" r="1"/><path d="M9 17h6"/>
+                </svg>
+                AI Summary
+              </span>
               {app.confidence_score > 0 && (
                 <span style={{ background: 'rgba(255,255,255,0.2)', padding: '4px 12px', borderRadius: '12px', fontSize: '12px' }}>
                   {app.confidence_score}% confidence
@@ -536,7 +542,8 @@ export default function ApplicationDetailPage() {
           {app.flagged_items && app.flagged_items.length > 0 && (
             <div style={{ padding: '16px 20px', borderBottom: '1px solid #e5e7eb' }}>
               <div style={{ fontWeight: 600, marginBottom: '12px', fontSize: '13px', color: '#92400e', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                ⚠️ FLAGGED CONDITIONS
+                <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ display: 'inline', verticalAlign: 'middle', marginRight: '6px' }}><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                FLAGGED CONDITIONS
               </div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
                 {app.flagged_items.map((item: string, i: number) => (
@@ -552,7 +559,7 @@ export default function ApplicationDetailPage() {
                     alignItems: 'center',
                     gap: '8px'
                   }}>
-                    <span style={{ fontSize: '16px' }}>⚠️</span>
+                    <svg width="16" height="16" fill="none" stroke="#92400e" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
                     {item}
                   </div>
                 ))}
@@ -570,7 +577,12 @@ export default function ApplicationDetailPage() {
           {/* Sex Offender Registry Check */}
           <div style={{ padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div>
-              <div style={{ fontWeight: 600, marginBottom: '4px', fontSize: '13px', color: '#275380' }}>🔍 SEX OFFENDER REGISTRY CHECK</div>
+              <div style={{ fontWeight: 600, marginBottom: '4px', fontSize: '13px', color: '#275380', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                </svg>
+                SEX OFFENDER REGISTRY CHECK
+              </div>
               <p style={{ margin: 0, fontSize: '12px', color: '#6b7280' }}>
                 {app.sex_offender_checked_at 
                   ? `Checked on ${new Date(app.sex_offender_checked_at).toLocaleDateString()} by ${app.sex_offender_checked_by || 'Staff'}`
@@ -825,14 +837,14 @@ ${app.clinical_summary || app.ai_summary || 'N/A'}`}
                       {/* AI Summary */}
                       {docContent.extracted.ai_summary && (
                         <div style={{ background: '#f0fdf4', borderRadius: '12px', padding: '16px', border: '1px solid #bbf7d0' }}>
-                          <div style={{ fontWeight: 600, marginBottom: '8px', color: '#166534' }}>📋 AI Summary</div>
+                          <div style={{ fontWeight: 600, marginBottom: '8px', color: '#166534' }}>AI Summary</div>
                           <p style={{ margin: 0, lineHeight: 1.6, fontSize: '14px', color: '#15803d' }}>{docContent.extracted.ai_summary}</p>
                         </div>
                       )}
 
                       {/* Patient Information */}
                       <div style={{ background: 'white', borderRadius: '12px', padding: '16px', border: '1px solid #e5e7eb' }}>
-                        <div style={{ fontWeight: 600, marginBottom: '12px', color: '#275380', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>👤 Patient Information</div>
+                        <div style={{ fontWeight: 600, marginBottom: '12px', color: '#275380', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>Patient Information</div>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
                           <div><span style={{ fontSize: '12px', color: '#6b7280' }}>Name</span><div style={{ fontWeight: 500 }}>{docContent.extracted.patient_name || '—'}</div></div>
                           <div><span style={{ fontSize: '12px', color: '#6b7280' }}>Date of Birth</span><div style={{ fontWeight: 500 }}>{docContent.extracted.dob || '—'}</div></div>
@@ -845,7 +857,7 @@ ${app.clinical_summary || app.ai_summary || 'N/A'}`}
 
                       {/* Referral Information */}
                       <div style={{ background: 'white', borderRadius: '12px', padding: '16px', border: '1px solid #e5e7eb' }}>
-                        <div style={{ fontWeight: 600, marginBottom: '12px', color: '#275380', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>📋 Referral Information</div>
+                        <div style={{ fontWeight: 600, marginBottom: '12px', color: '#275380', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>Referral Information</div>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
                           <div><span style={{ fontSize: '12px', color: '#6b7280' }}>Referral Type</span><div style={{ fontWeight: 500 }}>{docContent.extracted.referral_type || '—'}</div></div>
                           <div><span style={{ fontSize: '12px', color: '#6b7280' }}>Hospital</span><div style={{ fontWeight: 500 }}>{docContent.extracted.hospital || '—'}</div></div>
@@ -858,7 +870,7 @@ ${app.clinical_summary || app.ai_summary || 'N/A'}`}
 
                       {/* Insurance & Dates */}
                       <div style={{ background: 'white', borderRadius: '12px', padding: '16px', border: '1px solid #e5e7eb' }}>
-                        <div style={{ fontWeight: 600, marginBottom: '12px', color: '#275380', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>💳 Insurance & Dates</div>
+                        <div style={{ fontWeight: 600, marginBottom: '12px', color: '#275380', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>Insurance & Dates</div>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
                           <div><span style={{ fontSize: '12px', color: '#6b7280' }}>Insurance</span><div style={{ fontWeight: 500 }}>{docContent.extracted.insurance || '—'}</div></div>
                           <div><span style={{ fontSize: '12px', color: '#6b7280' }}>Policy Number</span><div style={{ fontWeight: 500 }}>{docContent.extracted.policy_number || '—'}</div></div>
@@ -871,11 +883,11 @@ ${app.clinical_summary || app.ai_summary || 'N/A'}`}
 
                       {/* Clinical Information */}
                       <div style={{ background: 'white', borderRadius: '12px', padding: '16px', border: '1px solid #e5e7eb' }}>
-                        <div style={{ fontWeight: 600, marginBottom: '12px', color: '#275380', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>🏥 Clinical Information</div>
+                        <div style={{ fontWeight: 600, marginBottom: '12px', color: '#275380', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>Clinical Information</div>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
                           <div><span style={{ fontSize: '12px', color: '#6b7280' }}>Physician</span><div style={{ fontWeight: 500 }}>{docContent.extracted.physician || '—'}</div></div>
                           <div><span style={{ fontSize: '12px', color: '#6b7280' }}>Facility</span><div style={{ fontWeight: 500 }}>{docContent.extracted.facility || '—'}</div></div>
-                          <div><span style={{ fontSize: '12px', color: '#6b7280' }}>Fall Risk</span><div style={{ fontWeight: 500, color: docContent.extracted.fall_risk ? '#dc2626' : '#16a34a' }}>{docContent.extracted.fall_risk ? '⚠️ Yes' : 'No'}</div></div>
+                          <div><span style={{ fontSize: '12px', color: '#6b7280' }}>Fall Risk</span><div style={{ fontWeight: 500, color: docContent.extracted.fall_risk ? '#dc2626' : '#16a34a' }}>{docContent.extracted.fall_risk ? 'Yes - AT RISK' : 'No'}</div></div>
                           <div><span style={{ fontSize: '12px', color: '#6b7280' }}>Smoking Status</span><div style={{ fontWeight: 500 }}>{docContent.extracted.smoking_status || '—'}</div></div>
                           <div><span style={{ fontSize: '12px', color: '#6b7280' }}>Isolation</span><div style={{ fontWeight: 500 }}>{docContent.extracted.isolation || '—'}</div></div>
                           <div><span style={{ fontSize: '12px', color: '#6b7280' }}>Barrier Precautions</span><div style={{ fontWeight: 500 }}>{docContent.extracted.barrier_precautions || '—'}</div></div>
@@ -930,7 +942,7 @@ ${app.clinical_summary || app.ai_summary || 'N/A'}`}
                       {/* Allergies */}
                       {docContent.extracted.allergies && docContent.extracted.allergies.length > 0 && (
                         <div style={{ background: 'white', borderRadius: '12px', padding: '16px', border: '1px solid #e5e7eb' }}>
-                          <div style={{ fontWeight: 600, marginBottom: '12px', color: '#dc2626', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>⚠️ Allergies</div>
+                          <div style={{ fontWeight: 600, marginBottom: '12px', color: '#dc2626', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>Allergies</div>
                           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                             {docContent.extracted.allergies.map((a: string, i: number) => (
                               <span key={i} style={{ background: '#fee2e2', color: '#dc2626', padding: '4px 12px', borderRadius: '16px', fontSize: '13px', fontWeight: 500 }}>{a}</span>

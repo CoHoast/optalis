@@ -193,7 +193,12 @@ export default function BedManagementPage() {
       {/* Header */}
       <div style={{ padding: '24px', borderBottom: '1px solid #e5e7eb', background: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <h1 style={{ fontSize: '24px', fontWeight: 600, margin: 0 }}>🛏️ Bed Management</h1>
+          <h1 style={{ fontSize: '24px', fontWeight: 600, margin: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <svg width="28" height="28" fill="none" stroke="#275380" strokeWidth="2" viewBox="0 0 24 24">
+              <path d="M3 13h18v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6zM3 13V8a2 2 0 012-2h3v7M21 13V8a2 2 0 00-2-2h-9v7"/>
+            </svg>
+            Bed Management
+          </h1>
           <p style={{ color: '#6b7280', marginTop: '4px', fontSize: '14px' }}>
             {isAdmin ? 'Track bed availability across all facilities' : `Bed availability for ${user?.facility_name || 'your facility'}`}
           </p>

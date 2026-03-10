@@ -118,7 +118,12 @@ export default function TeamPage() {
       {/* Header */}
       <div style={{ padding: '24px', borderBottom: '1px solid #e5e7eb', background: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <h1 style={{ fontSize: '24px', fontWeight: 600, margin: 0 }}>👥 Team Management</h1>
+          <h1 style={{ fontSize: '24px', fontWeight: 600, margin: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <svg width="28" height="28" fill="none" stroke="#275380" strokeWidth="2" viewBox="0 0 24 24">
+              <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
+            </svg>
+            Team Management
+          </h1>
           <p style={{ color: '#6b7280', marginTop: '4px', fontSize: '14px' }}>Manage users, roles, and facility assignments</p>
         </div>
         <button
@@ -251,7 +256,10 @@ export default function TeamPage() {
                       ) : user.facility_name ? (
                         <span style={{ color: '#374151' }}>{user.facility_name}</span>
                       ) : (
-                        <span style={{ color: '#dc2626', fontStyle: 'italic' }}>⚠️ No facility assigned</span>
+                        <span style={{ color: '#dc2626', fontStyle: 'italic', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                          No facility assigned
+                        </span>
                       )}
                     </td>
                     <td style={{ padding: '12px 16px' }}>
@@ -351,7 +359,10 @@ export default function TeamPage() {
               )}
               {newUser.role === 'admin' && (
                 <div style={{ background: '#fef3c7', padding: '12px', borderRadius: '8px', fontSize: '13px', color: '#92400e' }}>
-                  ⚠️ Admins have access to ALL facilities and can manage all settings.
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    Admins have access to ALL facilities and can manage all settings.
+                  </span>
                 </div>
               )}
             </div>

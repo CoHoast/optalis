@@ -2,10 +2,27 @@
 
 import { useState } from 'react';
 
+// Icon components for integrations
+const CRMIcon = () => (
+  <svg width="24" height="24" fill="none" stroke="#275380" strokeWidth="2" viewBox="0 0 24 24">
+    <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
+  </svg>
+);
+const CloudIcon = () => (
+  <svg width="24" height="24" fill="none" stroke="#275380" strokeWidth="2" viewBox="0 0 24 24">
+    <path d="M18 10h-1.26A8 8 0 109 20h9a5 5 0 000-10z"/>
+  </svg>
+);
+const BuildingIcon = () => (
+  <svg width="24" height="24" fill="none" stroke="#275380" strokeWidth="2" viewBox="0 0 24 24">
+    <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+  </svg>
+);
+
 const crmIntegrations = [
-  { id: 'salesforce', name: 'Salesforce', type: 'CRM', status: 'disconnected', lastSync: 'Never', logo: '☁️', records: 0 },
-  { id: 'hubspot', name: 'HubSpot', type: 'CRM', status: 'disconnected', lastSync: 'Never', logo: '🟠', records: 0 },
-  { id: 'pointclickcare', name: 'PointClickCare', type: 'EHR/CRM', status: 'connected', lastSync: '2 minutes ago', logo: '🏥', records: 1456 },
+  { id: 'salesforce', name: 'Salesforce', type: 'CRM', status: 'disconnected', lastSync: 'Never', icon: 'cloud', records: 0 },
+  { id: 'hubspot', name: 'HubSpot', type: 'CRM', status: 'disconnected', lastSync: 'Never', icon: 'crm', records: 0 },
+  { id: 'pointclickcare', name: 'PointClickCare', type: 'EHR/CRM', status: 'connected', lastSync: '2 minutes ago', icon: 'building', records: 1456 },
 ];
 
 const inputSources = [
@@ -69,7 +86,11 @@ export default function IntegrationsPage() {
               background: crm.status === 'connected' ? '#f9f7f4' : 'white'
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-                <span style={{ fontSize: '32px' }}>{crm.logo}</span>
+                <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: '#f0f4f8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {crm.icon === 'cloud' && <CloudIcon />}
+                  {crm.icon === 'crm' && <CRMIcon />}
+                  {crm.icon === 'building' && <BuildingIcon />}
+                </div>
                 <span style={{
                   padding: '4px 10px',
                   borderRadius: '12px',
@@ -137,10 +158,10 @@ export default function IntegrationsPage() {
                         background: 'rgba(39,83,128,0.1)', 
                         display: 'flex', alignItems: 'center', justifyContent: 'center' 
                       }}>
-                        {source.type === 'EMAIL' && '📧'}
-                        {source.type === 'FAX' && '📠'}
-                        {source.type === 'WEB_FORM' && '🌐'}
-                        {source.type === 'API' && '🔗'}
+                        {source.type === 'EMAIL' && <svg width="20" height="20" fill="none" stroke="#275380" strokeWidth="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>}
+                        {source.type === 'FAX' && <svg width="20" height="20" fill="none" stroke="#275380" strokeWidth="2" viewBox="0 0 24 24"><path d="M6.5 12H7V8a3 3 0 013-3h4a3 3 0 013 3v4h.5a2.5 2.5 0 012.5 2.5v3a2.5 2.5 0 01-2.5 2.5h-11A2.5 2.5 0 014 17.5v-3A2.5 2.5 0 016.5 12zM8 12h8V8a1 1 0 00-1-1h-6a1 1 0 00-1 1v4zM9 16h6"/></svg>}
+                        {source.type === 'WEB_FORM' && <svg width="20" height="20" fill="none" stroke="#275380" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>}
+                        {source.type === 'API' && <svg width="20" height="20" fill="none" stroke="#275380" strokeWidth="2" viewBox="0 0 24 24"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>}
                       </div>
                       <span style={{ fontWeight: 500 }}>{source.name}</span>
                     </div>
@@ -277,17 +298,22 @@ export default function IntegrationsPage() {
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '24px' }}>
               {[
-                { name: 'Salesforce', logo: '☁️', desc: 'Connect via OAuth 2.0' },
-                { name: 'HubSpot', logo: '🟠', desc: 'Connect via API key' },
-                { name: 'PointClickCare', logo: '🏥', desc: 'Healthcare EHR integration' },
-                { name: 'Custom Webhook', logo: '🔗', desc: 'Send to any REST API' },
+                { name: 'Salesforce', icon: 'cloud', desc: 'Connect via OAuth 2.0' },
+                { name: 'HubSpot', icon: 'crm', desc: 'Connect via API key' },
+                { name: 'PointClickCare', icon: 'building', desc: 'Healthcare EHR integration' },
+                { name: 'Custom Webhook', icon: 'link', desc: 'Send to any REST API' },
               ].map((crm) => (
                 <button key={crm.name} style={{ 
                   display: 'flex', alignItems: 'center', gap: '16px', padding: '16px',
                   border: '1px solid #e0e0e0', borderRadius: '12px', background: 'white',
                   cursor: 'pointer', textAlign: 'left', width: '100%'
                 }}>
-                  <span style={{ fontSize: '28px' }}>{crm.logo}</span>
+                  <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: '#f0f4f8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {crm.icon === 'cloud' && <CloudIcon />}
+                    {crm.icon === 'crm' && <CRMIcon />}
+                    {crm.icon === 'building' && <BuildingIcon />}
+                    {crm.icon === 'link' && <svg width="24" height="24" fill="none" stroke="#275380" strokeWidth="2" viewBox="0 0 24 24"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>}
+                  </div>
                   <div>
                     <div style={{ fontWeight: 600 }}>{crm.name}</div>
                     <div style={{ fontSize: '13px', color: '#888' }}>{crm.desc}</div>

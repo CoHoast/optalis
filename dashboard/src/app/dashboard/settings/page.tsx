@@ -154,7 +154,12 @@ export default function SettingsPage() {
     <div className="main-content" style={{ background: '#f8fafc', minHeight: '100vh' }}>
       {/* Header */}
       <div style={{ padding: '24px', borderBottom: '1px solid #e5e7eb', background: 'white' }}>
-        <h1 style={{ fontSize: '24px', fontWeight: 600, margin: 0 }}>⚙️ Settings</h1>
+        <h1 style={{ fontSize: '24px', fontWeight: 600, margin: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <svg width="28" height="28" fill="none" stroke="#275380" strokeWidth="2" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/>
+            </svg>
+            Settings
+          </h1>
         <p style={{ color: '#6b7280', marginTop: '4px', fontSize: '14px' }}>Manage facilities, flagged conditions, and decision rules</p>
       </div>
 
@@ -162,9 +167,9 @@ export default function SettingsPage() {
       <div style={{ padding: '0 24px', background: 'white', borderBottom: '1px solid #e5e7eb' }}>
         <div style={{ display: 'flex', gap: '8px' }}>
           {[
-            { key: 'facilities', label: '🏥 Facilities', count: facilities.length },
-            { key: 'conditions', label: '⚠️ Flagged Conditions', count: conditions.length },
-            { key: 'rules', label: '📋 Decision Rules', count: rules.length },
+            { key: 'facilities', label: 'Facilities', count: facilities.length, icon: <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg> },
+            { key: 'conditions', label: 'Flagged Conditions', count: conditions.length, icon: <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg> },
+            { key: 'rules', label: 'Decision Rules', count: rules.length, icon: <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg> },
           ].map(tab => (
             <button
               key={tab.key}
@@ -181,7 +186,7 @@ export default function SettingsPage() {
                 marginBottom: '-1px'
               }}
             >
-              {tab.label} ({tab.count})
+              <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>{tab.icon} {tab.label} ({tab.count})</span>
             </button>
           ))}
         </div>
