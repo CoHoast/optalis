@@ -21,9 +21,20 @@ interface Stats {
   denied: number;
 }
 
+interface BedSummary {
+  facility_id: string;
+  facility_name: string;
+  total_beds: number;
+  available_now: number;
+  next_24h: number;
+  next_7d: number;
+  occupied: number;
+}
+
 export default function DashboardPage() {
   const [recentApplications, setRecentApplications] = useState<Application[]>([]);
   const [stats, setStats] = useState<Stats>({ total: 0, pending: 0, review: 0, approved: 0, denied: 0 });
+  const [bedSummary, setBedSummary] = useState<BedSummary[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -44,6 +55,12 @@ export default function DashboardPage() {
       .then(res => res.json())
       .then(data => setStats(data))
       .catch(err => console.error('Failed to fetch stats:', err));
+
+    // Fetch bed summary
+    fetch(`${API_URL}/api/beds/summary`)
+      .then(res => res.json())
+      .then(data => setBedSummary(data))
+      .catch(err => console.error('Failed to fetch bed summary:', err));
   }, []);
 
   const getInitials = (name: string) => {
@@ -186,6 +203,70 @@ export default function DashboardPage() {
           <span>New Application</span>
         </Link>
       </div>
+
+      {/* Bed Availability Summary */}
+      {bedSummary.length > 0 && (
+        <div style={{ marginBottom: '32px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+            <h2 style={{ fontSize: '18px', fontWeight: 600 }}>🛏️ Bed Availability</h2>
+            <Link href="/dashboard/beds" style={{ color: '#275380', textDecoration: 'none', fontSize: '14px', fontWeight: 500 }}>
+              Manage Beds →
+            </Link>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
+            {bedSummary.slice(0, 4).map((facility) => {
+              const occupancyRate = Math.round((facility.occupied / facility.total_beds) * 100);
+              return (
+                <div key={facility.facility_id} style={{
+                  background: 'white',
+                  borderRadius: '12px',
+                  border: '1px solid #e5e7eb',
+                  padding: '20px',
+                  transition: 'box-shadow 0.2s'
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+                    <div>
+                      <h3 style={{ fontSize: '16px', fontWeight: 600, margin: 0 }}>{facility.facility_name}</h3>
+                      <p style={{ fontSize: '13px', color: '#6b7280', margin: '4px 0 0 0' }}>{facility.total_beds} total beds</p>
+                    </div>
+                    <div style={{ 
+                      padding: '4px 10px', 
+                      borderRadius: '16px', 
+                      fontSize: '12px', 
+                      fontWeight: 600,
+                      background: occupancyRate >= 90 ? '#fee2e2' : occupancyRate >= 70 ? '#fef3c7' : '#dcfce7',
+                      color: occupancyRate >= 90 ? '#dc2626' : occupancyRate >= 70 ? '#d97706' : '#16a34a'
+                    }}>
+                      {occupancyRate}% full
+                    </div>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
+                    <div style={{ textAlign: 'center', padding: '12px', background: '#f0fdf4', borderRadius: '8px' }}>
+                      <div style={{ fontSize: '24px', fontWeight: 700, color: '#16a34a' }}>{facility.available_now}</div>
+                      <div style={{ fontSize: '11px', color: '#6b7280', textTransform: 'uppercase' }}>Available</div>
+                    </div>
+                    <div style={{ textAlign: 'center', padding: '12px', background: '#fefce8', borderRadius: '8px' }}>
+                      <div style={{ fontSize: '24px', fontWeight: 700, color: '#ca8a04' }}>{facility.next_24h}</div>
+                      <div style={{ fontSize: '11px', color: '#6b7280', textTransform: 'uppercase' }}>24 Hours</div>
+                    </div>
+                    <div style={{ textAlign: 'center', padding: '12px', background: '#eff6ff', borderRadius: '8px' }}>
+                      <div style={{ fontSize: '24px', fontWeight: 700, color: '#2563eb' }}>{facility.next_7d}</div>
+                      <div style={{ fontSize: '11px', color: '#6b7280', textTransform: 'uppercase' }}>7 Days</div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          {bedSummary.length > 4 && (
+            <div style={{ textAlign: 'center', marginTop: '16px' }}>
+              <Link href="/dashboard/beds" style={{ color: '#275380', textDecoration: 'none', fontSize: '14px' }}>
+                View all {bedSummary.length} facilities →
+              </Link>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Recent Applications */}
       <div className="applications-card">
