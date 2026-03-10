@@ -1258,6 +1258,451 @@ async def migrate_fix_confidence_scores(secret: str = ""):
 
 
 # ============================================================
+# FACILITIES
+# ============================================================
+
+@app.get("/api/facilities")
+async def list_facilities():
+    """List all facilities."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM facilities WHERE is_active = true ORDER BY name")
+    facilities = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return [dict(f) for f in facilities]
+
+@app.post("/api/facilities")
+async def create_facility(request: Request):
+    """Create a new facility."""
+    data = await request.json()
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        INSERT INTO facilities (name, address, city, state, zip, phone, total_beds)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
+        RETURNING *
+    """, (data.get('name'), data.get('address'), data.get('city'), 
+          data.get('state'), data.get('zip'), data.get('phone'), 
+          data.get('total_beds', 0)))
+    
+    facility = dict(cursor.fetchone())
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return facility
+
+@app.patch("/api/facilities/{facility_id}")
+async def update_facility(facility_id: str, request: Request):
+    """Update a facility."""
+    data = await request.json()
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    updates = []
+    values = []
+    for key in ['name', 'address', 'city', 'state', 'zip', 'phone', 'total_beds', 'is_active']:
+        if key in data:
+            updates.append(f"{key} = %s")
+            values.append(data[key])
+    
+    if updates:
+        values.append(facility_id)
+        cursor.execute(f"UPDATE facilities SET {', '.join(updates)}, updated_at = NOW() WHERE id = %s RETURNING *", values)
+        facility = cursor.fetchone()
+        conn.commit()
+    
+    cursor.close()
+    conn.close()
+    return dict(facility) if facility else {"error": "Not found"}
+
+@app.delete("/api/facilities/{facility_id}")
+async def delete_facility(facility_id: str):
+    """Delete a facility."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("UPDATE facilities SET is_active = false WHERE id = %s", (facility_id,))
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return {"status": "deleted"}
+
+
+# ============================================================
+# BEDS
+# ============================================================
+
+@app.get("/api/facilities/{facility_id}/beds")
+async def list_beds(facility_id: str, status: str = None):
+    """List all beds for a facility."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    if status:
+        cursor.execute("SELECT * FROM beds WHERE facility_id = %s AND status = %s ORDER BY room_number, bed_identifier", (facility_id, status))
+    else:
+        cursor.execute("SELECT * FROM beds WHERE facility_id = %s ORDER BY room_number, bed_identifier", (facility_id,))
+    
+    beds = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return [dict(b) for b in beds]
+
+@app.get("/api/facilities/{facility_id}/beds/summary")
+async def beds_summary(facility_id: str):
+    """Get bed availability summary for a facility."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    # Available now
+    cursor.execute("SELECT COUNT(*) as count FROM beds WHERE facility_id = %s AND status = 'available'", (facility_id,))
+    available_now = cursor.fetchone()['count']
+    
+    # Coming available in 24 hours
+    cursor.execute("""
+        SELECT COUNT(*) as count FROM beds 
+        WHERE facility_id = %s 
+        AND status IN ('occupied', 'reserved')
+        AND available_date IS NOT NULL
+        AND (available_date < CURRENT_DATE + INTERVAL '1 day' 
+             OR (available_date = CURRENT_DATE AND available_time IS NOT NULL))
+    """, (facility_id,))
+    next_24h = cursor.fetchone()['count']
+    
+    # Coming available in 7 days
+    cursor.execute("""
+        SELECT COUNT(*) as count FROM beds 
+        WHERE facility_id = %s 
+        AND status IN ('occupied', 'reserved')
+        AND available_date IS NOT NULL
+        AND available_date <= CURRENT_DATE + INTERVAL '7 days'
+    """, (facility_id,))
+    next_7d = cursor.fetchone()['count']
+    
+    # Total beds
+    cursor.execute("SELECT COUNT(*) as count FROM beds WHERE facility_id = %s", (facility_id,))
+    total = cursor.fetchone()['count']
+    
+    # Occupied
+    cursor.execute("SELECT COUNT(*) as count FROM beds WHERE facility_id = %s AND status = 'occupied'", (facility_id,))
+    occupied = cursor.fetchone()['count']
+    
+    cursor.close()
+    conn.close()
+    
+    return {
+        "available_now": available_now,
+        "next_24_hours": next_24h,
+        "next_7_days": next_7d,
+        "total_beds": total,
+        "occupied": occupied
+    }
+
+@app.get("/api/facilities/{facility_id}/beds/upcoming")
+async def beds_upcoming(facility_id: str, days: int = 7):
+    """Get beds becoming available in the next X days."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        SELECT * FROM beds 
+        WHERE facility_id = %s 
+        AND status IN ('occupied', 'reserved')
+        AND available_date IS NOT NULL
+        AND available_date <= CURRENT_DATE + INTERVAL '%s days'
+        ORDER BY available_date, available_time
+    """, (facility_id, days))
+    
+    beds = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return [dict(b) for b in beds]
+
+@app.post("/api/facilities/{facility_id}/beds")
+async def create_bed(facility_id: str, request: Request):
+    """Create a new bed."""
+    data = await request.json()
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        INSERT INTO beds (facility_id, room_number, bed_identifier, bed_type, status, notes)
+        VALUES (%s, %s, %s, %s, %s, %s)
+        RETURNING *
+    """, (facility_id, data.get('room_number'), data.get('bed_identifier', 'A'),
+          data.get('bed_type', 'standard'), data.get('status', 'available'), data.get('notes')))
+    
+    bed = dict(cursor.fetchone())
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return bed
+
+@app.patch("/api/beds/{bed_id}")
+async def update_bed(bed_id: str, request: Request):
+    """Update a bed's status and availability."""
+    data = await request.json()
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    updates = []
+    values = []
+    for key in ['room_number', 'bed_identifier', 'bed_type', 'status', 
+                'current_patient_id', 'current_patient_name', 
+                'available_date', 'available_time', 'notes']:
+        if key in data:
+            updates.append(f"{key} = %s")
+            values.append(data[key])
+    
+    if updates:
+        values.append(bed_id)
+        cursor.execute(f"UPDATE beds SET {', '.join(updates)}, updated_at = NOW() WHERE id = %s RETURNING *", values)
+        bed = cursor.fetchone()
+        conn.commit()
+    
+    cursor.close()
+    conn.close()
+    return dict(bed) if bed else {"error": "Not found"}
+
+@app.delete("/api/beds/{bed_id}")
+async def delete_bed(bed_id: str):
+    """Delete a bed."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM beds WHERE id = %s", (bed_id,))
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return {"status": "deleted"}
+
+
+# ============================================================
+# FLAGGED CONDITIONS
+# ============================================================
+
+@app.get("/api/flagged-conditions")
+async def list_flagged_conditions(facility_id: str = None):
+    """List all flagged conditions."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    if facility_id:
+        cursor.execute("""
+            SELECT * FROM flagged_conditions 
+            WHERE (facility_id = %s OR facility_id IS NULL) AND is_active = true
+            ORDER BY condition_type, condition_name
+        """, (facility_id,))
+    else:
+        cursor.execute("SELECT * FROM flagged_conditions WHERE is_active = true ORDER BY condition_type, condition_name")
+    
+    conditions = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return [dict(c) for c in conditions]
+
+@app.post("/api/flagged-conditions")
+async def create_flagged_condition(request: Request):
+    """Create a new flagged condition."""
+    data = await request.json()
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        INSERT INTO flagged_conditions (facility_id, condition_name, condition_type, description)
+        VALUES (%s, %s, %s, %s)
+        RETURNING *
+    """, (data.get('facility_id'), data.get('condition_name'), 
+          data.get('condition_type', 'flag'), data.get('description')))
+    
+    condition = dict(cursor.fetchone())
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return condition
+
+@app.patch("/api/flagged-conditions/{condition_id}")
+async def update_flagged_condition(condition_id: str, request: Request):
+    """Update a flagged condition."""
+    data = await request.json()
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    updates = []
+    values = []
+    for key in ['condition_name', 'condition_type', 'description', 'is_active']:
+        if key in data:
+            updates.append(f"{key} = %s")
+            values.append(data[key])
+    
+    if updates:
+        values.append(condition_id)
+        cursor.execute(f"UPDATE flagged_conditions SET {', '.join(updates)} WHERE id = %s RETURNING *", values)
+        condition = cursor.fetchone()
+        conn.commit()
+    
+    cursor.close()
+    conn.close()
+    return dict(condition) if condition else {"error": "Not found"}
+
+@app.delete("/api/flagged-conditions/{condition_id}")
+async def delete_flagged_condition(condition_id: str):
+    """Delete a flagged condition."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("UPDATE flagged_conditions SET is_active = false WHERE id = %s", (condition_id,))
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return {"status": "deleted"}
+
+
+# ============================================================
+# DECISION RULES
+# ============================================================
+
+@app.get("/api/decision-rules")
+async def list_decision_rules(facility_id: str = None):
+    """List all decision rules."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    if facility_id:
+        cursor.execute("""
+            SELECT * FROM decision_rules 
+            WHERE (facility_id = %s OR facility_id IS NULL) AND is_active = true
+            ORDER BY priority DESC, rule_name
+        """, (facility_id,))
+    else:
+        cursor.execute("SELECT * FROM decision_rules WHERE is_active = true ORDER BY priority DESC, rule_name")
+    
+    rules = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return [dict(r) for r in rules]
+
+@app.post("/api/decision-rules")
+async def create_decision_rule(request: Request):
+    """Create a new decision rule."""
+    data = await request.json()
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        INSERT INTO decision_rules (facility_id, rule_name, rule_type, field_to_check, operator, value, reason_template, priority)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        RETURNING *
+    """, (data.get('facility_id'), data.get('rule_name'), data.get('rule_type'),
+          data.get('field_to_check'), data.get('operator'), data.get('value'),
+          data.get('reason_template'), data.get('priority', 0)))
+    
+    rule = dict(cursor.fetchone())
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return rule
+
+@app.patch("/api/decision-rules/{rule_id}")
+async def update_decision_rule(rule_id: str, request: Request):
+    """Update a decision rule."""
+    data = await request.json()
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    updates = []
+    values = []
+    for key in ['rule_name', 'rule_type', 'field_to_check', 'operator', 'value', 'reason_template', 'priority', 'is_active']:
+        if key in data:
+            updates.append(f"{key} = %s")
+            values.append(data[key])
+    
+    if updates:
+        values.append(rule_id)
+        cursor.execute(f"UPDATE decision_rules SET {', '.join(updates)} WHERE id = %s RETURNING *", values)
+        rule = cursor.fetchone()
+        conn.commit()
+    
+    cursor.close()
+    conn.close()
+    return dict(rule) if rule else {"error": "Not found"}
+
+@app.delete("/api/decision-rules/{rule_id}")
+async def delete_decision_rule(rule_id: str):
+    """Delete a decision rule."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("UPDATE decision_rules SET is_active = false WHERE id = %s", (rule_id,))
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return {"status": "deleted"}
+
+
+# ============================================================
+# SEX OFFENDER CHECK
+# ============================================================
+
+@app.patch("/api/applications/{app_id}/sex-offender-check")
+async def update_sex_offender_check(app_id: str, request: Request):
+    """Update the sex offender registry check for an application."""
+    data = await request.json()
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        UPDATE optalis_applications 
+        SET sex_offender_check = %s,
+            sex_offender_checked_at = NOW(),
+            sex_offender_checked_by = %s,
+            updated_at = NOW()
+        WHERE id = %s
+        RETURNING id, sex_offender_check, sex_offender_checked_at, sex_offender_checked_by
+    """, (data.get('is_offender', False), data.get('checked_by', 'Manual Check'), app_id))
+    
+    result = cursor.fetchone()
+    conn.commit()
+    cursor.close()
+    conn.close()
+    
+    return dict(result) if result else {"error": "Not found"}
+
+
+# ============================================================
+# GLOBAL BED SUMMARY (All Facilities)
+# ============================================================
+
+@app.get("/api/beds/summary")
+async def global_beds_summary():
+    """Get bed availability summary across all facilities."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        SELECT 
+            f.id as facility_id,
+            f.name as facility_name,
+            COUNT(b.id) as total_beds,
+            COUNT(CASE WHEN b.status = 'available' THEN 1 END) as available_now,
+            COUNT(CASE WHEN b.status IN ('occupied', 'reserved') 
+                       AND b.available_date <= CURRENT_DATE + INTERVAL '1 day' THEN 1 END) as next_24h,
+            COUNT(CASE WHEN b.status IN ('occupied', 'reserved') 
+                       AND b.available_date <= CURRENT_DATE + INTERVAL '7 days' THEN 1 END) as next_7d,
+            COUNT(CASE WHEN b.status = 'occupied' THEN 1 END) as occupied
+        FROM facilities f
+        LEFT JOIN beds b ON f.id = b.facility_id
+        WHERE f.is_active = true
+        GROUP BY f.id, f.name
+        ORDER BY f.name
+    """)
+    
+    summaries = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    
+    return [dict(s) for s in summaries]
+
+
+# ============================================================
 # Main
 # ============================================================
 

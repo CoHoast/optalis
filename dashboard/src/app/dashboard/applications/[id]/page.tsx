@@ -475,21 +475,117 @@ export default function ApplicationDetailPage() {
       </div>
 
       <div style={{ padding: '0 24px 40px' }}>
-        {/* AI Summary Card */}
-        {app.ai_summary && (
+        {/* Enhanced AI Summary Card */}
+        <div style={{
+          background: 'white', borderRadius: '16px', marginBottom: '24px',
+          border: '1px solid #e5e7eb', overflow: 'hidden'
+        }}>
+          {/* Header with suggested decision */}
           <div style={{
             background: 'linear-gradient(135deg, #275380 0%, #1e4060 100%)',
-            borderRadius: '12px', padding: '20px', marginBottom: '24px', color: 'white'
+            padding: '16px 20px', color: 'white',
+            display: 'flex', justifyContent: 'space-between', alignItems: 'center'
           }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-              <span style={{ fontWeight: 600, fontSize: '14px' }}>AI Summary</span>
-              <span style={{ background: 'rgba(255,255,255,0.2)', padding: '4px 12px', borderRadius: '12px', fontSize: '13px' }}>
-                {app.confidence_score || 0}% extraction accuracy
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <span style={{ fontSize: '16px', fontWeight: 600 }}>🤖 AI Summary</span>
+              <span style={{ background: 'rgba(255,255,255,0.2)', padding: '4px 12px', borderRadius: '12px', fontSize: '12px' }}>
+                {app.confidence_score || 0}% accuracy
               </span>
             </div>
-            <p style={{ margin: 0, lineHeight: 1.6, opacity: 0.95, fontSize: '14px' }}>{app.ai_summary}</p>
+            {/* Suggested Decision Badge */}
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: '8px',
+              background: app.suggested_decision === 'approve' ? '#16a34a' : 
+                         app.suggested_decision === 'deny' ? '#dc2626' : '#f59e0b',
+              padding: '8px 16px', borderRadius: '8px', fontWeight: 600, fontSize: '13px'
+            }}>
+              {app.suggested_decision === 'approve' ? '✓ SUGGESTED APPROVE' :
+               app.suggested_decision === 'deny' ? '✕ SUGGESTED DENY' : '⚠ NEEDS REVIEW'}
+            </div>
           </div>
-        )}
+
+          {/* Decision reason */}
+          {app.suggested_decision_reason && (
+            <div style={{ padding: '12px 20px', background: '#fafafa', borderBottom: '1px solid #e5e7eb', fontSize: '13px', color: '#374151' }}>
+              <strong>Reason:</strong> {app.suggested_decision_reason}
+            </div>
+          )}
+
+          {/* Overview */}
+          <div style={{ padding: '16px 20px', borderBottom: '1px solid #e5e7eb' }}>
+            <div style={{ fontWeight: 600, marginBottom: '8px', fontSize: '13px', color: '#275380' }}>📋 OVERVIEW</div>
+            <p style={{ margin: 0, lineHeight: 1.6, fontSize: '14px', color: '#374151' }}>
+              {app.ai_summary || 'No AI summary available. Process the application to generate.'}
+            </p>
+          </div>
+
+          {/* Flagged Items */}
+          {app.flagged_items && app.flagged_items.length > 0 && (
+            <div style={{ padding: '16px 20px', borderBottom: '1px solid #e5e7eb', background: '#fef3c7' }}>
+              <div style={{ fontWeight: 600, marginBottom: '8px', fontSize: '13px', color: '#92400e' }}>⚠️ FLAGGED ITEMS</div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                {app.flagged_items.map((item: string, i: number) => (
+                  <span key={i} style={{
+                    background: '#fbbf24', color: '#78350f', padding: '4px 12px',
+                    borderRadius: '16px', fontSize: '13px', fontWeight: 500
+                  }}>
+                    {item}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Sex Offender Registry Check */}
+          <div style={{ padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div>
+              <div style={{ fontWeight: 600, marginBottom: '4px', fontSize: '13px', color: '#275380' }}>🔍 SEX OFFENDER REGISTRY CHECK</div>
+              <p style={{ margin: 0, fontSize: '12px', color: '#6b7280' }}>
+                {app.sex_offender_checked_at 
+                  ? `Checked on ${new Date(app.sex_offender_checked_at).toLocaleDateString()} by ${app.sex_offender_checked_by || 'Staff'}`
+                  : 'Not yet checked - please verify manually'}
+              </p>
+            </div>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button
+                onClick={async () => {
+                  await fetch(`${API_URL}/api/applications/${app.id}/sex-offender-check`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ is_offender: false, checked_by: 'Manual Check' })
+                  });
+                  setApp({ ...app, sex_offender_check: false, sex_offender_checked_at: new Date().toISOString(), sex_offender_checked_by: 'Manual Check' });
+                }}
+                style={{
+                  padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontWeight: 500, fontSize: '13px',
+                  border: app.sex_offender_check === false ? '2px solid #16a34a' : '1px solid #d1d5db',
+                  background: app.sex_offender_check === false ? '#dcfce7' : 'white',
+                  color: app.sex_offender_check === false ? '#16a34a' : '#374151'
+                }}
+              >
+                ✓ Not on Registry
+              </button>
+              <button
+                onClick={async () => {
+                  await fetch(`${API_URL}/api/applications/${app.id}/sex-offender-check`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ is_offender: true, checked_by: 'Manual Check' })
+                  });
+                  setApp({ ...app, sex_offender_check: true, sex_offender_checked_at: new Date().toISOString(), sex_offender_checked_by: 'Manual Check' });
+                }}
+                style={{
+                  padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontWeight: 500, fontSize: '13px',
+                  border: app.sex_offender_check === true ? '2px solid #dc2626' : '1px solid #d1d5db',
+                  background: app.sex_offender_check === true ? '#fee2e2' : 'white',
+                  color: app.sex_offender_check === true ? '#dc2626' : '#374151'
+                }}
+              >
+                ✕ ON REGISTRY
+              </button>
+            </div>
+          </div>
+        </div>
 
         {/* Quick Info Cards */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '24px' }}>

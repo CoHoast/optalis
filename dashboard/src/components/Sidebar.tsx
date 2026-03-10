@@ -18,6 +18,13 @@ import {
 } from '@heroicons/react/24/outline';
 import { useState } from 'react';
 
+// Bed icon component
+const BedIcon = ({ className }: { className?: string }) => (
+  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7M3 7l2-4h14l2 4M3 7h18M7 11h10v4H7z" />
+  </svg>
+);
+
 const navigationGroups = [
   {
     name: 'Overview',
@@ -30,6 +37,12 @@ const navigationGroups = [
     items: [
       { name: 'Applications', href: '/dashboard/applications', icon: InboxIcon },
       { name: 'Decisions', href: '/dashboard/decisions', icon: ClipboardDocumentCheckIcon },
+    ]
+  },
+  {
+    name: 'Operations',
+    items: [
+      { name: 'Bed Management', href: '/dashboard/beds', icon: BedIcon },
     ]
   },
   {
