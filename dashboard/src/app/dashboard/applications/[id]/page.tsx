@@ -607,13 +607,77 @@ export default function ApplicationDetailPage() {
                   {docContent.original ? (
                     <>
                       <div style={{ padding: '16px 20px', background: '#fafafa', borderBottom: '1px solid #e5e7eb' }}>
-                        <div style={{ fontWeight: 600, marginBottom: '4px' }}>{docContent.original.subject || 'No Subject'}</div>
+                        <div style={{ fontWeight: 600, marginBottom: '4px' }}>{docContent.original.subject || 'Referral Application'}</div>
                         <div style={{ fontSize: '13px', color: '#6b7280' }}>From: {docContent.original.from || 'Unknown'}</div>
+                        {docContent.original.received_at && (
+                          <div style={{ fontSize: '13px', color: '#6b7280' }}>Received: {new Date(docContent.original.received_at).toLocaleString()}</div>
+                        )}
                       </div>
                       <div style={{ padding: '20px', fontSize: '14px', lineHeight: 1.7 }}>
-                        {(docContent.original.body || 'No content').split('\n').map((line: string, i: number) => (
-                          <p key={i} style={{ margin: '0 0 8px 0' }}>{line || '\u00A0'}</p>
-                        ))}
+                        {docContent.original.body ? (
+                          docContent.original.body.split('\n').map((line: string, i: number) => (
+                            <p key={i} style={{ margin: '0 0 8px 0' }}>{line || '\u00A0'}</p>
+                          ))
+                        ) : (
+                          /* Show application data when no raw email body */
+                          <div>
+                            <div style={{ marginBottom: '16px', padding: '12px', background: '#fef3c7', borderRadius: '8px', fontSize: '13px', color: '#92400e' }}>
+                              No raw email body available. Showing application data as received:
+                            </div>
+                            <div style={{ fontFamily: 'monospace', fontSize: '13px', background: '#f9fafb', padding: '16px', borderRadius: '8px', whiteSpace: 'pre-wrap' }}>
+{`PATIENT REFERRAL APPLICATION
+============================
+
+PATIENT INFORMATION
+-------------------
+Name: ${app.patient_name || 'N/A'}
+Date of Birth: ${app.dob || 'N/A'}
+Sex: ${app.sex || 'N/A'}
+Phone: ${app.phone || 'N/A'}
+Address: ${app.address || 'N/A'}
+
+REFERRAL DETAILS
+----------------
+Referral Type: ${app.referral_type || 'N/A'}
+Hospital: ${app.hospital || 'N/A'}
+Building/Facility: ${app.building || 'N/A'}
+Room Number: ${app.room_number || 'N/A'}
+Case Manager: ${app.case_manager_name || 'N/A'}
+CM Phone: ${app.case_manager_phone || 'N/A'}
+
+INSURANCE & DATES
+-----------------
+Insurance: ${app.insurance || 'N/A'}
+Policy Number: ${app.policy_number || 'N/A'}
+Care Level: ${app.care_level || 'N/A'}
+Date Admitted: ${app.date_admitted || 'N/A'}
+Inpatient Date: ${app.inpatient_date || 'N/A'}
+Expected Discharge: ${app.anticipated_discharge || 'N/A'}
+
+CLINICAL INFORMATION
+--------------------
+Diagnosis: ${Array.isArray(app.diagnosis) ? app.diagnosis.join(', ') : (app.diagnosis || 'N/A')}
+Medications: ${Array.isArray(app.medications) ? app.medications.join(', ') : (app.medications || 'N/A')}
+Allergies: ${Array.isArray(app.allergies) ? app.allergies.join(', ') : (app.allergies || 'N/A')}
+Fall Risk: ${app.fall_risk ? 'Yes' : 'No'}
+Smoking Status: ${app.smoking_status || 'N/A'}
+Diet: ${app.diet || 'N/A'}
+DME: ${app.dme || 'N/A'}
+
+THERAPY STATUS
+--------------
+Prior Level: ${app.therapy_prior_level || 'N/A'}
+Bed Mobility: ${app.therapy_bed_mobility || 'N/A'}
+Transfers: ${app.therapy_transfers || 'N/A'}
+Gait: ${app.therapy_gait || 'N/A'}
+Services: ${Array.isArray(app.services) ? app.services.join(', ') : (app.services || 'N/A')}
+
+CLINICAL SUMMARY
+----------------
+${app.clinical_summary || app.ai_summary || 'N/A'}`}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </>
                   ) : <div style={{ padding: '60px', textAlign: 'center', color: '#6b7280' }}>No document</div>}

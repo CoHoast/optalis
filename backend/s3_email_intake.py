@@ -533,12 +533,27 @@ def process_email(s3_key: str) -> Optional[str]:
         
         # Extract text from attachments
         all_text = body
+        vision_extracted = None
+        
         for attachment in attachments:
             filename = attachment['filename']
             print(f"   📎 Attachment: {filename}")
             
             ext = filename.lower().split(".")[-1]
             if ext in ["pdf", "png", "jpg", "jpeg", "tiff", "docx", "doc"]:
+                # Try Vision extraction first for PDFs and images (better accuracy)
+                if ext in ["pdf", "png", "jpg", "jpeg", "tiff"] and VISION_ENABLED:
+                    try:
+                        print(f"      🔍 Using GPT-4 Vision for {ext.upper()}...")
+                        vision_result = extract_document(attachment["data"], filename)
+                        if vision_result and vision_result.get("overall_confidence", 0) > 50:
+                            vision_extracted = flatten_extraction(vision_result)
+                            print(f"      ✓ Vision extracted with {vision_result.get('overall_confidence', 0)}% confidence")
+                            continue
+                    except Exception as e:
+                        print(f"      ⚠ Vision extraction failed: {e}")
+                
+                # Fallback to text extraction
                 extracted_text = extract_text_from_document(
                     attachment["data"], 
                     filename
@@ -547,9 +562,13 @@ def process_email(s3_key: str) -> Optional[str]:
                     all_text += f"\n\n--- Content from {filename} ---\n{extracted_text}"
                     print(f"      ✓ Extracted {len(extracted_text)} chars")
         
-        # AI extraction
-        print("   🤖 Running GPT-4 extraction...")
-        extracted = extract_application_data(all_text, subject)
+        # Use Vision extraction if available, otherwise fall back to text-based
+        if vision_extracted:
+            print("   ✓ Using Vision extraction results")
+            extracted = vision_extracted
+        else:
+            print("   🤖 Running GPT-4 text extraction...")
+            extracted = extract_application_data(all_text, subject)
         
         # Required fields check
         has_required, missing_fields = has_required_fields(extracted)
