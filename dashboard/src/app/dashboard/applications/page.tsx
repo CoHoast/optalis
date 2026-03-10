@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { useUser } from '@/context/UserContext';
 
 const API_URL = 'https://optalis-api-production.up.railway.app';
 
@@ -76,6 +77,7 @@ const statusOrder: { [key: string]: number } = {
 
 function ApplicationsContent() {
   const searchParams = useSearchParams();
+  const { user, isAdmin, facilityId } = useUser();
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
@@ -92,7 +94,13 @@ function ApplicationsContent() {
   }, [searchParams]);
 
   useEffect(() => {
-    fetch(`${API_URL}/api/applications`)
+    // Build URL with facility filter for non-admins
+    let url = `${API_URL}/api/applications`;
+    if (!isAdmin && facilityId) {
+      url += `?facility_id=${facilityId}`;
+    }
+    
+    fetch(url)
       .then(res => res.json())
       .then(data => {
         setApplications(data);
@@ -102,7 +110,7 @@ function ApplicationsContent() {
         console.error('Failed to fetch applications:', err);
         setLoading(false);
       });
-  }, []);
+  }, [isAdmin, facilityId]);
 
   const getInitials = (name: string) => {
     return name?.split(' ').map(n => n[0]).join('').toUpperCase() || '??';
@@ -197,11 +205,34 @@ function ApplicationsContent() {
 
   return (
     <div className="main-content">
+      {/* Facility Filter Banner */}
+      {!isAdmin && user?.facility_name && (
+        <div style={{ 
+          background: '#eff6ff', 
+          border: '1px solid #bfdbfe', 
+          borderRadius: '8px', 
+          padding: '12px 16px', 
+          marginBottom: '24px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px'
+        }}>
+          <svg width="20" height="20" fill="none" stroke="#2563eb" strokeWidth="2" viewBox="0 0 24 24">
+            <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+          </svg>
+          <span style={{ color: '#1e40af', fontWeight: 500 }}>
+            Viewing applications for: <strong>{user.facility_name}</strong>
+          </span>
+        </div>
+      )}
+
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
         <div>
           <h1 style={{ fontSize: '32px', marginBottom: '8px' }}>Applications</h1>
-          <p style={{ color: '#4a4a4a' }}>Manage and review patient admission applications</p>
+          <p style={{ color: '#4a4a4a' }}>
+            {isAdmin ? 'Manage and review patient admission applications across all facilities' : `Applications for ${user?.facility_name || 'your facility'}`}
+          </p>
         </div>
         <Link href="/dashboard/applications/new" className="btn btn-primary">
           <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">

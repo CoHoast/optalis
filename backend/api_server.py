@@ -309,21 +309,37 @@ async def health():
 
 
 @app.get("/api/applications")
-async def list_applications(status: Optional[str] = None, limit: int = 100):
-    """List all applications, optionally filtered by status."""
+async def list_applications(
+    status: Optional[str] = None, 
+    facility_id: Optional[str] = None,
+    limit: int = 100
+):
+    """List all applications, optionally filtered by status and/or facility."""
     conn = get_db_connection()
     cursor = conn.cursor()
     
+    # Build dynamic query
+    conditions = []
+    params = []
+    
     if status:
-        cursor.execute(
-            "SELECT * FROM optalis_applications WHERE status = %s ORDER BY created_at DESC LIMIT %s",
-            (status, limit)
-        )
-    else:
-        cursor.execute(
-            "SELECT * FROM optalis_applications ORDER BY created_at DESC LIMIT %s",
-            (limit,)
-        )
+        conditions.append("status = %s")
+        params.append(status)
+    
+    if facility_id:
+        conditions.append("facility_id = %s")
+        params.append(facility_id)
+    
+    where_clause = ""
+    if conditions:
+        where_clause = "WHERE " + " AND ".join(conditions)
+    
+    params.append(limit)
+    
+    cursor.execute(
+        f"SELECT * FROM optalis_applications {where_clause} ORDER BY created_at DESC LIMIT %s",
+        params
+    )
     
     rows = cursor.fetchall()
     cursor.close()
@@ -353,6 +369,24 @@ async def create_application(request: ApplicationCreate):
     """Create a new application."""
     conn = get_db_connection()
     cursor = conn.cursor()
+    
+    # DUPLICATE PREVENTION: Check if same patient_name was created in last 5 minutes
+    if request.patient_name:
+        cursor.execute("""
+            SELECT id FROM optalis_applications 
+            WHERE patient_name = %s 
+            AND created_at > NOW() - INTERVAL '5 minutes'
+            LIMIT 1
+        """, (request.patient_name,))
+        existing = cursor.fetchone()
+        if existing:
+            cursor.close()
+            conn.close()
+            print(f"⚠️ Duplicate prevented: {request.patient_name} (existing: {existing['id']})")
+            raise HTTPException(
+                status_code=409, 
+                detail=f"Duplicate application: An application for {request.patient_name} was created in the last 5 minutes"
+            )
     
     # Generate ID if not provided
     app_id = request.id or f"APP-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}-{uuid.uuid4().hex[:6]}"
@@ -746,13 +780,33 @@ async def scan_document(file: UploadFile = File(None), images: UploadFile = File
         # Flatten for response
         extracted = flatten_extraction(result)
         
+        # DUPLICATE PREVENTION: Check if same patient_name was created in last 5 minutes
+        patient_name = extracted.get('patient_name')
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        if patient_name:
+            cursor.execute("""
+                SELECT id FROM optalis_applications 
+                WHERE patient_name = %s 
+                AND created_at > NOW() - INTERVAL '5 minutes'
+                LIMIT 1
+            """, (patient_name,))
+            existing = cursor.fetchone()
+            if existing:
+                cursor.close()
+                conn.close()
+                print(f"⚠️ Scan duplicate prevented: {patient_name} (existing: {existing['id']})")
+                return {
+                    "success": False,
+                    "duplicate": True,
+                    "existing_id": existing['id'],
+                    "message": f"An application for {patient_name} was already created recently"
+                }
+        
         # Generate application ID
         app_id = f"APP-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}-{uuid.uuid4().hex[:6]}"
         now = datetime.now(timezone.utc).isoformat()
-        
-        # Create application
-        conn = get_db_connection()
-        cursor = conn.cursor()
         
         cursor.execute("""
             INSERT INTO optalis_applications (

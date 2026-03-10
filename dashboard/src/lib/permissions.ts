@@ -1,13 +1,25 @@
 // Role-based access control for Optalis Dashboard
 
-export type UserRole = 'admin' | 'manager' | 'reviewer';
+export type UserRole = 'admin' | 'manager' | 'reviewer' | 'viewer';
+
+export interface User {
+  id?: string;
+  name: string;
+  initials: string;
+  email: string;
+  role: UserRole;
+  facility_id: string | null;
+  facility_name: string | null;
+}
 
 // Define which routes each role can access
 export const rolePermissions: Record<UserRole, string[]> = {
   admin: [
     '/dashboard',
     '/dashboard/applications',
+    '/dashboard/beds',
     '/dashboard/decisions',
+    '/dashboard/analytics',
     '/dashboard/reports',
     '/dashboard/audit-log',
     '/dashboard/integrations',
@@ -18,18 +30,25 @@ export const rolePermissions: Record<UserRole, string[]> = {
   manager: [
     '/dashboard',
     '/dashboard/applications',
+    '/dashboard/beds',
     '/dashboard/decisions',
+    '/dashboard/analytics',
     '/dashboard/reports',
     '/dashboard/audit-log',
-    // No integrations
-    // No team
     '/dashboard/security',
     '/dashboard/settings',
   ],
   reviewer: [
+    '/dashboard',
     '/dashboard/applications',
+    '/dashboard/beds',
     '/dashboard/reports',
-    // Reviewers can only view applications and reports
+  ],
+  viewer: [
+    '/dashboard',
+    '/dashboard/applications',
+    '/dashboard/beds',
+    '/dashboard/reports',
   ],
 };
 
@@ -61,7 +80,7 @@ export function filterNavigation(
       ...group,
       items: group.items.filter(item => canAccess(role, item.href))
     }))
-    .filter(group => group.items.length > 0); // Remove empty groups
+    .filter(group => group.items.length > 0);
 }
 
 // Get display name for role
@@ -70,28 +89,35 @@ export function getRoleDisplayName(role: UserRole): string {
     admin: 'Administrator',
     manager: 'Manager',
     reviewer: 'Reviewer',
+    viewer: 'Viewer',
   };
   return names[role];
 }
 
-// Demo users for testing
-export const demoUsers: Record<string, { name: string; initials: string; email: string; role: UserRole }> = {
-  'jennifer.walsh@optalis.com': {
+// Demo users for testing - in production these come from the API
+export const demoUsers: Record<string, User> = {
+  'admin@optalis.com': {
     name: 'Jennifer Walsh',
     initials: 'JW',
-    email: 'jennifer.walsh@optalis.com',
+    email: 'admin@optalis.com',
     role: 'admin',
+    facility_id: null,
+    facility_name: null,
   },
-  'michael.chen@optalis.com': {
+  'manager@optalis.com': {
     name: 'Michael Chen',
     initials: 'MC',
-    email: 'michael.chen@optalis.com',
+    email: 'manager@optalis.com',
     role: 'manager',
+    facility_id: null, // Will be assigned dynamically
+    facility_name: null,
   },
-  'sarah.johnson@optalis.com': {
+  'reviewer@optalis.com': {
     name: 'Sarah Johnson',
     initials: 'SJ',
-    email: 'sarah.johnson@optalis.com',
+    email: 'reviewer@optalis.com',
     role: 'reviewer',
+    facility_id: null,
+    facility_name: null,
   },
 };

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useUser } from '@/context/UserContext';
 
 const API_URL = 'https://optalis-api-production.up.railway.app';
 
@@ -33,6 +34,7 @@ interface BedSummary {
 }
 
 export default function BedManagementPage() {
+  const { user, isAdmin, facilityId } = useUser();
   const [facilities, setFacilities] = useState<Facility[]>([]);
   const [selectedFacility, setSelectedFacility] = useState<string>('');
   const [beds, setBeds] = useState<Bed[]>([]);
@@ -47,7 +49,7 @@ export default function BedManagementPage() {
 
   useEffect(() => {
     fetchFacilities();
-  }, []);
+  }, [isAdmin, facilityId]);
 
   useEffect(() => {
     if (selectedFacility) {
@@ -59,9 +61,19 @@ export default function BedManagementPage() {
 
   const fetchFacilities = async () => {
     const res = await fetch(`${API_URL}/api/facilities`);
-    const data = await res.json();
+    let data = await res.json();
+    
+    // Non-admins only see their assigned facility
+    if (!isAdmin && facilityId) {
+      data = data.filter((f: Facility) => f.id === facilityId);
+    }
+    
     setFacilities(data);
-    if (data.length > 0) {
+    
+    // Auto-select facility
+    if (!isAdmin && facilityId) {
+      setSelectedFacility(facilityId);
+    } else if (data.length > 0) {
       setSelectedFacility(data[0].id);
     }
     setLoading(false);
@@ -159,22 +171,46 @@ export default function BedManagementPage() {
 
   return (
     <div className="main-content" style={{ background: '#f8fafc', minHeight: '100vh' }}>
+      {/* Facility Filter Banner for non-admins */}
+      {!isAdmin && user?.facility_name && (
+        <div style={{ 
+          background: '#eff6ff', 
+          borderBottom: '1px solid #bfdbfe',
+          padding: '12px 24px', 
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px'
+        }}>
+          <svg width="20" height="20" fill="none" stroke="#2563eb" strokeWidth="2" viewBox="0 0 24 24">
+            <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+          </svg>
+          <span style={{ color: '#1e40af', fontWeight: 500 }}>
+            Viewing beds for: <strong>{user.facility_name}</strong>
+          </span>
+        </div>
+      )}
+
       {/* Header */}
       <div style={{ padding: '24px', borderBottom: '1px solid #e5e7eb', background: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <h1 style={{ fontSize: '24px', fontWeight: 600, margin: 0 }}>🛏️ Bed Management</h1>
-          <p style={{ color: '#6b7280', marginTop: '4px', fontSize: '14px' }}>Track bed availability across facilities</p>
+          <p style={{ color: '#6b7280', marginTop: '4px', fontSize: '14px' }}>
+            {isAdmin ? 'Track bed availability across all facilities' : `Bed availability for ${user?.facility_name || 'your facility'}`}
+          </p>
         </div>
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-          <select
-            value={selectedFacility}
-            onChange={(e) => setSelectedFacility(e.target.value)}
-            style={{ padding: '10px 16px', borderRadius: '8px', border: '1px solid #d1d5db', fontSize: '14px', minWidth: '200px' }}
-          >
-            {facilities.map(f => (
-              <option key={f.id} value={f.id}>{f.name}</option>
-            ))}
-          </select>
+          {/* Only show facility dropdown for admins or if user has access to multiple facilities */}
+          {(isAdmin || facilities.length > 1) && (
+            <select
+              value={selectedFacility}
+              onChange={(e) => setSelectedFacility(e.target.value)}
+              style={{ padding: '10px 16px', borderRadius: '8px', border: '1px solid #d1d5db', fontSize: '14px', minWidth: '200px' }}
+            >
+              {facilities.map(f => (
+                <option key={f.id} value={f.id}>{f.name}</option>
+              ))}
+            </select>
+          )}
           <button
             onClick={() => setShowAddModal(true)}
             style={{ padding: '10px 20px', background: '#275380', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 500 }}

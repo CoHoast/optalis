@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useUser } from '@/context/UserContext';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://optalis-api-production.up.railway.app';
 
@@ -32,14 +33,18 @@ interface BedSummary {
 }
 
 export default function DashboardPage() {
+  const { user, isAdmin, facilityId } = useUser();
   const [recentApplications, setRecentApplications] = useState<Application[]>([]);
   const [stats, setStats] = useState<Stats>({ total: 0, pending: 0, review: 0, approved: 0, denied: 0 });
   const [bedSummary, setBedSummary] = useState<BedSummary[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Build URL with facility filter for non-admins
+    const facilityParam = !isAdmin && facilityId ? `&facility_id=${facilityId}` : '';
+    
     // Fetch recent applications
-    fetch(`${API_URL}/api/applications?limit=5`)
+    fetch(`${API_URL}/api/applications?limit=5${facilityParam}`)
       .then(res => res.json())
       .then(data => {
         setRecentApplications(data);
@@ -50,7 +55,7 @@ export default function DashboardPage() {
         setLoading(false);
       });
 
-    // Fetch stats
+    // Fetch stats (TODO: add facility filtering to stats endpoint)
     fetch(`${API_URL}/api/stats`)
       .then(res => res.json())
       .then(data => setStats(data))
@@ -59,9 +64,15 @@ export default function DashboardPage() {
     // Fetch bed summary
     fetch(`${API_URL}/api/beds/summary`)
       .then(res => res.json())
-      .then(data => setBedSummary(data))
+      .then(data => {
+        // Filter bed summary for non-admins
+        if (!isAdmin && facilityId) {
+          data = data.filter((b: BedSummary) => b.facility_id === facilityId);
+        }
+        setBedSummary(data);
+      })
       .catch(err => console.error('Failed to fetch bed summary:', err));
-  }, []);
+  }, [isAdmin, facilityId]);
 
   const getInitials = (name: string) => {
     if (!name) return '??';
@@ -76,10 +87,36 @@ export default function DashboardPage() {
 
   return (
     <div className="main-content">
+      {/* Facility Filter Banner for non-admins */}
+      {!isAdmin && user?.facility_name && (
+        <div style={{ 
+          background: '#eff6ff', 
+          border: '1px solid #bfdbfe', 
+          borderRadius: '8px', 
+          padding: '12px 16px', 
+          marginBottom: '24px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px'
+        }}>
+          <svg width="20" height="20" fill="none" stroke="#2563eb" strokeWidth="2" viewBox="0 0 24 24">
+            <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+          </svg>
+          <span style={{ color: '#1e40af', fontWeight: 500 }}>
+            Viewing data for: <strong>{user.facility_name}</strong>
+          </span>
+        </div>
+      )}
+
       {/* Header */}
       <div style={{ marginBottom: '32px' }}>
         <h1 style={{ fontSize: '32px', marginBottom: '8px' }}>Dashboard</h1>
-        <p style={{ color: '#4a4a4a' }}>Welcome back. Here&apos;s what&apos;s happening today.</p>
+        <p style={{ color: '#4a4a4a' }}>
+          {isAdmin 
+            ? "Welcome back. Here's what's happening across all facilities today."
+            : `Welcome back. Here's what's happening at ${user?.facility_name || 'your facility'} today.`
+          }
+        </p>
       </div>
 
       {/* Stats */}
