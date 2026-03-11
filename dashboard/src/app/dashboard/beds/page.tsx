@@ -72,6 +72,14 @@ export default function BedManagementPage() {
       fetchBeds();
       fetchSummary();
       fetchUpcoming();
+      
+      // Auto-refresh every 30 seconds for real-time updates
+      const refreshInterval = setInterval(() => {
+        fetchBeds();
+        fetchSummary();
+      }, 30000);
+      
+      return () => clearInterval(refreshInterval);
     }
   }, [selectedFacility]);
 
