@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useUser } from '@/context/UserContext';
+import { features } from '@/lib/config';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://optalis-api-production.up.railway.app';
 
@@ -190,7 +191,8 @@ export default function DashboardPage() {
         </Link>
       </div>
 
-      {/* Intake Email Card */}
+      {/* Intake Email Card - Only in Full Mode */}
+      {features.emailIntake && (
       <div style={{
         background: 'linear-gradient(135deg, #275380 0%, #1e3f61 100%)',
         borderRadius: '16px',
@@ -228,6 +230,7 @@ export default function DashboardPage() {
           Copy Address
         </button>
       </div>
+      )}
 
       {/* Quick Actions */}
       <h2 style={{ fontSize: '18px', marginBottom: '16px', fontWeight: 600 }}>Quick Actions</h2>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { features } from '@/lib/config';
 
 // Icon components for integrations
 const CRMIcon = () => (
@@ -61,6 +62,31 @@ export default function IntegrationsPage() {
         <h1 style={{ fontSize: '32px', marginBottom: '8px' }}>Integrations</h1>
         <p style={{ color: '#4a4a4a' }}>Configure input sources, CRM connections, and field mappings</p>
       </div>
+
+      {/* Basic Mode Banner */}
+      {!features.emailIntake && (
+        <div style={{
+          background: '#f0f9ff',
+          border: '1px solid #bae6fd',
+          borderRadius: '12px',
+          padding: '16px 20px',
+          marginBottom: '24px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px'
+        }}>
+          <svg width="24" height="24" fill="none" stroke="#0284c7" strokeWidth="2" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>
+          </svg>
+          <div>
+            <div style={{ fontWeight: 600, color: '#0369a1', marginBottom: '2px' }}>Basic Mode</div>
+            <div style={{ fontSize: '14px', color: '#0284c7' }}>
+              Email intake and AI processing features are not included in this plan. 
+              Applications are entered manually.
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* CRM Connections */}
       <div className="card" style={{ marginBottom: '24px' }}>
@@ -149,7 +175,7 @@ export default function IntegrationsPage() {
               </tr>
             </thead>
             <tbody>
-              {inputSources.map((source) => (
+              {inputSources.filter(source => features.emailIntake || source.type !== 'EMAIL').map((source) => (
                 <tr key={source.id} style={{ borderBottom: '1px solid #f0f0f0' }}>
                   <td style={{ padding: '16px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>

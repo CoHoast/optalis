@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { features } from '@/lib/config';
+import { CopyButton, CopyAllButton } from '@/components/CopyButton';
 
 const API_URL = 'https://optalis-api-production.up.railway.app';
 
@@ -475,7 +477,14 @@ export default function ApplicationDetailPage() {
       </div>
 
       <div style={{ padding: '0 24px 40px' }}>
-        {/* Enhanced AI Summary Card */}
+        {/* Copy All Button - Always visible */}
+        <div style={{ marginBottom: '16px', display: 'flex', gap: '12px', alignItems: 'center' }}>
+          <CopyAllButton data={app} />
+          <span style={{ fontSize: '13px', color: '#6b7280' }}>Copy all fields for pasting into your CRM</span>
+        </div>
+
+        {/* Enhanced AI Summary Card - Only in Full Mode */}
+        {features.aiSummary && (
         <div style={{
           background: 'white', borderRadius: '16px', marginBottom: '24px',
           border: '1px solid #e5e7eb', overflow: 'hidden'
@@ -610,6 +619,7 @@ export default function ApplicationDetailPage() {
             </div>
           </div>
         </div>
+        )}
 
         {/* Quick Info Cards */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '24px' }}>
@@ -623,7 +633,10 @@ export default function ApplicationDetailPage() {
               background: 'white', borderRadius: '12px', padding: '16px',
               border: '1px solid #e5e7eb'
             }}>
-              <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{item.label}</div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                <div style={{ fontSize: '12px', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{item.label}</div>
+                <CopyButton value={item.value || ''} label={item.label} />
+              </div>
               <div style={{ fontSize: '15px', fontWeight: 500 }}>{item.value || '—'}</div>
             </div>
           ))}
@@ -707,12 +720,14 @@ export default function ApplicationDetailPage() {
                   color: docViewTab === 'original' ? 'white' : '#374151',
                   cursor: 'pointer', fontWeight: 500, fontSize: '13px'
                 }}>Original</button>
+                {features.aiExtraction && (
                 <button onClick={() => setDocViewTab('extracted')} style={{
                   padding: '8px 16px', border: 'none', borderRadius: '6px',
                   background: docViewTab === 'extracted' ? '#275380' : '#f1f5f9',
                   color: docViewTab === 'extracted' ? 'white' : '#374151',
                   cursor: 'pointer', fontWeight: 500, fontSize: '13px'
-                }}>Extracted</button>
+                }}>AI Extracted</button>
+                )}
               </div>
               <button onClick={() => setShowDocViewer(false)} style={{
                 width: '32px', height: '32px', borderRadius: '6px',
