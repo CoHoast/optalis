@@ -304,9 +304,9 @@ export default function DemoLauncherPage() {
       {/* Cards Grid */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-        gap: '24px',
-        maxWidth: '1100px',
+        gridTemplateColumns: 'repeat(4, 1fr)',
+        gap: '20px',
+        maxWidth: '1400px',
         margin: '0 auto',
       }}>
         
@@ -314,17 +314,17 @@ export default function DemoLauncherPage() {
         <div style={{
           background: 'white',
           borderRadius: '20px',
-          padding: '24px',
+          padding: '20px',
           boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
           display: 'flex',
           flexDirection: 'column',
-          minHeight: '480px',
+          minHeight: '420px',
         }}>
           <div style={{
             borderRadius: '12px',
             marginBottom: '20px',
             overflow: 'hidden',
-            height: '180px',
+            height: '140px',
             boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
             flexShrink: 0,
           }}>
@@ -362,11 +362,11 @@ export default function DemoLauncherPage() {
         <div style={{
           background: 'white',
           borderRadius: '20px',
-          padding: '24px',
+          padding: '20px',
           boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
           display: 'flex',
           flexDirection: 'column',
-          minHeight: '480px',
+          minHeight: '420px',
           position: 'relative',
         }}>
           {/* AI Badge */}
@@ -394,7 +394,7 @@ export default function DemoLauncherPage() {
             borderRadius: '12px',
             marginBottom: '20px',
             overflow: 'hidden',
-            height: '180px',
+            height: '140px',
             boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
             flexShrink: 0,
           }}>
@@ -432,18 +432,18 @@ export default function DemoLauncherPage() {
         <div style={{
           background: 'white',
           borderRadius: '20px',
-          padding: '24px',
+          padding: '20px',
           boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
           display: 'flex',
           flexDirection: 'column',
-          minHeight: '480px',
+          minHeight: '420px',
           position: 'relative',
         }}>
           <div style={{
             borderRadius: '12px',
             marginBottom: '20px',
             overflow: 'hidden',
-            height: '180px',
+            height: '140px',
             boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
             flexShrink: 0,
           }}>
@@ -481,11 +481,11 @@ export default function DemoLauncherPage() {
         <div style={{
           background: 'white',
           borderRadius: '20px',
-          padding: '24px',
+          padding: '20px',
           boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
           display: 'flex',
           flexDirection: 'column',
-          minHeight: '480px',
+          minHeight: '420px',
         }}>
           <h2 style={{ fontSize: '20px', fontWeight: 600, marginBottom: '8px', color: '#1a1a1a', textAlign: 'center' }}>
             Mobile Web App
