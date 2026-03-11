@@ -440,13 +440,20 @@ function ApplicationDetailContent() {
             {/* Suggested Decision Badge */}
             {app.suggested_decision && (
               <div style={{
-                background: app.suggested_decision === 'approve' ? '#16a34a' : 
-                           app.suggested_decision === 'deny' ? '#dc2626' : '#f59e0b',
-                padding: '5px 10px', borderRadius: '6px', fontWeight: 600, fontSize: '10px',
-                textTransform: 'uppercase'
+                background: 'rgba(255,255,255,0.15)',
+                padding: '4px 8px', borderRadius: '6px', fontSize: '9px',
+                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px'
               }}>
-                {app.suggested_decision === 'approve' ? '✓ APPROVE' :
-                 app.suggested_decision === 'deny' ? '✕ DENY' : '⚠ REVIEW'}
+                <span style={{ opacity: 0.8, fontWeight: 500 }}>AI SUGGESTS</span>
+                <span style={{ 
+                  background: app.suggested_decision === 'approve' ? '#16a34a' : 
+                             app.suggested_decision === 'deny' ? '#dc2626' : '#f59e0b',
+                  padding: '3px 8px', borderRadius: '4px', fontWeight: 700, fontSize: '10px',
+                  textTransform: 'uppercase'
+                }}>
+                  {app.suggested_decision === 'approve' ? '✓ APPROVE' :
+                   app.suggested_decision === 'deny' ? '✕ DENY' : '⚠ REVIEW'}
+                </span>
               </div>
             )}
           </div>
@@ -549,6 +556,75 @@ function ApplicationDetailContent() {
                 ✕ On Registry
               </button>
             </div>
+          </div>
+        </div>
+
+        {/* Bed Assignment Card */}
+        <div style={{ background: 'white', borderRadius: '14px', marginBottom: '16px', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}>
+          <div style={{
+            background: 'linear-gradient(135deg, #0d9488, #0f766e)',
+            padding: '14px 16px', color: 'white',
+            display: 'flex', justifyContent: 'space-between', alignItems: 'center'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path d="M3 13h18v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6zM3 13V8a2 2 0 012-2h3v7M21 13V8a2 2 0 00-2-2h-9v7"/>
+              </svg>
+              <span style={{ fontWeight: 600, fontSize: '14px' }}>Bed Assignment</span>
+            </div>
+            <span style={{ 
+              background: app.assigned_bed_id ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.15)', 
+              padding: '4px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 500 
+            }}>
+              {app.assigned_bed_id ? 'Assigned' : 'Not Assigned'}
+            </span>
+          </div>
+          <div style={{ padding: '14px 16px' }}>
+            {app.assigned_bed_id ? (
+              <div>
+                <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>Currently assigned to:</div>
+                <div style={{ fontSize: '16px', fontWeight: 600, color: '#0d9488', marginBottom: '8px' }}>
+                  Room {app.assigned_bed_room || '—'} • Bed {app.assigned_bed_identifier || 'A'}
+                </div>
+                {app.bed_assigned_at && (
+                  <div style={{ fontSize: '11px', color: '#6b7280', marginBottom: '12px' }}>
+                    Assigned {new Date(app.bed_assigned_at).toLocaleDateString()}
+                  </div>
+                )}
+                <button
+                  onClick={async () => {
+                    if (!confirm('Discharge patient from this bed?')) return;
+                    try {
+                      await fetch(`${API_URL}/api/applications/${app.id}/unassign-bed`, { method: 'POST' });
+                      const res = await fetch(`${API_URL}/api/applications/${app.id}`);
+                      if (res.ok) setApp(await res.json());
+                    } catch (err) { console.error(err); }
+                  }}
+                  style={{
+                    width: '100%', padding: '12px', background: '#fee2e2', color: '#dc2626',
+                    border: 'none', borderRadius: '10px', fontWeight: 600, fontSize: '14px', cursor: 'pointer'
+                  }}
+                >
+                  Discharge Patient
+                </button>
+              </div>
+            ) : (
+              <div>
+                <div style={{ fontSize: '13px', color: '#6b7280', marginBottom: '12px' }}>
+                  No bed assigned yet. Use desktop to assign a bed.
+                </div>
+                <a
+                  href={`/dashboard/applications/${app.id}`}
+                  style={{
+                    display: 'block', width: '100%', padding: '12px', background: '#0d9488', color: 'white',
+                    border: 'none', borderRadius: '10px', fontWeight: 600, fontSize: '14px', textAlign: 'center',
+                    textDecoration: 'none'
+                  }}
+                >
+                  Open on Desktop to Assign
+                </a>
+              </div>
+            )}
           </div>
         </div>
 
