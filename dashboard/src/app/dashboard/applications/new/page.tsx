@@ -620,282 +620,314 @@ Please contact family at (248) 555-0123..."
           </div>
           )}
 
-          <div style={{
-            background: 'white',
-            borderRadius: '16px',
-            padding: '32px',
-            border: '1px solid #e0e0e0'
-          }}>
-            <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '24px' }}>Patient Information</h3>
-            
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '24px' }}>
-              <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>
-                  Patient Name *
-                </label>
-                <input
-                  type="text"
-                  value={manualData.patient_name}
-                  onChange={(e) => setManualData({...manualData, patient_name: e.target.value})}
-                  placeholder="Full name"
-                  style={{
-                    width: '100%',
-                    padding: '12px 14px',
-                    border: '1px solid #e0e0e0',
-                    borderRadius: '8px',
-                    fontSize: '15px',
-                    boxSizing: 'border-box'
-                  }}
-                />
-              </div>
-              <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>
-                  Date of Birth *
-                </label>
-                <input
-                  type="text"
-                  value={manualData.dob}
-                  onChange={(e) => setManualData({...manualData, dob: e.target.value})}
-                  placeholder="MM/DD/YYYY"
-                  style={{
-                    width: '100%',
-                    padding: '12px 14px',
-                    border: '1px solid #e0e0e0',
-                    borderRadius: '8px',
-                    fontSize: '15px',
-                    boxSizing: 'border-box'
-                  }}
-                />
-              </div>
-              <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>
-                  Phone
-                </label>
-                <input
-                  type="text"
-                  value={manualData.phone}
-                  onChange={(e) => setManualData({...manualData, phone: e.target.value})}
-                  placeholder="(XXX) XXX-XXXX"
-                  style={{
-                    width: '100%',
-                    padding: '12px 14px',
-                    border: '1px solid #e0e0e0',
-                    borderRadius: '8px',
-                    fontSize: '15px',
-                    boxSizing: 'border-box'
-                  }}
-                />
-              </div>
-              <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>
-                  Address
-                </label>
-                <input
-                  type="text"
-                  value={manualData.address}
-                  onChange={(e) => setManualData({...manualData, address: e.target.value})}
-                  placeholder="Full address"
-                  style={{
-                    width: '100%',
-                    padding: '12px 14px',
-                    border: '1px solid #e0e0e0',
-                    borderRadius: '8px',
-                    fontSize: '15px',
-                    boxSizing: 'border-box'
-                  }}
-                />
-              </div>
-            </div>
-
-            <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '24px', marginTop: '32px', paddingTop: '24px', borderTop: '1px solid #e0e0e0' }}>Insurance Information</h3>
-            
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '24px' }}>
-              <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>
-                  Insurance Provider
-                </label>
-                <input
-                  type="text"
-                  value={manualData.insurance}
-                  onChange={(e) => setManualData({...manualData, insurance: e.target.value})}
-                  placeholder="e.g., Medicare, Blue Cross"
-                  style={{
-                    width: '100%',
-                    padding: '12px 14px',
-                    border: '1px solid #e0e0e0',
-                    borderRadius: '8px',
-                    fontSize: '15px',
-                    boxSizing: 'border-box'
-                  }}
-                />
-              </div>
-              <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>
-                  Policy Number
-                </label>
-                <input
-                  type="text"
-                  value={manualData.policy_number}
-                  onChange={(e) => setManualData({...manualData, policy_number: e.target.value})}
-                  placeholder="Policy/Member ID"
-                  style={{
-                    width: '100%',
-                    padding: '12px 14px',
-                    border: '1px solid #e0e0e0',
-                    borderRadius: '8px',
-                    fontSize: '15px',
-                    boxSizing: 'border-box'
-                  }}
-                />
-              </div>
-            </div>
-
-            <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '24px', marginTop: '32px', paddingTop: '24px', borderTop: '1px solid #e0e0e0' }}>Medical Information</h3>
-            
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '20px', marginBottom: '24px' }}>
-              <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>
-                  Diagnosis (separate with commas)
-                </label>
-                <input
-                  type="text"
-                  value={manualData.diagnosis}
-                  onChange={(e) => setManualData({...manualData, diagnosis: e.target.value})}
-                  placeholder="e.g., CHF, Diabetes, Hypertension"
-                  style={{
-                    width: '100%',
-                    padding: '12px 14px',
-                    border: '1px solid #e0e0e0',
-                    borderRadius: '8px',
-                    fontSize: '15px',
-                    boxSizing: 'border-box'
-                  }}
-                />
-              </div>
-              <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>
-                  Medications (separate with commas)
-                </label>
-                <input
-                  type="text"
-                  value={manualData.medications}
-                  onChange={(e) => setManualData({...manualData, medications: e.target.value})}
-                  placeholder="e.g., Metformin 500mg, Lasix 40mg"
-                  style={{
-                    width: '100%',
-                    padding: '12px 14px',
-                    border: '1px solid #e0e0e0',
-                    borderRadius: '8px',
-                    fontSize: '15px',
-                    boxSizing: 'border-box'
-                  }}
-                />
-              </div>
-              <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>
-                  Allergies (separate with commas)
-                </label>
-                <input
-                  type="text"
-                  value={manualData.allergies}
-                  onChange={(e) => setManualData({...manualData, allergies: e.target.value})}
-                  placeholder="e.g., Penicillin, Sulfa"
-                  style={{
-                    width: '100%',
-                    padding: '12px 14px',
-                    border: '1px solid #e0e0e0',
-                    borderRadius: '8px',
-                    fontSize: '15px',
-                    boxSizing: 'border-box'
-                  }}
-                />
-              </div>
-            </div>
-
-            <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '24px', marginTop: '32px', paddingTop: '24px', borderTop: '1px solid #e0e0e0' }}>Referral Information</h3>
-            
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '24px' }}>
-              <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>
-                  Referring Physician
-                </label>
-                <input
-                  type="text"
-                  value={manualData.physician}
-                  onChange={(e) => setManualData({...manualData, physician: e.target.value})}
-                  placeholder="Dr. name"
-                  style={{
-                    width: '100%',
-                    padding: '12px 14px',
-                    border: '1px solid #e0e0e0',
-                    borderRadius: '8px',
-                    fontSize: '15px',
-                    boxSizing: 'border-box'
-                  }}
-                />
-              </div>
-              <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>
-                  Facility
-                </label>
-                <input
-                  type="text"
-                  value={manualData.building}
-                  onChange={(e) => setManualData({...manualData, building: e.target.value})}
-                  placeholder="Requested facility"
-                  style={{
-                    width: '100%',
-                    padding: '12px 14px',
-                    border: '1px solid #e0e0e0',
-                    borderRadius: '8px',
-                    fontSize: '15px',
-                    boxSizing: 'border-box'
-                  }}
-                />
-              </div>
-            </div>
-
-            <div style={{ marginBottom: '24px' }}>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>
-                Requested Services (separate with commas)
-              </label>
-              <input
-                type="text"
-                value={manualData.services}
-                onChange={(e) => setManualData({...manualData, services: e.target.value})}
-                placeholder="e.g., Skilled Nursing, Physical Therapy, Occupational Therapy"
+          {/* Tab Navigation */}
+          <div style={{ display: 'flex', gap: '4px', marginBottom: '20px', background: '#f1f5f9', padding: '4px', borderRadius: '10px', flexWrap: 'wrap' }}>
+            {['referral', 'patient', 'insurance', 'clinical', 'therapy', 'summary', 'precert'].map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveSection(tab)}
                 style={{
-                  width: '100%',
-                  padding: '12px 14px',
-                  border: '1px solid #e0e0e0',
+                  padding: '10px 16px',
+                  border: 'none',
                   borderRadius: '8px',
-                  fontSize: '15px',
-                  boxSizing: 'border-box'
+                  background: activeSection === tab ? '#275380' : 'transparent',
+                  color: activeSection === tab ? 'white' : '#666',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: 500,
+                  textTransform: 'capitalize'
                 }}
-              />
-            </div>
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
 
-            <div style={{ marginBottom: '24px' }}>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>
-                Notes
-              </label>
-              <textarea
-                value={manualData.notes}
-                onChange={(e) => setManualData({...manualData, notes: e.target.value})}
-                placeholder="Additional notes or information..."
-                style={{
-                  width: '100%',
-                  minHeight: '100px',
-                  padding: '12px 14px',
-                  border: '1px solid #e0e0e0',
-                  borderRadius: '8px',
-                  fontSize: '15px',
-                  resize: 'vertical',
-                  fontFamily: 'inherit',
-                  boxSizing: 'border-box'
-                }}
-              />
-            </div>
+          <div style={{ background: 'white', borderRadius: '16px', padding: '32px', border: '1px solid #e0e0e0' }}>
+            
+            {/* REFERRAL TAB */}
+            {activeSection === 'referral' && (
+              <>
+                <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '24px' }}>Referral Information</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>Referral Type</label>
+                    <select value={manualData.referral_type} onChange={(e) => setManualData({...manualData, referral_type: e.target.value})} style={{ width: '100%', padding: '12px 14px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '15px', boxSizing: 'border-box' }}>
+                      <option value="New Referral">New Referral</option>
+                      <option value="Return to Hospital">Return to Hospital</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>Hospital</label>
+                    <input type="text" value={manualData.hospital} onChange={(e) => setManualData({...manualData, hospital: e.target.value})} placeholder="Referring hospital" style={{ width: '100%', padding: '12px 14px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '15px', boxSizing: 'border-box' }} />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>Building/Facility</label>
+                    <input type="text" value={manualData.building} onChange={(e) => setManualData({...manualData, building: e.target.value})} placeholder="Building or facility name" style={{ width: '100%', padding: '12px 14px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '15px', boxSizing: 'border-box' }} />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>Room #</label>
+                    <input type="text" value={manualData.room_number} onChange={(e) => setManualData({...manualData, room_number: e.target.value})} placeholder="Room number" style={{ width: '100%', padding: '12px 14px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '15px', boxSizing: 'border-box' }} />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>Case Manager</label>
+                    <input type="text" value={manualData.case_manager_name} onChange={(e) => setManualData({...manualData, case_manager_name: e.target.value})} placeholder="Case manager name" style={{ width: '100%', padding: '12px 14px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '15px', boxSizing: 'border-box' }} />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>CM Phone</label>
+                    <input type="text" value={manualData.case_manager_phone} onChange={(e) => setManualData({...manualData, case_manager_phone: e.target.value})} placeholder="(XXX) XXX-XXXX" style={{ width: '100%', padding: '12px 14px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '15px', boxSizing: 'border-box' }} />
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* PATIENT TAB */}
+            {activeSection === 'patient' && (
+              <>
+                <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '24px' }}>Patient Information</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                  <div style={{ gridColumn: 'span 2' }}>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>Full Name <span style={{ color: '#dc2626' }}>*</span></label>
+                    <input type="text" value={manualData.patient_name} onChange={(e) => setManualData({...manualData, patient_name: e.target.value})} placeholder="Patient full name" style={{ width: '100%', padding: '12px 14px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '15px', boxSizing: 'border-box' }} />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>Date of Birth <span style={{ color: '#dc2626' }}>*</span></label>
+                    <input type="text" value={manualData.dob} onChange={(e) => setManualData({...manualData, dob: e.target.value})} placeholder="MM/DD/YYYY" style={{ width: '100%', padding: '12px 14px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '15px', boxSizing: 'border-box' }} />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>Sex</label>
+                    <select value={manualData.sex} onChange={(e) => setManualData({...manualData, sex: e.target.value})} style={{ width: '100%', padding: '12px 14px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '15px', boxSizing: 'border-box' }}>
+                      <option value="">Select...</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>SSN (Last 4)</label>
+                    <input type="text" value={manualData.ssn_last4} onChange={(e) => setManualData({...manualData, ssn_last4: e.target.value.slice(0, 4)})} placeholder="XXXX" maxLength={4} style={{ width: '100%', padding: '12px 14px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '15px', boxSizing: 'border-box' }} />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>Phone</label>
+                    <input type="text" value={manualData.phone} onChange={(e) => setManualData({...manualData, phone: e.target.value})} placeholder="(XXX) XXX-XXXX" style={{ width: '100%', padding: '12px 14px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '15px', boxSizing: 'border-box' }} />
+                  </div>
+                  <div style={{ gridColumn: 'span 2' }}>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>Address</label>
+                    <input type="text" value={manualData.address} onChange={(e) => setManualData({...manualData, address: e.target.value})} placeholder="Full address" style={{ width: '100%', padding: '12px 14px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '15px', boxSizing: 'border-box' }} />
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* INSURANCE TAB */}
+            {activeSection === 'insurance' && (
+              <>
+                <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '24px' }}>Insurance & Dates</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>Insurance</label>
+                    <input type="text" value={manualData.insurance} onChange={(e) => setManualData({...manualData, insurance: e.target.value})} placeholder="e.g., Medicare, Blue Cross" style={{ width: '100%', padding: '12px 14px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '15px', boxSizing: 'border-box' }} />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>Policy/Member ID</label>
+                    <input type="text" value={manualData.policy_number} onChange={(e) => setManualData({...manualData, policy_number: e.target.value})} placeholder="Policy number" style={{ width: '100%', padding: '12px 14px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '15px', boxSizing: 'border-box' }} />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>Care Level</label>
+                    <select value={manualData.care_level} onChange={(e) => setManualData({...manualData, care_level: e.target.value})} style={{ width: '100%', padding: '12px 14px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '15px', boxSizing: 'border-box' }}>
+                      <option value="">Select...</option>
+                      <option value="SNF">SNF</option>
+                      <option value="LTC">LTC</option>
+                      <option value="AL">AL</option>
+                      <option value="Hospice">Hospice</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>Date Admitted</label>
+                    <input type="date" value={manualData.date_admitted} onChange={(e) => setManualData({...manualData, date_admitted: e.target.value})} style={{ width: '100%', padding: '12px 14px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '15px', boxSizing: 'border-box' }} />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>Inpatient Date</label>
+                    <input type="date" value={manualData.inpatient_date} onChange={(e) => setManualData({...manualData, inpatient_date: e.target.value})} style={{ width: '100%', padding: '12px 14px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '15px', boxSizing: 'border-box' }} />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>Expected Discharge</label>
+                    <input type="date" value={manualData.anticipated_discharge} onChange={(e) => setManualData({...manualData, anticipated_discharge: e.target.value})} style={{ width: '100%', padding: '12px 14px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '15px', boxSizing: 'border-box' }} />
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* CLINICAL TAB */}
+            {activeSection === 'clinical' && (
+              <>
+                <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '24px' }}>Clinical & Medical</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                  <div style={{ gridColumn: 'span 2' }}>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>Diagnosis (comma separated)</label>
+                    <input type="text" value={manualData.diagnosis} onChange={(e) => setManualData({...manualData, diagnosis: e.target.value})} placeholder="e.g., CHF, Diabetes, Hypertension" style={{ width: '100%', padding: '12px 14px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '15px', boxSizing: 'border-box' }} />
+                  </div>
+                  <div style={{ gridColumn: 'span 2' }}>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>Medications (comma separated)</label>
+                    <input type="text" value={manualData.medications} onChange={(e) => setManualData({...manualData, medications: e.target.value})} placeholder="e.g., Metformin 500mg, Lasix 40mg" style={{ width: '100%', padding: '12px 14px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '15px', boxSizing: 'border-box' }} />
+                  </div>
+                  <div style={{ gridColumn: 'span 2' }}>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>Allergies (comma separated)</label>
+                    <input type="text" value={manualData.allergies} onChange={(e) => setManualData({...manualData, allergies: e.target.value})} placeholder="e.g., Penicillin, Sulfa" style={{ width: '100%', padding: '12px 14px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '15px', boxSizing: 'border-box' }} />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>Fall Risk</label>
+                    <select value={manualData.fall_risk ? 'yes' : 'no'} onChange={(e) => setManualData({...manualData, fall_risk: e.target.value === 'yes'})} style={{ width: '100%', padding: '12px 14px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '15px', boxSizing: 'border-box' }}>
+                      <option value="no">No</option>
+                      <option value="yes">Yes</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>Smoking Status</label>
+                    <select value={manualData.smoking_status} onChange={(e) => setManualData({...manualData, smoking_status: e.target.value})} style={{ width: '100%', padding: '12px 14px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '15px', boxSizing: 'border-box' }}>
+                      <option value="">Select...</option>
+                      <option value="Never">Never</option>
+                      <option value="Former">Former</option>
+                      <option value="Current">Current</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>Isolation</label>
+                    <input type="text" value={manualData.isolation} onChange={(e) => setManualData({...manualData, isolation: e.target.value})} placeholder="Isolation requirements" style={{ width: '100%', padding: '12px 14px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '15px', boxSizing: 'border-box' }} />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>Barrier Precautions</label>
+                    <input type="text" value={manualData.barrier_precautions} onChange={(e) => setManualData({...manualData, barrier_precautions: e.target.value})} placeholder="Enhanced barrier precautions" style={{ width: '100%', padding: '12px 14px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '15px', boxSizing: 'border-box' }} />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>Diet</label>
+                    <input type="text" value={manualData.diet} onChange={(e) => setManualData({...manualData, diet: e.target.value})} placeholder="Diet requirements" style={{ width: '100%', padding: '12px 14px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '15px', boxSizing: 'border-box' }} />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>Height</label>
+                    <input type="text" value={manualData.height} onChange={(e) => setManualData({...manualData, height: e.target.value})} placeholder="e.g., 5'8&quot;" style={{ width: '100%', padding: '12px 14px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '15px', boxSizing: 'border-box' }} />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>Weight</label>
+                    <input type="text" value={manualData.weight} onChange={(e) => setManualData({...manualData, weight: e.target.value})} placeholder="e.g., 165 lbs" style={{ width: '100%', padding: '12px 14px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '15px', boxSizing: 'border-box' }} />
+                  </div>
+                  <div style={{ gridColumn: 'span 2' }}>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>Durable Medical Equipment</label>
+                    <textarea value={manualData.dme} onChange={(e) => setManualData({...manualData, dme: e.target.value})} placeholder="DME needs" style={{ width: '100%', minHeight: '80px', padding: '12px 14px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '15px', resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }} />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>IV Medications</label>
+                    <textarea value={manualData.iv_meds} onChange={(e) => setManualData({...manualData, iv_meds: e.target.value})} placeholder="IV medication requirements" style={{ width: '100%', minHeight: '80px', padding: '12px 14px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '15px', resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }} />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>Expensive Meds/Chemo</label>
+                    <textarea value={manualData.expensive_meds} onChange={(e) => setManualData({...manualData, expensive_meds: e.target.value})} placeholder="Expensive medications or chemotherapy" style={{ width: '100%', minHeight: '80px', padding: '12px 14px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '15px', resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }} />
+                  </div>
+                  <div style={{ gridColumn: 'span 2' }}>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>Infection Prevention</label>
+                    <textarea value={manualData.infection_prevention} onChange={(e) => setManualData({...manualData, infection_prevention: e.target.value})} placeholder="Infection prevention notes" style={{ width: '100%', minHeight: '80px', padding: '12px 14px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '15px', resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }} />
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* THERAPY TAB */}
+            {activeSection === 'therapy' && (
+              <>
+                <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '24px' }}>Therapy & Services</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                  <div style={{ gridColumn: 'span 2' }}>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>Services Requested (comma separated)</label>
+                    <input type="text" value={manualData.services} onChange={(e) => setManualData({...manualData, services: e.target.value})} placeholder="e.g., Skilled Nursing, PT, OT, Speech" style={{ width: '100%', padding: '12px 14px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '15px', boxSizing: 'border-box' }} />
+                  </div>
+                  <div style={{ gridColumn: 'span 2' }}>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>Prior Level of Function</label>
+                    <textarea value={manualData.therapy_prior_level} onChange={(e) => setManualData({...manualData, therapy_prior_level: e.target.value})} placeholder="Describe prior level of function" style={{ width: '100%', minHeight: '80px', padding: '12px 14px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '15px', resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }} />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>Bed Mobility</label>
+                    <input type="text" value={manualData.therapy_bed_mobility} onChange={(e) => setManualData({...manualData, therapy_bed_mobility: e.target.value})} placeholder="Bed mobility status" style={{ width: '100%', padding: '12px 14px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '15px', boxSizing: 'border-box' }} />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>Transfers</label>
+                    <input type="text" value={manualData.therapy_transfers} onChange={(e) => setManualData({...manualData, therapy_transfers: e.target.value})} placeholder="Transfer status" style={{ width: '100%', padding: '12px 14px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '15px', boxSizing: 'border-box' }} />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>Gait</label>
+                    <input type="text" value={manualData.therapy_gait} onChange={(e) => setManualData({...manualData, therapy_gait: e.target.value})} placeholder="Gait status" style={{ width: '100%', padding: '12px 14px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '15px', boxSizing: 'border-box' }} />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>Referring Physician</label>
+                    <input type="text" value={manualData.physician} onChange={(e) => setManualData({...manualData, physician: e.target.value})} placeholder="Dr. name" style={{ width: '100%', padding: '12px 14px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '15px', boxSizing: 'border-box' }} />
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* SUMMARY TAB */}
+            {activeSection === 'summary' && (
+              <>
+                <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '24px' }}>Summary & Decision</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                  <div style={{ gridColumn: 'span 2' }}>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>Clinical Summary</label>
+                    <textarea value={manualData.clinical_summary} onChange={(e) => setManualData({...manualData, clinical_summary: e.target.value})} placeholder="Clinical summary and notes" style={{ width: '100%', minHeight: '120px', padding: '12px 14px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '15px', resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }} />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>Decision</label>
+                    <select value={manualData.decision_status} onChange={(e) => setManualData({...manualData, decision_status: e.target.value})} style={{ width: '100%', padding: '12px 14px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '15px', boxSizing: 'border-box' }}>
+                      <option value="Considering">Considering</option>
+                      <option value="Accepting">Accepting</option>
+                      <option value="Denying">Denying</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>Decision Notes</label>
+                    <textarea value={manualData.decision_notes} onChange={(e) => setManualData({...manualData, decision_notes: e.target.value})} placeholder="Notes about the decision" style={{ width: '100%', minHeight: '80px', padding: '12px 14px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '15px', resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }} />
+                  </div>
+                  <div style={{ gridColumn: 'span 2' }}>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>Internal Notes</label>
+                    <textarea value={manualData.notes} onChange={(e) => setManualData({...manualData, notes: e.target.value})} placeholder="Additional internal notes" style={{ width: '100%', minHeight: '80px', padding: '12px 14px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '15px', resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }} />
+                  </div>
+                  <div style={{ gridColumn: 'span 2' }}>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '6px' }}>Flagged Conditions (comma separated)</label>
+                    <input type="text" value={manualData.flagged_conditions} onChange={(e) => setManualData({...manualData, flagged_conditions: e.target.value})} placeholder="e.g., Dialysis, Ventilator, Behavioral" style={{ width: '100%', padding: '12px 14px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '15px', boxSizing: 'border-box' }} />
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* PRECERT TAB */}
+            {activeSection === 'precert' && (
+              <>
+                <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '24px' }}>PreCert Status</h3>
+                <div>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: '#666', marginBottom: '12px' }}>Pre-Certification Status</label>
+                  <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                    {['pending', 'submitted', 'approved', 'denied'].map((status) => (
+                      <button
+                        key={status}
+                        type="button"
+                        onClick={() => setManualData({...manualData, precert_status: status})}
+                        style={{
+                          padding: '12px 24px',
+                          border: manualData.precert_status === status ? '2px solid #275380' : '1px solid #e0e0e0',
+                          borderRadius: '8px',
+                          background: manualData.precert_status === status ? '#f0f7ff' : 'white',
+                          color: manualData.precert_status === status ? '#275380' : '#666',
+                          fontWeight: manualData.precert_status === status ? 600 : 400,
+                          cursor: 'pointer',
+                          textTransform: 'capitalize',
+                          fontSize: '14px'
+                        }}
+                      >
+                        {status}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
           </div>
 
           <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
