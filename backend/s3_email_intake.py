@@ -70,6 +70,66 @@ API_URL = os.getenv("API_URL", "https://optalis-api-production.up.railway.app/ap
 
 POLL_INTERVAL = int(os.getenv("POLL_INTERVAL", "60"))
 
+# Database Configuration (for processed email tracking)
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://mcoadmin:McOadv2026!Secure@mco-advantage-db.caxy4ekouaq9.us-east-1.rds.amazonaws.com:5432/mco_advantage")
+
+# ============================================================
+# Database Tracking (Bulletproof Duplicate Prevention)
+# ============================================================
+
+import psycopg2
+from psycopg2.extras import RealDictCursor
+
+def get_db_connection():
+    """Get database connection for tracking processed emails."""
+    return psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
+
+
+def is_email_already_processed(s3_key: str) -> bool:
+    """Check if this email was already processed. Returns True if already done."""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT id FROM processed_emails WHERE s3_key = %s", (s3_key,))
+        result = cursor.fetchone()
+        cursor.close()
+        conn.close()
+        return result is not None
+    except Exception as e:
+        print(f"   ⚠️ DB check failed: {e} - proceeding with caution")
+        return False
+
+
+def record_processed_email(
+    s3_key: str,
+    message_id: str = None,
+    email_from: str = None,
+    email_subject: str = None,
+    patient_name: str = None,
+    application_id: str = None,
+    status: str = 'processed',
+    error_message: str = None
+):
+    """Record that an email has been processed (success or failure)."""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO processed_emails 
+            (s3_key, message_id, email_from, email_subject, patient_name, application_id, status, error_message)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            ON CONFLICT (s3_key) DO UPDATE SET
+                status = EXCLUDED.status,
+                error_message = EXCLUDED.error_message,
+                processed_at = NOW()
+        """, (s3_key, message_id, email_from, email_subject, patient_name, application_id, status, error_message))
+        conn.commit()
+        cursor.close()
+        conn.close()
+        print(f"   📝 Recorded in DB: {status}")
+    except Exception as e:
+        print(f"   ⚠️ DB record failed: {e}")
+
 # ============================================================
 # Email Filtering
 # ============================================================
@@ -508,6 +568,18 @@ def process_email(s3_key: str) -> Optional[str]:
     """Process a single email from S3."""
     print(f"\n📧 Processing: {s3_key}")
     
+    # ========================================
+    # BULLETPROOF CHECK #1: Database lookup
+    # ========================================
+    if is_email_already_processed(s3_key):
+        print(f"   ⏭️  SKIPPING: Already processed (found in database)")
+        # Move to processed folder anyway to clean up
+        try:
+            move_email(s3_key, S3_PROCESSED_PREFIX)
+        except:
+            pass
+        return None
+    
     try:
         # Download and parse email
         raw_email = download_email(s3_key)
@@ -526,6 +598,14 @@ def process_email(s3_key: str) -> Optional[str]:
         
         if not is_healthcare:
             print(f"   ⏭️  Skipping: Not a healthcare application ({keyword_count} keywords)")
+            # Record as skipped in database
+            record_processed_email(
+                s3_key=s3_key,
+                email_from=from_email,
+                email_subject=subject,
+                status='skipped',
+                error_message=f"Not a healthcare application ({keyword_count} keywords)"
+            )
             move_email(s3_key, S3_FAILED_PREFIX)
             return None
         
@@ -575,6 +655,14 @@ def process_email(s3_key: str) -> Optional[str]:
         
         if not has_required:
             print(f"   ⏭️  Skipping: Missing required fields: {', '.join(missing_fields)}")
+            # Record as skipped in database
+            record_processed_email(
+                s3_key=s3_key,
+                email_from=from_email,
+                email_subject=subject,
+                status='skipped',
+                error_message=f"Missing required fields: {', '.join(missing_fields)}"
+            )
             move_email(s3_key, S3_FAILED_PREFIX)
             return None
         
@@ -586,6 +674,19 @@ def process_email(s3_key: str) -> Optional[str]:
         app_id = create_application(email_data, extracted, s3_key)
         print(f"   ✅ Created application: {app_id}")
         
+        # ========================================
+        # BULLETPROOF: Record success in database
+        # ========================================
+        record_processed_email(
+            s3_key=s3_key,
+            message_id=email_data.get('message_id'),
+            email_from=from_email,
+            email_subject=subject,
+            patient_name=extracted.get('patient_name'),
+            application_id=app_id,
+            status='processed'
+        )
+        
         # Move to processed
         new_key = move_email(s3_key, S3_PROCESSED_PREFIX)
         print(f"   📁 Moved to: {new_key}")
@@ -594,6 +695,12 @@ def process_email(s3_key: str) -> Optional[str]:
         
     except Exception as e:
         print(f"   ❌ Error processing email: {e}")
+        # Record failure in database
+        record_processed_email(
+            s3_key=s3_key,
+            status='failed',
+            error_message=str(e)
+        )
         try:
             move_email(s3_key, S3_FAILED_PREFIX)
         except:
