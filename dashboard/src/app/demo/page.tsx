@@ -318,13 +318,13 @@ export default function DemoLauncherPage() {
           boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
           display: 'flex',
           flexDirection: 'column',
-          minHeight: '420px',
+          minHeight: '500px',
         }}>
           <div style={{
             borderRadius: '12px',
             marginBottom: '20px',
             overflow: 'hidden',
-            height: '140px',
+            height: '180px',
             boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
             flexShrink: 0,
           }}>
@@ -366,7 +366,7 @@ export default function DemoLauncherPage() {
           boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
           display: 'flex',
           flexDirection: 'column',
-          minHeight: '420px',
+          minHeight: '500px',
           position: 'relative',
         }}>
           {/* AI Badge */}
@@ -394,7 +394,7 @@ export default function DemoLauncherPage() {
             borderRadius: '12px',
             marginBottom: '20px',
             overflow: 'hidden',
-            height: '140px',
+            height: '180px',
             boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
             flexShrink: 0,
           }}>
@@ -436,14 +436,14 @@ export default function DemoLauncherPage() {
           boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
           display: 'flex',
           flexDirection: 'column',
-          minHeight: '420px',
+          minHeight: '500px',
           position: 'relative',
         }}>
           <div style={{
             borderRadius: '12px',
             marginBottom: '20px',
             overflow: 'hidden',
-            height: '140px',
+            height: '180px',
             boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
             flexShrink: 0,
           }}>
@@ -485,7 +485,7 @@ export default function DemoLauncherPage() {
           boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
           display: 'flex',
           flexDirection: 'column',
-          minHeight: '420px',
+          minHeight: '500px',
         }}>
           <h2 style={{ fontSize: '20px', fontWeight: 600, marginBottom: '8px', color: '#1a1a1a', textAlign: 'center' }}>
             Mobile Web App
@@ -507,7 +507,7 @@ export default function DemoLauncherPage() {
             <img 
               src={getQRCodeUrl(DEMO_LINKS.mobile, 140)}
               alt="Scan to open mobile app"
-              style={{ width: '140px', height: '140px', borderRadius: '8px' }}
+              style={{ width: '140px', height: '180px', borderRadius: '8px' }}
             />
             <p style={{ fontSize: '12px', color: '#888', marginTop: '12px', textAlign: 'center' }}>
               Scan with your phone camera
