@@ -1,0 +1,4 @@
+# Backup files - do not commit to git
+*.sql
+*.dump
+*.backup
