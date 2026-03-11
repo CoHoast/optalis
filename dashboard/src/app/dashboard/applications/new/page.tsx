@@ -595,7 +595,8 @@ Please contact family at (248) 555-0123..."
       {/* Manual Entry Method Selected */}
       {status === 'idle' && method === 'manual' && (
         <div style={{ maxWidth: '900px' }}>
-          {/* Info Banner */}
+          {/* Info Banner - Only show in AI mode as a fallback notice */}
+          {features.aiExtraction && (
           <div style={{
             background: '#fef3c7',
             border: '1px solid #fcd34d',
@@ -617,6 +618,7 @@ Please contact family at (248) 555-0123..."
               </div>
             </div>
           </div>
+          )}
 
           <div style={{
             background: 'white',
