@@ -115,6 +115,67 @@ function ApplicationDetailContent() {
   const [expandedSections, setExpandedSections] = useState<string[]>(['patient']);
   const [showNewBanner, setShowNewBanner] = useState(isNewApplication || false);
   const [confirmModal, setConfirmModal] = useState<{ show: boolean; action: string; title: string; message: string }>({ show: false, action: '', title: '', message: '' });
+  
+  // Bed assignment state
+  const [showBedAssign, setShowBedAssign] = useState(false);
+  const [facilities, setFacilities] = useState<any[]>([]);
+  const [availableBeds, setAvailableBeds] = useState<any[]>([]);
+  const [selectedFacility, setSelectedFacility] = useState('');
+  const [selectedBed, setSelectedBed] = useState('');
+  const [loadingBeds, setLoadingBeds] = useState(false);
+  const [assigningBed, setAssigningBed] = useState(false);
+
+  // Fetch facilities on mount
+  useEffect(() => {
+    fetch(`${API_URL}/api/facilities`)
+      .then(res => res.ok ? res.json() : [])
+      .then(data => setFacilities(data))
+      .catch(() => setFacilities([]));
+  }, []);
+
+  // Fetch available beds when facility changes
+  useEffect(() => {
+    if (!selectedFacility) {
+      setAvailableBeds([]);
+      return;
+    }
+    setLoadingBeds(true);
+    fetch(`${API_URL}/api/facilities/${selectedFacility}/available-beds`)
+      .then(res => res.ok ? res.json() : [])
+      .then(data => {
+        setAvailableBeds(data);
+        setSelectedBed('');
+      })
+      .catch(() => setAvailableBeds([]))
+      .finally(() => setLoadingBeds(false));
+  }, [selectedFacility]);
+
+  const assignBed = async () => {
+    if (!selectedBed) return;
+    setAssigningBed(true);
+    try {
+      const res = await fetch(`${API_URL}/api/applications/${id}/assign-bed`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bed_id: selectedBed, assigned_by: 'Mobile User' })
+      });
+      const data = await res.json();
+      if (data.success) {
+        // Refresh application data
+        const appRes = await fetch(`${API_URL}/api/applications/${id}`);
+        if (appRes.ok) setApp(await appRes.json());
+        setShowBedAssign(false);
+        setSelectedFacility('');
+        setSelectedBed('');
+      } else {
+        alert(data.detail || 'Failed to assign bed');
+      }
+    } catch (err) {
+      console.error('Failed to assign bed:', err);
+      alert('Failed to assign bed');
+    }
+    setAssigningBed(false);
+  };
 
   useEffect(() => {
     fetch(`${API_URL}/api/applications/${id}`)
@@ -610,19 +671,103 @@ function ApplicationDetailContent() {
               </div>
             ) : (
               <div>
-                <div style={{ fontSize: '13px', color: '#6b7280', marginBottom: '12px' }}>
-                  No bed assigned yet. Use desktop to assign a bed.
-                </div>
-                <a
-                  href={`/dashboard/applications/${app.id}`}
-                  style={{
-                    display: 'block', width: '100%', padding: '12px', background: '#0d9488', color: 'white',
-                    border: 'none', borderRadius: '10px', fontWeight: 600, fontSize: '14px', textAlign: 'center',
-                    textDecoration: 'none'
-                  }}
-                >
-                  Open on Desktop to Assign
-                </a>
+                {!showBedAssign ? (
+                  <>
+                    <div style={{ fontSize: '13px', color: '#6b7280', marginBottom: '12px' }}>
+                      No bed assigned yet.
+                    </div>
+                    <button
+                      onClick={() => setShowBedAssign(true)}
+                      style={{
+                        width: '100%', padding: '12px', background: '#0d9488', color: 'white',
+                        border: 'none', borderRadius: '10px', fontWeight: 600, fontSize: '14px', cursor: 'pointer'
+                      }}
+                    >
+                      Assign Bed
+                    </button>
+                  </>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    {/* Facility Dropdown */}
+                    <div>
+                      <label style={{ display: 'block', fontSize: '12px', color: '#6b7280', marginBottom: '6px', fontWeight: 500 }}>
+                        Select Facility
+                      </label>
+                      <select
+                        value={selectedFacility}
+                        onChange={(e) => setSelectedFacility(e.target.value)}
+                        style={{
+                          width: '100%', padding: '12px', fontSize: '14px',
+                          border: '1px solid #d1d5db', borderRadius: '10px',
+                          background: 'white', cursor: 'pointer'
+                        }}
+                      >
+                        <option value="">Choose facility...</option>
+                        {facilities.map((f: any) => (
+                          <option key={f.id} value={f.id}>{f.name}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Available Beds Dropdown */}
+                    {selectedFacility && (
+                      <div>
+                        <label style={{ display: 'block', fontSize: '12px', color: '#6b7280', marginBottom: '6px', fontWeight: 500 }}>
+                          Select Bed {loadingBeds && '(loading...)'}
+                        </label>
+                        <select
+                          value={selectedBed}
+                          onChange={(e) => setSelectedBed(e.target.value)}
+                          disabled={loadingBeds || availableBeds.length === 0}
+                          style={{
+                            width: '100%', padding: '12px', fontSize: '14px',
+                            border: '1px solid #d1d5db', borderRadius: '10px',
+                            background: loadingBeds ? '#f3f4f6' : 'white', cursor: 'pointer'
+                          }}
+                        >
+                          <option value="">
+                            {loadingBeds ? 'Loading...' : availableBeds.length === 0 ? 'No beds available' : 'Choose bed...'}
+                          </option>
+                          {availableBeds.map((bed: any) => (
+                            <option key={bed.id} value={bed.id}>
+                              Room {bed.room_number} - Bed {bed.bed_identifier} ({bed.bed_type})
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+
+                    {/* Action Buttons */}
+                    <div style={{ display: 'flex', gap: '10px', marginTop: '4px' }}>
+                      <button
+                        onClick={() => {
+                          setShowBedAssign(false);
+                          setSelectedFacility('');
+                          setSelectedBed('');
+                        }}
+                        style={{
+                          flex: 1, padding: '12px', background: '#f3f4f6', color: '#374151',
+                          border: 'none', borderRadius: '10px', fontWeight: 600, fontSize: '14px', cursor: 'pointer'
+                        }}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={assignBed}
+                        disabled={!selectedBed || assigningBed}
+                        style={{
+                          flex: 1, padding: '12px', 
+                          background: selectedBed ? '#0d9488' : '#d1d5db', 
+                          color: selectedBed ? 'white' : '#6b7280',
+                          border: 'none', borderRadius: '10px', fontWeight: 600, fontSize: '14px', 
+                          cursor: selectedBed ? 'pointer' : 'not-allowed'
+                        }}
+                      >
+                        {assigningBed ? 'Assigning...' : 'Confirm'}
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
