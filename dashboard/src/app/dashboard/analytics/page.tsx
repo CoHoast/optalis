@@ -79,6 +79,7 @@ export default function AnalyticsPage() {
   const [locations, setLocations] = useState<LocationData[]>([]);
   const [denialReasons, setDenialReasons] = useState<DenialReasonData[]>([]);
   const [payerMix, setPayerMix] = useState<PayerMixData[]>([]);
+  const [bedAnalytics, setBedAnalytics] = useState<any>(null);
 
   useEffect(() => {
     // Set default dates
@@ -101,12 +102,13 @@ export default function AnalyticsPage() {
         ? `start_date=${startDate}&end_date=${endDate}`
         : `period=${period}`;
 
-      const [overviewRes, volumeRes, locationsRes, denialRes, payerRes] = await Promise.all([
+      const [overviewRes, volumeRes, locationsRes, denialRes, payerRes, bedRes] = await Promise.all([
         fetch(`${API_URL}/api/analytics/overview?${params}`),
         fetch(`${API_URL}/api/analytics/volume?${params}`),
         fetch(`${API_URL}/api/analytics/locations?${params}`),
         fetch(`${API_URL}/api/analytics/denial-reasons?${params}`),
         fetch(`${API_URL}/api/analytics/payer-mix?${params}`),
+        fetch(`${API_URL}/api/analytics/beds`),
       ]);
 
       if (overviewRes.ok) setOverview(await overviewRes.json());
@@ -114,6 +116,7 @@ export default function AnalyticsPage() {
       if (locationsRes.ok) setLocations(await locationsRes.json());
       if (denialRes.ok) setDenialReasons(await denialRes.json());
       if (payerRes.ok) setPayerMix(await payerRes.json());
+      if (bedRes.ok) setBedAnalytics(await bedRes.json());
     } catch (error) {
       console.error('Error fetching analytics:', error);
     }
@@ -470,6 +473,92 @@ export default function AnalyticsPage() {
                 </div>
               )}
             </div>
+          </>
+        )}
+
+        {/* Bed Analytics Section */}
+        {bedAnalytics && (
+          <>
+            <h2 style={{ fontSize: '20px', fontWeight: 600, margin: '40px 0 20px 0' }}>
+              🛏️ Bed Analytics
+            </h2>
+            
+            {/* Bed Summary Cards */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '16px', marginBottom: '24px' }}>
+              <div style={{ background: 'white', borderRadius: '16px', padding: '20px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                <div style={{ fontSize: '12px', color: '#6b7280', textTransform: 'uppercase', marginBottom: '8px' }}>Total Beds</div>
+                <div style={{ fontSize: '32px', fontWeight: 700 }}>{bedAnalytics.snapshot?.total_beds || 0}</div>
+              </div>
+              <div style={{ background: 'white', borderRadius: '16px', padding: '20px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                <div style={{ fontSize: '12px', color: '#6b7280', textTransform: 'uppercase', marginBottom: '8px' }}>Occupancy Rate</div>
+                <div style={{ fontSize: '32px', fontWeight: 700, color: '#275380' }}>{bedAnalytics.snapshot?.occupancy_rate || 0}%</div>
+              </div>
+              <div style={{ background: '#f0fdf4', borderRadius: '16px', padding: '20px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                <div style={{ fontSize: '12px', color: '#16a34a', textTransform: 'uppercase', marginBottom: '8px' }}>Available Now</div>
+                <div style={{ fontSize: '32px', fontWeight: 700, color: '#16a34a' }}>{bedAnalytics.snapshot?.available || 0}</div>
+              </div>
+              <div style={{ background: '#fef3c7', borderRadius: '16px', padding: '20px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                <div style={{ fontSize: '12px', color: '#92400e', textTransform: 'uppercase', marginBottom: '8px' }}>Discharging Today</div>
+                <div style={{ fontSize: '32px', fontWeight: 700, color: '#92400e' }}>{bedAnalytics.discharges?.discharging_today || 0}</div>
+              </div>
+              <div style={{ background: '#dbeafe', borderRadius: '16px', padding: '20px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                <div style={{ fontSize: '12px', color: '#1e40af', textTransform: 'uppercase', marginBottom: '8px' }}>This Week</div>
+                <div style={{ fontSize: '32px', fontWeight: 700, color: '#1e40af' }}>{bedAnalytics.discharges?.discharging_week || 0}</div>
+              </div>
+            </div>
+
+            {/* Facility Breakdown */}
+            {bedAnalytics.facilities && bedAnalytics.facilities.length > 0 && (
+              <div style={{ background: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', marginBottom: '24px' }}>
+                <h3 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '20px' }}>Occupancy by Facility</h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {bedAnalytics.facilities.map((facility: any) => (
+                    <div key={facility.id} style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                      <div style={{ width: '180px', fontSize: '14px', fontWeight: 500 }}>{facility.name}</div>
+                      <div style={{ flex: 1, background: '#f3f4f6', borderRadius: '8px', height: '24px', position: 'relative', overflow: 'hidden' }}>
+                        <div 
+                          style={{ 
+                            position: 'absolute', 
+                            left: 0, 
+                            top: 0, 
+                            bottom: 0, 
+                            width: `${facility.occupancy_rate || 0}%`,
+                            background: (facility.occupancy_rate || 0) >= 90 ? '#ef4444' : (facility.occupancy_rate || 0) >= 70 ? '#f59e0b' : '#10b981',
+                            borderRadius: '8px',
+                            transition: 'width 0.3s'
+                          }} 
+                        />
+                      </div>
+                      <div style={{ width: '50px', textAlign: 'right', fontSize: '14px', fontWeight: 600 }}>{facility.occupancy_rate || 0}%</div>
+                      <div style={{ width: '100px', textAlign: 'right', fontSize: '13px', color: '#6b7280' }}>
+                        {facility.available} / {facility.total_beds} avail
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Bed Type Distribution */}
+            {bedAnalytics.bed_types && bedAnalytics.bed_types.length > 0 && (
+              <div style={{ background: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                <h3 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '20px' }}>Bed Type Distribution</h3>
+                <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+                  {bedAnalytics.bed_types.map((type: any) => (
+                    <div key={type.bed_type} style={{ 
+                      padding: '16px 24px', 
+                      background: '#f9fafb', 
+                      borderRadius: '12px',
+                      textAlign: 'center',
+                      minWidth: '120px'
+                    }}>
+                      <div style={{ fontSize: '24px', fontWeight: 700, color: '#275380' }}>{type.count}</div>
+                      <div style={{ fontSize: '13px', color: '#6b7280', textTransform: 'capitalize' }}>{type.bed_type}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </>
         )}
 

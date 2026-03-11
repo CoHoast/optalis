@@ -2145,6 +2145,421 @@ async def login_user(request: Request):
 
 
 # ============================================================
+# Bed Assignment (Link Beds ↔ Applications)
+# ============================================================
+
+@app.post("/api/applications/{app_id}/assign-bed")
+async def assign_bed_to_application(app_id: str, request: Request):
+    """Assign a bed to an application and mark it as occupied."""
+    data = await request.json()
+    bed_id = data.get('bed_id')
+    assigned_by = data.get('assigned_by', 'System')
+    notes = data.get('notes', '')
+    
+    if not bed_id:
+        raise HTTPException(status_code=400, detail="bed_id is required")
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    # Get application info
+    cursor.execute("SELECT patient_name, status FROM optalis_applications WHERE id = %s", (app_id,))
+    app = cursor.fetchone()
+    if not app:
+        cursor.close()
+        conn.close()
+        raise HTTPException(status_code=404, detail="Application not found")
+    
+    # Check if bed is available
+    cursor.execute("SELECT status, current_application_id FROM beds WHERE id = %s", (bed_id,))
+    bed = cursor.fetchone()
+    if not bed:
+        cursor.close()
+        conn.close()
+        raise HTTPException(status_code=404, detail="Bed not found")
+    
+    if bed['status'] == 'occupied' and bed['current_application_id']:
+        cursor.close()
+        conn.close()
+        raise HTTPException(status_code=400, detail="Bed is already occupied")
+    
+    # Update application with bed assignment
+    cursor.execute("""
+        UPDATE optalis_applications 
+        SET assigned_bed_id = %s, 
+            bed_assigned_at = NOW(), 
+            bed_assigned_by = %s,
+            updated_at = NOW()
+        WHERE id = %s
+    """, (bed_id, assigned_by, app_id))
+    
+    # Update bed with patient info
+    cursor.execute("""
+        UPDATE beds 
+        SET status = 'occupied',
+            current_application_id = %s,
+            current_patient_name = %s,
+            patient_admitted_at = NOW(),
+            admission_notes = %s,
+            updated_at = NOW()
+        WHERE id = %s
+    """, (app_id, app['patient_name'], notes, bed_id))
+    
+    conn.commit()
+    cursor.close()
+    conn.close()
+    
+    return {
+        "success": True,
+        "message": f"Bed assigned to {app['patient_name']}",
+        "application_id": app_id,
+        "bed_id": bed_id
+    }
+
+
+@app.post("/api/applications/{app_id}/unassign-bed")
+async def unassign_bed_from_application(app_id: str):
+    """Remove bed assignment from an application (discharge)."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    # Get current bed assignment
+    cursor.execute("SELECT assigned_bed_id FROM optalis_applications WHERE id = %s", (app_id,))
+    app = cursor.fetchone()
+    if not app:
+        cursor.close()
+        conn.close()
+        raise HTTPException(status_code=404, detail="Application not found")
+    
+    bed_id = app['assigned_bed_id']
+    
+    if not bed_id:
+        cursor.close()
+        conn.close()
+        return {"success": True, "message": "No bed was assigned"}
+    
+    # Clear bed assignment from application
+    cursor.execute("""
+        UPDATE optalis_applications 
+        SET assigned_bed_id = NULL, 
+            updated_at = NOW()
+        WHERE id = %s
+    """, (app_id,))
+    
+    # Mark bed as cleaning (needs turnover)
+    cursor.execute("""
+        UPDATE beds 
+        SET status = 'cleaning',
+            current_application_id = NULL,
+            current_patient_name = NULL,
+            patient_admitted_at = NULL,
+            admission_notes = NULL,
+            available_date = CURRENT_DATE,
+            updated_at = NOW()
+        WHERE id = %s
+    """, (bed_id,))
+    
+    conn.commit()
+    cursor.close()
+    conn.close()
+    
+    return {
+        "success": True,
+        "message": "Patient discharged, bed marked for cleaning",
+        "bed_id": str(bed_id)
+    }
+
+
+@app.get("/api/beds/{bed_id}/details")
+async def get_bed_details(bed_id: str):
+    """Get bed details including current patient info."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        SELECT b.*, f.name as facility_name,
+               a.patient_name, a.insurance, a.care_level, a.diagnosis, 
+               a.status as application_status, a.dob, a.phone
+        FROM beds b
+        LEFT JOIN facilities f ON b.facility_id = f.id
+        LEFT JOIN optalis_applications a ON b.current_application_id = a.id
+        WHERE b.id = %s
+    """, (bed_id,))
+    
+    bed = cursor.fetchone()
+    cursor.close()
+    conn.close()
+    
+    if not bed:
+        raise HTTPException(status_code=404, detail="Bed not found")
+    
+    return dict(bed)
+
+
+@app.get("/api/facilities/{facility_id}/available-beds")
+async def get_available_beds_for_facility(facility_id: str, bed_type: Optional[str] = None):
+    """Get available beds for a facility, optionally filtered by type."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    query = """
+        SELECT b.*, f.name as facility_name
+        FROM beds b
+        JOIN facilities f ON b.facility_id = f.id
+        WHERE b.facility_id = %s AND b.status = 'available'
+    """
+    params = [facility_id]
+    
+    if bed_type:
+        query += " AND b.bed_type = %s"
+        params.append(bed_type)
+    
+    query += " ORDER BY b.room_number, b.bed_identifier"
+    
+    cursor.execute(query, params)
+    beds = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    
+    return [dict(b) for b in beds]
+
+
+@app.post("/api/beds/{bed_id}/quick-action")
+async def bed_quick_action(bed_id: str, request: Request):
+    """Quick actions: mark as available, cleaning, maintenance."""
+    data = await request.json()
+    action = data.get('action')
+    
+    valid_actions = ['available', 'cleaning', 'maintenance', 'occupied', 'reserved']
+    if action not in valid_actions:
+        raise HTTPException(status_code=400, detail=f"Invalid action. Must be one of: {valid_actions}")
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    # If marking as available, clear patient info
+    if action == 'available':
+        cursor.execute("""
+            UPDATE beds 
+            SET status = 'available',
+                current_application_id = NULL,
+                current_patient_name = NULL,
+                patient_admitted_at = NULL,
+                admission_notes = NULL,
+                available_date = NULL,
+                updated_at = NOW()
+            WHERE id = %s
+            RETURNING id, room_number, bed_identifier
+        """, (bed_id,))
+    else:
+        cursor.execute("""
+            UPDATE beds 
+            SET status = %s, updated_at = NOW()
+            WHERE id = %s
+            RETURNING id, room_number, bed_identifier
+        """, (action, bed_id))
+    
+    result = cursor.fetchone()
+    conn.commit()
+    cursor.close()
+    conn.close()
+    
+    if not result:
+        raise HTTPException(status_code=404, detail="Bed not found")
+    
+    return {
+        "success": True,
+        "bed_id": str(result['id']),
+        "room": f"{result['room_number']}{result['bed_identifier']}",
+        "new_status": action
+    }
+
+
+# ============================================================
+# Smart Bed Matching
+# ============================================================
+
+@app.get("/api/applications/{app_id}/recommended-beds")
+async def get_recommended_beds(app_id: str, limit: int = 5):
+    """Get recommended available beds based on patient needs."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    # Get application details
+    cursor.execute("""
+        SELECT patient_name, weight, care_level, diagnosis, insurance, 
+               facility_id, flagged_items
+        FROM optalis_applications 
+        WHERE id = %s
+    """, (app_id,))
+    app = cursor.fetchone()
+    
+    if not app:
+        cursor.close()
+        conn.close()
+        raise HTTPException(status_code=404, detail="Application not found")
+    
+    app = dict(app)
+    
+    # Determine required bed type based on patient needs
+    required_type = 'standard'
+    reasons = []
+    
+    # Check for bariatric needs (weight > 350 lbs)
+    if app.get('weight'):
+        try:
+            weight = float(str(app['weight']).replace('lbs', '').replace('lb', '').strip())
+            if weight > 350:
+                required_type = 'bariatric'
+                reasons.append(f"Patient weight {weight}lbs requires bariatric bed")
+        except:
+            pass
+    
+    # Check flagged items for special needs
+    flagged = app.get('flagged_items') or []
+    if isinstance(flagged, str):
+        flagged = json.loads(flagged) if flagged.startswith('[') else [flagged]
+    
+    for item in flagged:
+        item_lower = item.lower()
+        if 'bariatric' in item_lower:
+            required_type = 'bariatric'
+            reasons.append("Bariatric requirement flagged")
+        elif 'isolation' in item_lower:
+            required_type = 'isolation'
+            reasons.append("Isolation requirement flagged")
+    
+    # Get available beds, prioritizing required type
+    cursor.execute("""
+        SELECT b.*, f.name as facility_name,
+               CASE 
+                   WHEN b.bed_type = %s THEN 1
+                   WHEN b.bed_type = 'standard' THEN 2
+                   ELSE 3
+               END as match_score
+        FROM beds b
+        JOIN facilities f ON b.facility_id = f.id
+        WHERE b.status = 'available'
+        ORDER BY match_score, f.name, b.room_number
+        LIMIT %s
+    """, (required_type, limit))
+    
+    beds = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    
+    recommendations = []
+    for bed in beds:
+        bed_dict = dict(bed)
+        match_reasons = list(reasons)
+        
+        if bed_dict['bed_type'] == required_type:
+            match_reasons.append(f"Bed type matches: {required_type}")
+            bed_dict['match_quality'] = 'excellent'
+        elif bed_dict['bed_type'] == 'standard' and required_type == 'standard':
+            bed_dict['match_quality'] = 'good'
+        else:
+            bed_dict['match_quality'] = 'acceptable'
+        
+        bed_dict['match_reasons'] = match_reasons
+        recommendations.append(bed_dict)
+    
+    return {
+        "patient_name": app['patient_name'],
+        "required_bed_type": required_type,
+        "matching_reasons": reasons,
+        "recommendations": recommendations
+    }
+
+
+# ============================================================
+# Bed Analytics
+# ============================================================
+
+@app.get("/api/analytics/beds")
+async def get_bed_analytics(facility_id: Optional[str] = None, days: int = 30):
+    """Get bed analytics: occupancy rate, turnover, trends."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    facility_filter = "AND b.facility_id = %s" if facility_id else ""
+    params = [facility_id] if facility_id else []
+    
+    # Current snapshot
+    cursor.execute(f"""
+        SELECT 
+            COUNT(*) as total_beds,
+            COUNT(CASE WHEN status = 'available' THEN 1 END) as available,
+            COUNT(CASE WHEN status = 'occupied' THEN 1 END) as occupied,
+            COUNT(CASE WHEN status = 'cleaning' THEN 1 END) as cleaning,
+            COUNT(CASE WHEN status = 'maintenance' THEN 1 END) as maintenance,
+            COUNT(CASE WHEN status = 'reserved' THEN 1 END) as reserved
+        FROM beds b
+        WHERE 1=1 {facility_filter}
+    """, params)
+    snapshot = dict(cursor.fetchone())
+    
+    # Calculate occupancy rate
+    if snapshot['total_beds'] > 0:
+        snapshot['occupancy_rate'] = round(
+            (snapshot['occupied'] / snapshot['total_beds']) * 100, 1
+        )
+    else:
+        snapshot['occupancy_rate'] = 0
+    
+    # Upcoming discharges
+    cursor.execute(f"""
+        SELECT 
+            COUNT(CASE WHEN available_date = CURRENT_DATE THEN 1 END) as discharging_today,
+            COUNT(CASE WHEN available_date = CURRENT_DATE + 1 THEN 1 END) as discharging_tomorrow,
+            COUNT(CASE WHEN available_date <= CURRENT_DATE + 7 THEN 1 END) as discharging_week
+        FROM beds b
+        WHERE status = 'occupied' {facility_filter}
+    """, params)
+    discharges = dict(cursor.fetchone())
+    
+    # Bed type distribution
+    cursor.execute(f"""
+        SELECT bed_type, COUNT(*) as count
+        FROM beds b
+        WHERE 1=1 {facility_filter}
+        GROUP BY bed_type
+        ORDER BY count DESC
+    """, params)
+    bed_types = [dict(r) for r in cursor.fetchall()]
+    
+    # Per-facility breakdown (if not filtered)
+    facilities = []
+    if not facility_id:
+        cursor.execute("""
+            SELECT 
+                f.id, f.name,
+                COUNT(b.id) as total_beds,
+                COUNT(CASE WHEN b.status = 'available' THEN 1 END) as available,
+                COUNT(CASE WHEN b.status = 'occupied' THEN 1 END) as occupied,
+                ROUND(COUNT(CASE WHEN b.status = 'occupied' THEN 1 END)::numeric / 
+                      NULLIF(COUNT(b.id), 0) * 100, 1) as occupancy_rate
+            FROM facilities f
+            LEFT JOIN beds b ON f.id = b.facility_id
+            WHERE f.is_active = true
+            GROUP BY f.id, f.name
+            ORDER BY occupancy_rate DESC NULLS LAST
+        """)
+        facilities = [dict(r) for r in cursor.fetchall()]
+    
+    cursor.close()
+    conn.close()
+    
+    return {
+        "snapshot": snapshot,
+        "discharges": discharges,
+        "bed_types": bed_types,
+        "facilities": facilities,
+        "generated_at": datetime.now(timezone.utc).isoformat()
+    }
+
+
+# ============================================================
 # Main
 # ============================================================
 

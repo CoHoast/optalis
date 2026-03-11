@@ -46,6 +46,22 @@ export default function BedManagementPage() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingBed, setEditingBed] = useState<Bed | null>(null);
   const [newBed, setNewBed] = useState({ room_number: '', bed_identifier: 'A', bed_type: 'standard', status: 'available', notes: '' });
+  const [viewMode, setViewMode] = useState<'table' | 'timeline'>('table');
+
+  // Quick action to update bed status
+  const quickAction = async (bedId: string, action: string) => {
+    try {
+      await fetch(`${API_URL}/api/beds/${bedId}/quick-action`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action })
+      });
+      fetchBeds();
+      fetchSummary();
+    } catch (err) {
+      console.error('Quick action failed:', err);
+    }
+  };
 
   useEffect(() => {
     fetchFacilities();
@@ -290,8 +306,35 @@ export default function BedManagementPage() {
             <h2 style={{ margin: 0, fontSize: '16px', fontWeight: 600 }}>
               {activeView === 'all' ? 'All Beds' : activeView === 'available' ? 'Available Beds' : activeView === '24h' ? 'Available in 24 Hours' : 'Available in 7 Days'}
             </h2>
-            <span style={{ color: '#6b7280', fontSize: '14px' }}>{filteredBeds.length} beds</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <span style={{ color: '#6b7280', fontSize: '14px' }}>{filteredBeds.length} beds</span>
+              <div style={{ display: 'flex', gap: '4px', background: '#f1f5f9', padding: '4px', borderRadius: '8px' }}>
+                <button
+                  onClick={() => setViewMode('table')}
+                  style={{
+                    padding: '6px 12px', border: 'none', borderRadius: '6px', cursor: 'pointer',
+                    background: viewMode === 'table' ? 'white' : 'transparent',
+                    boxShadow: viewMode === 'table' ? '0 1px 2px rgba(0,0,0,0.1)' : 'none',
+                    fontSize: '13px', fontWeight: 500
+                  }}
+                >
+                  Table
+                </button>
+                <button
+                  onClick={() => setViewMode('timeline')}
+                  style={{
+                    padding: '6px 12px', border: 'none', borderRadius: '6px', cursor: 'pointer',
+                    background: viewMode === 'timeline' ? 'white' : 'transparent',
+                    boxShadow: viewMode === 'timeline' ? '0 1px 2px rgba(0,0,0,0.1)' : 'none',
+                    fontSize: '13px', fontWeight: 500
+                  }}
+                >
+                  Timeline
+                </button>
+              </div>
+            </div>
           </div>
+          {viewMode === 'table' ? (
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ background: '#f9fafb' }}>
@@ -342,18 +385,55 @@ export default function BedManagementPage() {
                         {bed.notes || '—'}
                       </td>
                       <td style={{ padding: '12px 16px', textAlign: 'right' }}>
-                        <button
-                          onClick={() => { setEditingBed(bed); setShowEditModal(true); }}
-                          style={{ padding: '6px 12px', background: '#f3f4f6', border: 'none', borderRadius: '6px', cursor: 'pointer', marginRight: '8px', fontSize: '13px' }}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => deleteBed(bed.id)}
-                          style={{ padding: '6px 12px', background: '#fee2e2', color: '#dc2626', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px' }}
-                        >
-                          Delete
-                        </button>
+                        <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+                          {/* Quick Actions based on current status */}
+                          {bed.status === 'cleaning' && (
+                            <button
+                              onClick={() => quickAction(bed.id, 'available')}
+                              style={{ padding: '6px 10px', background: '#dcfce7', color: '#16a34a', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 500 }}
+                            >
+                              ✓ Ready
+                            </button>
+                          )}
+                          {bed.status === 'maintenance' && (
+                            <button
+                              onClick={() => quickAction(bed.id, 'available')}
+                              style={{ padding: '6px 10px', background: '#dcfce7', color: '#16a34a', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 500 }}
+                            >
+                              ✓ Fixed
+                            </button>
+                          )}
+                          {bed.status === 'occupied' && (
+                            <button
+                              onClick={() => quickAction(bed.id, 'cleaning')}
+                              style={{ padding: '6px 10px', background: '#fef3c7', color: '#92400e', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 500 }}
+                            >
+                              Discharge
+                            </button>
+                          )}
+                          {bed.status === 'available' && (
+                            <>
+                              <button
+                                onClick={() => quickAction(bed.id, 'reserved')}
+                                style={{ padding: '6px 10px', background: '#dbeafe', color: '#1e40af', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 500 }}
+                              >
+                                Reserve
+                              </button>
+                              <button
+                                onClick={() => quickAction(bed.id, 'maintenance')}
+                                style={{ padding: '6px 10px', background: '#f3f4f6', color: '#6b7280', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 500 }}
+                              >
+                                🔧
+                              </button>
+                            </>
+                          )}
+                          <button
+                            onClick={() => { setEditingBed(bed); setShowEditModal(true); }}
+                            style={{ padding: '6px 10px', background: '#f3f4f6', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '12px' }}
+                          >
+                            Edit
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );
@@ -361,6 +441,118 @@ export default function BedManagementPage() {
               )}
             </tbody>
           </table>
+          ) : (
+            /* Timeline View */
+            <div style={{ padding: '20px' }}>
+              {filteredBeds.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>
+                  No beds found.
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {/* Timeline Header */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '120px 80px 1fr', gap: '12px', padding: '8px 0', borderBottom: '1px solid #e5e7eb', fontSize: '12px', color: '#6b7280', textTransform: 'uppercase', fontWeight: 600 }}>
+                    <div>Room</div>
+                    <div>Status</div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', textAlign: 'center' }}>
+                      {[0,1,2,3,4,5,6].map(d => {
+                        const date = new Date();
+                        date.setDate(date.getDate() + d);
+                        return <div key={d}>{d === 0 ? 'Today' : date.toLocaleDateString('en-US', { weekday: 'short', month: 'numeric', day: 'numeric' })}</div>;
+                      })}
+                    </div>
+                  </div>
+                  
+                  {/* Bed Rows */}
+                  {filteredBeds.map(bed => {
+                    const statusColor = getStatusColor(bed.status);
+                    const dischargeDay = bed.available_date ? Math.ceil((new Date(bed.available_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) : null;
+                    
+                    return (
+                      <div key={bed.id} style={{ display: 'grid', gridTemplateColumns: '120px 80px 1fr', gap: '12px', padding: '12px 0', borderBottom: '1px solid #f3f4f6', alignItems: 'center' }}>
+                        <div>
+                          <div style={{ fontWeight: 600 }}>{bed.room_number}{bed.bed_identifier}</div>
+                          <div style={{ fontSize: '12px', color: '#6b7280' }}>{bed.bed_type}</div>
+                        </div>
+                        <div>
+                          <span style={{ padding: '4px 8px', borderRadius: '12px', background: statusColor.bg, color: statusColor.text, fontSize: '11px', fontWeight: 500 }}>
+                            {bed.status}
+                          </span>
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '4px' }}>
+                          {[0,1,2,3,4,5,6].map(d => {
+                            let cellColor = '#f0fdf4'; // Green = available
+                            let cellText = '';
+                            
+                            if (bed.status === 'occupied') {
+                              if (dischargeDay === null || d < dischargeDay) {
+                                cellColor = '#fee2e2'; // Red = occupied
+                                cellText = d === 0 && bed.current_patient_name ? bed.current_patient_name.split(' ')[0] : '';
+                              } else if (d === dischargeDay) {
+                                cellColor = '#fef3c7'; // Yellow = discharge day
+                                cellText = 'D/C';
+                              }
+                            } else if (bed.status === 'cleaning' || bed.status === 'maintenance') {
+                              if (d === 0) {
+                                cellColor = '#f3f4f6'; // Gray
+                                cellText = bed.status === 'cleaning' ? '🧹' : '🔧';
+                              }
+                            } else if (bed.status === 'reserved') {
+                              cellColor = '#dbeafe'; // Blue
+                              cellText = d === 0 ? 'Res' : '';
+                            }
+                            
+                            return (
+                              <div 
+                                key={d} 
+                                style={{ 
+                                  height: '36px', 
+                                  background: cellColor, 
+                                  borderRadius: '6px',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  fontSize: '11px',
+                                  fontWeight: 500,
+                                  color: '#374151'
+                                }}
+                              >
+                                {cellText}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })}
+                  
+                  {/* Legend */}
+                  <div style={{ display: 'flex', gap: '16px', paddingTop: '16px', borderTop: '1px solid #e5e7eb', marginTop: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#6b7280' }}>
+                      <div style={{ width: '16px', height: '16px', borderRadius: '4px', background: '#f0fdf4' }}></div>
+                      Available
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#6b7280' }}>
+                      <div style={{ width: '16px', height: '16px', borderRadius: '4px', background: '#fee2e2' }}></div>
+                      Occupied
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#6b7280' }}>
+                      <div style={{ width: '16px', height: '16px', borderRadius: '4px', background: '#fef3c7' }}></div>
+                      Discharge
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#6b7280' }}>
+                      <div style={{ width: '16px', height: '16px', borderRadius: '4px', background: '#dbeafe' }}></div>
+                      Reserved
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#6b7280' }}>
+                      <div style={{ width: '16px', height: '16px', borderRadius: '4px', background: '#f3f4f6' }}></div>
+                      Cleaning/Maintenance
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 

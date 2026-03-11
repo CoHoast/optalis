@@ -119,6 +119,62 @@ export default function ApplicationDetailPage() {
   const [docContent, setDocContent] = useState<{original: any; extracted: any}>({ original: null, extracted: null });
   const [docViewTab, setDocViewTab] = useState<'original' | 'extracted'>('original');
   const [docLoading, setDocLoading] = useState(false);
+  
+  // Bed assignment state
+  const [showBedModal, setShowBedModal] = useState(false);
+  const [recommendedBeds, setRecommendedBeds] = useState<any[]>([]);
+  const [loadingBeds, setLoadingBeds] = useState(false);
+  const [assigningBed, setAssigningBed] = useState(false);
+
+  const fetchRecommendedBeds = async () => {
+    setLoadingBeds(true);
+    try {
+      const res = await fetch(`${API_URL}/api/applications/${params.id}/recommended-beds?limit=10`);
+      const data = await res.json();
+      setRecommendedBeds(data.recommendations || []);
+    } catch (err) {
+      console.error('Failed to fetch recommended beds:', err);
+    }
+    setLoadingBeds(false);
+  };
+
+  const assignBed = async (bedId: string) => {
+    setAssigningBed(true);
+    try {
+      const res = await fetch(`${API_URL}/api/applications/${params.id}/assign-bed`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bed_id: bedId, assigned_by: 'Dashboard User' })
+      });
+      const data = await res.json();
+      if (data.success) {
+        // Refresh application data
+        const appRes = await fetch(`${API_URL}/api/applications/${params.id}`);
+        setApp(await appRes.json());
+        setShowBedModal(false);
+      } else {
+        alert(data.detail || 'Failed to assign bed');
+      }
+    } catch (err) {
+      console.error('Failed to assign bed:', err);
+      alert('Failed to assign bed');
+    }
+    setAssigningBed(false);
+  };
+
+  const dischargeBed = async () => {
+    if (!confirm('Are you sure you want to discharge this patient? The bed will be marked for cleaning.')) return;
+    try {
+      const res = await fetch(`${API_URL}/api/applications/${params.id}/unassign-bed`, { method: 'POST' });
+      const data = await res.json();
+      if (data.success) {
+        const appRes = await fetch(`${API_URL}/api/applications/${params.id}`);
+        setApp(await appRes.json());
+      }
+    } catch (err) {
+      console.error('Failed to discharge:', err);
+    }
+  };
 
   useEffect(() => {
     fetch(`${API_URL}/api/applications/${params.id}`)
@@ -611,6 +667,103 @@ export default function ApplicationDetailPage() {
           </div>
         </div>
 
+        {/* Bed Assignment Card */}
+        <div style={{ 
+          background: 'white', 
+          borderRadius: '16px', 
+          border: '1px solid #e5e7eb',
+          marginBottom: '24px',
+          overflow: 'hidden'
+        }}>
+          <div style={{
+            background: 'linear-gradient(135deg, #0d9488 0%, #0f766e 100%)',
+            padding: '16px 20px', 
+            color: 'white',
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path d="M3 13h18v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6zM3 13V8a2 2 0 012-2h3v7M21 13V8a2 2 0 00-2-2h-9v7"/>
+              </svg>
+              <span style={{ fontSize: '16px', fontWeight: 600 }}>Bed Assignment</span>
+            </div>
+            {app.assigned_bed_id ? (
+              <span style={{ background: 'rgba(255,255,255,0.2)', padding: '6px 12px', borderRadius: '8px', fontSize: '13px' }}>
+                Assigned
+              </span>
+            ) : (
+              <span style={{ background: 'rgba(255,255,255,0.2)', padding: '6px 12px', borderRadius: '8px', fontSize: '13px' }}>
+                Not Assigned
+              </span>
+            )}
+          </div>
+          
+          <div style={{ padding: '20px' }}>
+            {app.assigned_bed_id ? (
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <div style={{ fontSize: '14px', color: '#6b7280', marginBottom: '4px' }}>Currently assigned to:</div>
+                  <div style={{ fontSize: '18px', fontWeight: 600, color: '#0d9488' }}>
+                    Room {app.assigned_bed_room || 'Unknown'} • Bed {app.assigned_bed_identifier || 'A'}
+                  </div>
+                  {app.bed_assigned_at && (
+                    <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>
+                      Assigned on {new Date(app.bed_assigned_at).toLocaleDateString()} by {app.bed_assigned_by || 'System'}
+                    </div>
+                  )}
+                </div>
+                <button
+                  onClick={dischargeBed}
+                  style={{
+                    padding: '10px 20px',
+                    background: '#fee2e2',
+                    color: '#dc2626',
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    fontWeight: 500,
+                    fontSize: '14px'
+                  }}
+                >
+                  Discharge Patient
+                </button>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <div style={{ fontSize: '14px', color: '#6b7280' }}>No bed assigned yet</div>
+                  <div style={{ fontSize: '13px', color: '#9ca3af', marginTop: '4px' }}>
+                    Assign a bed when ready for admission
+                  </div>
+                </div>
+                <button
+                  onClick={() => { setShowBedModal(true); fetchRecommendedBeds(); }}
+                  style={{
+                    padding: '10px 20px',
+                    background: '#0d9488',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    fontWeight: 500,
+                    fontSize: '14px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}
+                >
+                  <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path d="M12 4v16m8-8H4"/>
+                  </svg>
+                  Assign Bed
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
         {/* Quick Info Cards */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '24px' }}>
           {[
@@ -947,6 +1100,136 @@ ${app.clinical_summary || app.ai_summary || 'N/A'}`}
                   ) : <div style={{ padding: '60px', textAlign: 'center', color: '#6b7280', background: 'white', borderRadius: '12px' }}>No extracted data available</div>}
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bed Assignment Modal */}
+      {showBedModal && (
+        <div style={{ 
+          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', 
+          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 
+        }}>
+          <div style={{ 
+            background: 'white', borderRadius: '16px', 
+            width: '100%', maxWidth: '700px', maxHeight: '80vh', 
+            overflow: 'hidden', display: 'flex', flexDirection: 'column' 
+          }}>
+            {/* Header */}
+            <div style={{ 
+              padding: '20px 24px', borderBottom: '1px solid #e5e7eb',
+              background: 'linear-gradient(135deg, #0d9488 0%, #0f766e 100%)',
+              color: 'white'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 600 }}>Assign Bed to {app.patient_name}</h2>
+                  <p style={{ margin: '4px 0 0', opacity: 0.9, fontSize: '14px' }}>
+                    Select the best available bed for this patient
+                  </p>
+                </div>
+                <button 
+                  onClick={() => setShowBedModal(false)}
+                  style={{ background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: '8px', padding: '8px', cursor: 'pointer' }}
+                >
+                  <svg width="20" height="20" fill="none" stroke="white" strokeWidth="2" viewBox="0 0 24 24">
+                    <path d="M6 18L18 6M6 6l12 12"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Content */}
+            <div style={{ flex: 1, overflow: 'auto', padding: '24px' }}>
+              {loadingBeds ? (
+                <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>
+                  Loading recommended beds...
+                </div>
+              ) : recommendedBeds.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>
+                  No available beds found
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {recommendedBeds.map((bed, index) => (
+                    <div 
+                      key={bed.id}
+                      style={{
+                        border: bed.match_quality === 'excellent' ? '2px solid #0d9488' : '1px solid #e5e7eb',
+                        borderRadius: '12px',
+                        padding: '16px',
+                        background: bed.match_quality === 'excellent' ? '#f0fdfa' : 'white',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center'
+                      }}
+                    >
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
+                          <span style={{ fontSize: '16px', fontWeight: 600 }}>
+                            Room {bed.room_number}{bed.bed_identifier}
+                          </span>
+                          {bed.match_quality === 'excellent' && (
+                            <span style={{ 
+                              background: '#0d9488', color: 'white', 
+                              padding: '2px 8px', borderRadius: '4px', 
+                              fontSize: '11px', fontWeight: 600 
+                            }}>
+                              BEST MATCH
+                            </span>
+                          )}
+                          <span style={{ 
+                            background: '#f3f4f6', padding: '2px 8px', 
+                            borderRadius: '4px', fontSize: '11px', color: '#6b7280' 
+                          }}>
+                            {bed.bed_type}
+                          </span>
+                        </div>
+                        <div style={{ fontSize: '13px', color: '#6b7280' }}>
+                          {bed.facility_name}
+                        </div>
+                        {bed.match_reasons && bed.match_reasons.length > 0 && (
+                          <div style={{ fontSize: '12px', color: '#0d9488', marginTop: '4px' }}>
+                            {bed.match_reasons.join(' • ')}
+                          </div>
+                        )}
+                      </div>
+                      <button
+                        onClick={() => assignBed(bed.id)}
+                        disabled={assigningBed}
+                        style={{
+                          padding: '10px 20px',
+                          background: '#0d9488',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '8px',
+                          cursor: assigningBed ? 'wait' : 'pointer',
+                          fontWeight: 500,
+                          fontSize: '14px',
+                          opacity: assigningBed ? 0.7 : 1
+                        }}
+                      >
+                        {assigningBed ? 'Assigning...' : 'Assign'}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div style={{ padding: '16px 24px', borderTop: '1px solid #e5e7eb', background: '#f9fafb' }}>
+              <button 
+                onClick={() => setShowBedModal(false)}
+                style={{ 
+                  width: '100%', padding: '12px', 
+                  border: '1px solid #e5e7eb', background: 'white', 
+                  borderRadius: '8px', cursor: 'pointer', fontSize: '14px' 
+                }}
+              >
+                Cancel
+              </button>
             </div>
           </div>
         </div>
