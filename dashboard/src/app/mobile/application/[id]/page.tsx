@@ -417,16 +417,140 @@ function ApplicationDetailContent() {
           </span>
         </div>
 
-        {/* AI Summary */}
-        {app.ai_summary && (
-          <div style={{ background: 'linear-gradient(135deg, #275380, #1e4060)', borderRadius: '14px', padding: '16px', color: 'white', marginBottom: '16px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+        {/* Enhanced AI Summary Card */}
+        <div style={{ background: 'white', borderRadius: '14px', marginBottom: '16px', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}>
+          {/* Header with suggested decision */}
+          <div style={{
+            background: 'linear-gradient(135deg, #275380, #1e4060)',
+            padding: '14px 16px', color: 'white',
+            display: 'flex', justifyContent: 'space-between', alignItems: 'center'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path d="M12 2a2 2 0 012 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 017 7h1a1 1 0 011 1v3a1 1 0 01-1 1h-1v1a2 2 0 01-2 2H5a2 2 0 01-2-2v-1H2a1 1 0 01-1-1v-3a1 1 0 011-1h1a7 7 0 017-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 012-2z"/>
+                <circle cx="9" cy="13" r="1"/><circle cx="15" cy="13" r="1"/><path d="M9 17h6"/>
+              </svg>
               <span style={{ fontWeight: 600, fontSize: '14px' }}>AI Summary</span>
-              <span style={{ background: 'rgba(255,255,255,0.2)', padding: '4px 10px', borderRadius: '10px', fontSize: '12px' }}>{app.confidence_score || 0}%</span>
+              {app.confidence_score > 0 && (
+                <span style={{ background: 'rgba(255,255,255,0.2)', padding: '3px 10px', borderRadius: '10px', fontSize: '11px' }}>
+                  {app.confidence_score}%
+                </span>
+              )}
             </div>
-            <p style={{ margin: 0, fontSize: '14px', lineHeight: 1.5, opacity: 0.95 }}>{app.ai_summary}</p>
+            {/* Suggested Decision Badge */}
+            {app.suggested_decision && (
+              <div style={{
+                background: app.suggested_decision === 'approve' ? '#16a34a' : 
+                           app.suggested_decision === 'deny' ? '#dc2626' : '#f59e0b',
+                padding: '5px 10px', borderRadius: '6px', fontWeight: 600, fontSize: '10px',
+                textTransform: 'uppercase'
+              }}>
+                {app.suggested_decision === 'approve' ? '✓ APPROVE' :
+                 app.suggested_decision === 'deny' ? '✕ DENY' : '⚠ REVIEW'}
+              </div>
+            )}
           </div>
-        )}
+
+          {/* AI Overview */}
+          <div style={{ padding: '14px 16px', borderBottom: '1px solid #f3f4f6' }}>
+            <p style={{ margin: 0, fontSize: '14px', lineHeight: 1.6, color: '#374151' }}>
+              {app.ai_overview || app.ai_summary || 'AI summary will be generated when the application is processed.'}
+            </p>
+          </div>
+
+          {/* Flagged Conditions */}
+          {app.flagged_items && app.flagged_items.length > 0 && (
+            <div style={{ padding: '14px 16px', borderBottom: '1px solid #f3f4f6' }}>
+              <div style={{ fontWeight: 600, marginBottom: '10px', fontSize: '12px', color: '#92400e', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <svg width="14" height="14" fill="none" stroke="#92400e" strokeWidth="2" viewBox="0 0 24 24">
+                  <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+                FLAGGED CONDITIONS
+              </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                {app.flagged_items.map((item: string, i: number) => (
+                  <div key={i} style={{
+                    background: '#fef3c7',
+                    border: '1px solid #fbbf24',
+                    borderRadius: '6px',
+                    padding: '8px 12px',
+                    fontSize: '12px',
+                    fontWeight: 500,
+                    color: '#92400e',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px'
+                  }}>
+                    <svg width="12" height="12" fill="none" stroke="#92400e" strokeWidth="2" viewBox="0 0 24 24">
+                      <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                    {item}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Decision Reason */}
+          {app.suggested_decision_reason && (
+            <div style={{ padding: '12px 16px', background: '#f9fafb', fontSize: '12px', color: '#6b7280' }}>
+              <strong style={{ color: '#374151' }}>Note:</strong> {app.suggested_decision_reason}
+            </div>
+          )}
+
+          {/* Sex Offender Registry Check */}
+          <div style={{ padding: '14px 16px' }}>
+            <div style={{ fontWeight: 600, marginBottom: '6px', fontSize: '12px', color: '#275380', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <svg width="14" height="14" fill="none" stroke="#275380" strokeWidth="2" viewBox="0 0 24 24">
+                <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+              </svg>
+              SEX OFFENDER CHECK
+            </div>
+            <p style={{ margin: '0 0 10px', fontSize: '11px', color: '#6b7280' }}>
+              {app.sex_offender_checked_at 
+                ? `Checked ${new Date(app.sex_offender_checked_at).toLocaleDateString()}`
+                : 'Not yet checked'}
+            </p>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button
+                onClick={async () => {
+                  await fetch(`${API_URL}/api/applications/${app.id}/sex-offender-check`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ is_offender: false, checked_by: 'Mobile' })
+                  });
+                  setApp({ ...app, sex_offender_check: false, sex_offender_checked_at: new Date().toISOString() });
+                }}
+                style={{
+                  flex: 1, padding: '10px', borderRadius: '8px', cursor: 'pointer', fontWeight: 500, fontSize: '12px',
+                  border: app.sex_offender_check === false ? '2px solid #16a34a' : '1px solid #d1d5db',
+                  background: app.sex_offender_check === false ? '#dcfce7' : 'white',
+                  color: app.sex_offender_check === false ? '#16a34a' : '#374151'
+                }}
+              >
+                ✓ Clear
+              </button>
+              <button
+                onClick={async () => {
+                  await fetch(`${API_URL}/api/applications/${app.id}/sex-offender-check`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ is_offender: true, checked_by: 'Mobile' })
+                  });
+                  setApp({ ...app, sex_offender_check: true, sex_offender_checked_at: new Date().toISOString() });
+                }}
+                style={{
+                  flex: 1, padding: '10px', borderRadius: '8px', cursor: 'pointer', fontWeight: 500, fontSize: '12px',
+                  border: app.sex_offender_check === true ? '2px solid #dc2626' : '1px solid #d1d5db',
+                  background: app.sex_offender_check === true ? '#fee2e2' : 'white',
+                  color: app.sex_offender_check === true ? '#dc2626' : '#374151'
+                }}
+              >
+                ✕ On Registry
+              </button>
+            </div>
+          </div>
+        </div>
 
         {/* Sections */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
