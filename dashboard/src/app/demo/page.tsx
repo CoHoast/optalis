@@ -228,6 +228,7 @@ export default function DemoLauncherPage() {
   const DEMO_LINKS = {
     marketing: 'https://optalis-marketing-production.up.railway.app',
     dashboard: 'https://optalis-production.up.railway.app/dashboard',
+    dashboardBasic: 'https://optalis-basic-dashboard-production.up.railway.app/dashboard',
     mobile: 'https://optalis-production.up.railway.app/mobile',
   };
 
@@ -357,7 +358,7 @@ export default function DemoLauncherPage() {
           </div>
         </div>
 
-        {/* Dashboard Card */}
+        {/* Dashboard Card - Full AI */}
         <div style={{
           background: 'white',
           borderRadius: '20px',
@@ -366,7 +367,29 @@ export default function DemoLauncherPage() {
           display: 'flex',
           flexDirection: 'column',
           minHeight: '480px',
+          position: 'relative',
         }}>
+          {/* AI Badge */}
+          <div style={{
+            position: 'absolute',
+            top: '16px',
+            right: '16px',
+            background: 'linear-gradient(135deg, #275380 0%, #1e3f61 100%)',
+            color: 'white',
+            padding: '4px 12px',
+            borderRadius: '20px',
+            fontSize: '11px',
+            fontWeight: 600,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px',
+          }}>
+            <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/>
+            </svg>
+            AI-POWERED
+          </div>
+          
           <div style={{
             borderRadius: '12px',
             marginBottom: '20px',
@@ -383,21 +406,91 @@ export default function DemoLauncherPage() {
           </div>
           
           <h2 style={{ fontSize: '20px', fontWeight: 600, marginBottom: '8px', color: '#1a1a1a' }}>
-            Desktop Dashboard
+            Full AI Dashboard
           </h2>
           <p style={{ fontSize: '14px', color: '#666', lineHeight: 1.6, flex: 1 }}>
-            AI-powered document intake and processing for admissions coordinators.
+            AI-powered document intake, automatic extraction, readiness scoring, and suggested decisions.
           </p>
           
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '20px' }}>
             <DemoButton href={DEMO_LINKS.dashboard} primary>
-              <span>Open Dashboard</span>
+              <span>Open Full Dashboard</span>
               <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
               </svg>
             </DemoButton>
             <DemoButton onClick={() => setActiveModal('dashboard')}>
               <span>More Info</span>
+              <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            </DemoButton>
+          </div>
+        </div>
+
+        {/* Dashboard Card - Basic */}
+        <div style={{
+          background: 'white',
+          borderRadius: '20px',
+          padding: '24px',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+          display: 'flex',
+          flexDirection: 'column',
+          minHeight: '480px',
+          position: 'relative',
+        }}>
+          {/* Basic Badge */}
+          <div style={{
+            position: 'absolute',
+            top: '16px',
+            right: '16px',
+            background: '#f0f9ff',
+            color: '#0369a1',
+            border: '1px solid #bae6fd',
+            padding: '4px 12px',
+            borderRadius: '20px',
+            fontSize: '11px',
+            fontWeight: 600,
+          }}>
+            MANUAL ENTRY
+          </div>
+          
+          <div style={{
+            borderRadius: '12px',
+            marginBottom: '20px',
+            overflow: 'hidden',
+            height: '180px',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+            flexShrink: 0,
+            background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+            <div style={{ textAlign: 'center' }}>
+              <svg width="48" height="48" fill="none" stroke="#64748b" strokeWidth="1.5" viewBox="0 0 24 24" style={{ margin: '0 auto 8px' }}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z"/>
+              </svg>
+              <p style={{ fontSize: '13px', color: '#64748b', margin: 0 }}>Simplified Interface</p>
+            </div>
+          </div>
+          
+          <h2 style={{ fontSize: '20px', fontWeight: 600, marginBottom: '8px', color: '#1a1a1a' }}>
+            Basic Dashboard
+          </h2>
+          <p style={{ fontSize: '14px', color: '#666', lineHeight: 1.6, flex: 1 }}>
+            Manual application entry with copy-to-clipboard for CRM transfer. No AI features — simple and straightforward.
+          </p>
+          
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '20px' }}>
+            <DemoButton href={DEMO_LINKS.dashboardBasic} primary>
+              <span>Open Basic Dashboard</span>
+              <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+              </svg>
+            </DemoButton>
+            <DemoButton onClick={() => setActiveModal('dashboard')}>
+              <span>Compare Features</span>
               <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
               </svg>
