@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { features } from '@/lib/config';
 
 type UploadMethod = 'upload' | 'paste' | 'manual' | null;
 type ProcessingStatus = 'idle' | 'uploading' | 'processing' | 'complete' | 'error';
@@ -37,22 +38,71 @@ export default function NewApplicationPage() {
   const [extractedData, setExtractedData] = useState<ExtractedData | null>(null);
   const [processingStep, setProcessingStep] = useState('');
   
-  // Manual Entry Form State
+  // Manual Entry Form State - All fields matching application detail
   const [manualData, setManualData] = useState({
-    name: '',
+    // Referral Information
+    referral_type: 'New Referral',
+    hospital: '',
+    building: '',
+    room_number: '',
+    case_manager_name: '',
+    case_manager_phone: '',
+    // Patient Information
+    patient_name: '',
     dob: '',
+    sex: '',
+    ssn_last4: '',
     phone: '',
     address: '',
+    // Insurance & Dates
     insurance: '',
-    policyNumber: '',
+    policy_number: '',
+    care_level: '',
+    date_admitted: '',
+    inpatient_date: '',
+    anticipated_discharge: '',
+    // Clinical & Medical
     diagnosis: '',
     medications: '',
     allergies: '',
-    physician: '',
-    facility: '',
+    fall_risk: false,
+    smoking_status: '',
+    isolation: '',
+    barrier_precautions: '',
+    dme: '',
+    diet: '',
+    height: '',
+    weight: '',
+    iv_meds: '',
+    expensive_meds: '',
+    infection_prevention: '',
+    // Therapy & Services
     services: '',
-    notes: ''
+    therapy_prior_level: '',
+    therapy_bed_mobility: '',
+    therapy_transfers: '',
+    therapy_gait: '',
+    physician: '',
+    // Summary & Decision
+    clinical_summary: '',
+    decision_status: 'Considering',
+    decision_notes: '',
+    // PreCert
+    precert_status: '',
+    // Notes & Flags
+    notes: '',
+    flagged_conditions: ''
   });
+  
+  // Active tab for form sections
+  const [activeSection, setActiveSection] = useState('referral');
+  
+  // In basic mode, auto-select manual entry
+  useEffect(() => {
+    if (!features.aiExtraction && !method) {
+      setMethod('manual');
+    }
+  }, [method]);
 
   // Simulated AI extraction (in production, this would call DOKit API)
   const simulateAIExtraction = async () => {
@@ -152,164 +202,169 @@ export default function NewApplicationPage() {
         </Link>
         <div>
           <h1 style={{ fontSize: '28px', marginBottom: '4px' }}>New Application</h1>
-          <p style={{ color: '#666' }}>Upload documents or paste text for AI extraction</p>
+          <p style={{ color: '#666' }}>
+            {features.aiExtraction 
+              ? 'Upload documents or paste text for AI extraction' 
+              : 'Enter patient application information'}
+          </p>
         </div>
       </div>
 
-      {/* Status: Idle - Show method selection */}
-      {status === 'idle' && !method && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '24px', maxWidth: '1100px' }}>
-          {/* Upload Option */}
-          <button
-            onClick={() => setMethod('upload')}
-            style={{
-              padding: '32px',
-              background: 'white',
-              border: '2px dashed #e0e0e0',
-              borderRadius: '16px',
-              cursor: 'pointer',
-              textAlign: 'center',
-              transition: 'all 0.2s'
-            }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.borderColor = '#275380';
-              e.currentTarget.style.background = '#f9f7f4';
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.borderColor = '#e0e0e0';
-              e.currentTarget.style.background = 'white';
-            }}
-          >
-            <div style={{
-              width: '56px', height: '56px', borderRadius: '14px',
-              background: 'rgba(39,83,128,0.1)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              margin: '0 auto 16px'
-            }}>
-              <svg width="28" height="28" fill="none" stroke="#275380" strokeWidth="2" viewBox="0 0 24 24">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                <polyline points="17 8 12 3 7 8"/>
-                <line x1="12" y1="3" x2="12" y2="15"/>
-              </svg>
-            </div>
-            <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '6px', color: '#1a1a1a' }}>Upload Documents</h3>
-            <p style={{ color: '#666', fontSize: '13px', marginBottom: '12px' }}>
-              Upload PDF, Word, or image files
-            </p>
-            <div style={{ display: 'flex', gap: '6px', justifyContent: 'center', flexWrap: 'wrap' }}>
-              {['PDF', 'DOCX', 'JPG', 'PNG'].map(fmt => (
-                <span key={fmt} style={{
-                  padding: '3px 8px',
-                  background: '#f0f0f0',
-                  borderRadius: '4px',
-                  fontSize: '11px',
-                  fontWeight: 500,
-                  color: '#666'
-                }}>{fmt}</span>
-              ))}
-            </div>
-          </button>
+      {/* Status: Idle - Show method selection (AI mode only) */}
+      {status === 'idle' && !method && features.aiExtraction && (
+            /* AI Mode - Show all three options */
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '24px', maxWidth: '1100px' }}>
+              {/* Upload Option */}
+              <button
+                onClick={() => setMethod('upload')}
+                style={{
+                  padding: '32px',
+                  background: 'white',
+                  border: '2px dashed #e0e0e0',
+                  borderRadius: '16px',
+                  cursor: 'pointer',
+                  textAlign: 'center',
+                  transition: 'all 0.2s'
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.borderColor = '#275380';
+                  e.currentTarget.style.background = '#f9f7f4';
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.borderColor = '#e0e0e0';
+                  e.currentTarget.style.background = 'white';
+                }}
+              >
+                <div style={{
+                  width: '56px', height: '56px', borderRadius: '14px',
+                  background: 'rgba(39,83,128,0.1)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  margin: '0 auto 16px'
+                }}>
+                  <svg width="28" height="28" fill="none" stroke="#275380" strokeWidth="2" viewBox="0 0 24 24">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="17 8 12 3 7 8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                  </svg>
+                </div>
+                <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '6px', color: '#1a1a1a' }}>Upload Documents</h3>
+                <p style={{ color: '#666', fontSize: '13px', marginBottom: '12px' }}>
+                  Upload PDF, Word, or image files
+                </p>
+                <div style={{ display: 'flex', gap: '6px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                  {['PDF', 'DOCX', 'JPG', 'PNG'].map(fmt => (
+                    <span key={fmt} style={{
+                      padding: '3px 8px',
+                      background: '#f0f0f0',
+                      borderRadius: '4px',
+                      fontSize: '11px',
+                      fontWeight: 500,
+                      color: '#666'
+                    }}>{fmt}</span>
+                  ))}
+                </div>
+              </button>
 
-          {/* Paste Option */}
-          <button
-            onClick={() => setMethod('paste')}
-            style={{
-              padding: '32px',
-              background: 'white',
-              border: '2px dashed #e0e0e0',
-              borderRadius: '16px',
-              cursor: 'pointer',
-              textAlign: 'center',
-              transition: 'all 0.2s'
-            }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.borderColor = '#275380';
-              e.currentTarget.style.background = '#f9f7f4';
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.borderColor = '#e0e0e0';
-              e.currentTarget.style.background = 'white';
-            }}
-          >
-            <div style={{
-              width: '56px', height: '56px', borderRadius: '14px',
-              background: 'rgba(39,83,128,0.1)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              margin: '0 auto 16px'
-            }}>
-              <svg width="28" height="28" fill="none" stroke="#275380" strokeWidth="2" viewBox="0 0 24 24">
-                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
-                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
-              </svg>
-            </div>
-            <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '6px', color: '#1a1a1a' }}>Paste Text</h3>
-            <p style={{ color: '#666', fontSize: '13px', marginBottom: '12px' }}>
-              Copy & paste from email, fax, or notes
-            </p>
-            <div style={{ display: 'flex', gap: '6px', justifyContent: 'center', flexWrap: 'wrap' }}>
-              {['Email', 'Fax', 'Notes'].map(fmt => (
-                <span key={fmt} style={{
-                  padding: '3px 8px',
-                  background: '#f0f0f0',
-                  borderRadius: '4px',
-                  fontSize: '11px',
-                  fontWeight: 500,
-                  color: '#666'
-                }}>{fmt}</span>
-              ))}
-            </div>
-          </button>
+              {/* Paste Option */}
+              <button
+                onClick={() => setMethod('paste')}
+                style={{
+                  padding: '32px',
+                  background: 'white',
+                  border: '2px dashed #e0e0e0',
+                  borderRadius: '16px',
+                  cursor: 'pointer',
+                  textAlign: 'center',
+                  transition: 'all 0.2s'
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.borderColor = '#275380';
+                  e.currentTarget.style.background = '#f9f7f4';
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.borderColor = '#e0e0e0';
+                  e.currentTarget.style.background = 'white';
+                }}
+              >
+                <div style={{
+                  width: '56px', height: '56px', borderRadius: '14px',
+                  background: 'rgba(39,83,128,0.1)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  margin: '0 auto 16px'
+                }}>
+                  <svg width="28" height="28" fill="none" stroke="#275380" strokeWidth="2" viewBox="0 0 24 24">
+                    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+                    <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+                  </svg>
+                </div>
+                <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '6px', color: '#1a1a1a' }}>Paste Text</h3>
+                <p style={{ color: '#666', fontSize: '13px', marginBottom: '12px' }}>
+                  Copy & paste from email, fax, or notes
+                </p>
+                <div style={{ display: 'flex', gap: '6px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                  {['Email', 'Fax', 'Notes'].map(fmt => (
+                    <span key={fmt} style={{
+                      padding: '3px 8px',
+                      background: '#f0f0f0',
+                      borderRadius: '4px',
+                      fontSize: '11px',
+                      fontWeight: 500,
+                      color: '#666'
+                    }}>{fmt}</span>
+                  ))}
+                </div>
+              </button>
 
-          {/* Manual Entry Option */}
-          <button
-            onClick={() => setMethod('manual')}
-            style={{
-              padding: '32px',
-              background: 'white',
-              border: '2px dashed #e0e0e0',
-              borderRadius: '16px',
-              cursor: 'pointer',
-              textAlign: 'center',
-              transition: 'all 0.2s'
-            }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.borderColor = '#f59e0b';
-              e.currentTarget.style.background = '#fffbeb';
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.borderColor = '#e0e0e0';
-              e.currentTarget.style.background = 'white';
-            }}
-          >
-            <div style={{
-              width: '56px', height: '56px', borderRadius: '14px',
-              background: 'rgba(245,158,11,0.1)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              margin: '0 auto 16px'
-            }}>
-              <svg width="28" height="28" fill="none" stroke="#f59e0b" strokeWidth="2" viewBox="0 0 24 24">
-                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-              </svg>
+              {/* Manual Entry Option */}
+              <button
+                onClick={() => setMethod('manual')}
+                style={{
+                  padding: '32px',
+                  background: 'white',
+                  border: '2px dashed #e0e0e0',
+                  borderRadius: '16px',
+                  cursor: 'pointer',
+                  textAlign: 'center',
+                  transition: 'all 0.2s'
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.borderColor = '#f59e0b';
+                  e.currentTarget.style.background = '#fffbeb';
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.borderColor = '#e0e0e0';
+                  e.currentTarget.style.background = 'white';
+                }}
+              >
+                <div style={{
+                  width: '56px', height: '56px', borderRadius: '14px',
+                  background: 'rgba(245,158,11,0.1)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  margin: '0 auto 16px'
+                }}>
+                  <svg width="28" height="28" fill="none" stroke="#f59e0b" strokeWidth="2" viewBox="0 0 24 24">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                  </svg>
+                </div>
+                <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '6px', color: '#1a1a1a' }}>Manual Entry</h3>
+                <p style={{ color: '#666', fontSize: '13px', marginBottom: '12px' }}>
+                  Enter patient info directly
+                </p>
+                <div style={{ display: 'flex', gap: '6px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                  {['No AI', 'Fallback'].map(fmt => (
+                    <span key={fmt} style={{
+                      padding: '3px 8px',
+                      background: '#fef3c7',
+                      borderRadius: '4px',
+                      fontSize: '11px',
+                      fontWeight: 500,
+                      color: '#92400e'
+                    }}>{fmt}</span>
+                  ))}
+                </div>
+              </button>
             </div>
-            <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '6px', color: '#1a1a1a' }}>Manual Entry</h3>
-            <p style={{ color: '#666', fontSize: '13px', marginBottom: '12px' }}>
-              Enter patient info directly
-            </p>
-            <div style={{ display: 'flex', gap: '6px', justifyContent: 'center', flexWrap: 'wrap' }}>
-              {['No AI', 'Fallback'].map(fmt => (
-                <span key={fmt} style={{
-                  padding: '3px 8px',
-                  background: '#fef3c7',
-                  borderRadius: '4px',
-                  fontSize: '11px',
-                  fontWeight: 500,
-                  color: '#92400e'
-                }}>{fmt}</span>
-              ))}
-            </div>
-          </button>
-        </div>
       )}
 
       {/* Upload Method Selected */}
@@ -578,8 +633,8 @@ Please contact family at (248) 555-0123..."
                 </label>
                 <input
                   type="text"
-                  value={manualData.name}
-                  onChange={(e) => setManualData({...manualData, name: e.target.value})}
+                  value={manualData.patient_name}
+                  onChange={(e) => setManualData({...manualData, patient_name: e.target.value})}
                   placeholder="Full name"
                   style={{
                     width: '100%',
@@ -678,8 +733,8 @@ Please contact family at (248) 555-0123..."
                 </label>
                 <input
                   type="text"
-                  value={manualData.policyNumber}
-                  onChange={(e) => setManualData({...manualData, policyNumber: e.target.value})}
+                  value={manualData.policy_number}
+                  onChange={(e) => setManualData({...manualData, policy_number: e.target.value})}
                   placeholder="Policy/Member ID"
                   style={{
                     width: '100%',
@@ -783,8 +838,8 @@ Please contact family at (248) 555-0123..."
                 </label>
                 <input
                   type="text"
-                  value={manualData.facility}
-                  onChange={(e) => setManualData({...manualData, facility: e.target.value})}
+                  value={manualData.building}
+                  onChange={(e) => setManualData({...manualData, building: e.target.value})}
                   placeholder="Requested facility"
                   style={{
                     width: '100%',
@@ -844,13 +899,11 @@ Please contact family at (248) 555-0123..."
           <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
             <button
               onClick={() => { 
-                setMethod(null); 
-                setManualData({
-                  name: '', dob: '', phone: '', address: '',
-                  insurance: '', policyNumber: '',
-                  diagnosis: '', medications: '', allergies: '',
-                  physician: '', facility: '', services: '', notes: ''
-                });
+                if (features.aiExtraction) {
+                  setMethod(null);
+                } else {
+                  router.push('/dashboard/applications');
+                }
               }}
               style={{
                 padding: '14px 28px',
@@ -869,14 +922,14 @@ Please contact family at (248) 555-0123..."
                 alert('Application saved successfully!');
                 router.push('/dashboard/applications');
               }}
-              disabled={!manualData.name.trim() || !manualData.dob.trim()}
+              disabled={!manualData.patient_name.trim() || !manualData.dob.trim()}
               style={{
                 padding: '14px 32px',
-                background: (manualData.name.trim() && manualData.dob.trim()) ? '#16a34a' : '#e0e0e0',
-                color: (manualData.name.trim() && manualData.dob.trim()) ? 'white' : '#888',
+                background: (manualData.patient_name.trim() && manualData.dob.trim()) ? '#16a34a' : '#e0e0e0',
+                color: (manualData.patient_name.trim() && manualData.dob.trim()) ? 'white' : '#888',
                 border: 'none',
                 borderRadius: '8px',
-                cursor: (manualData.name.trim() && manualData.dob.trim()) ? 'pointer' : 'not-allowed',
+                cursor: (manualData.patient_name.trim() && manualData.dob.trim()) ? 'pointer' : 'not-allowed',
                 fontSize: '15px',
                 fontWeight: 600,
                 display: 'flex',
