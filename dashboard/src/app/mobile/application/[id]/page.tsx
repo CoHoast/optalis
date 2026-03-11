@@ -115,67 +115,6 @@ function ApplicationDetailContent() {
   const [expandedSections, setExpandedSections] = useState<string[]>(['patient']);
   const [showNewBanner, setShowNewBanner] = useState(isNewApplication || false);
   const [confirmModal, setConfirmModal] = useState<{ show: boolean; action: string; title: string; message: string }>({ show: false, action: '', title: '', message: '' });
-  
-  // Bed assignment state
-  const [showBedAssign, setShowBedAssign] = useState(false);
-  const [facilities, setFacilities] = useState<any[]>([]);
-  const [availableBeds, setAvailableBeds] = useState<any[]>([]);
-  const [selectedFacility, setSelectedFacility] = useState('');
-  const [selectedBed, setSelectedBed] = useState('');
-  const [loadingBeds, setLoadingBeds] = useState(false);
-  const [assigningBed, setAssigningBed] = useState(false);
-
-  // Fetch facilities on mount
-  useEffect(() => {
-    fetch(`${API_URL}/api/facilities`)
-      .then(res => res.ok ? res.json() : [])
-      .then(data => setFacilities(data))
-      .catch(() => setFacilities([]));
-  }, []);
-
-  // Fetch available beds when facility changes
-  useEffect(() => {
-    if (!selectedFacility) {
-      setAvailableBeds([]);
-      return;
-    }
-    setLoadingBeds(true);
-    fetch(`${API_URL}/api/facilities/${selectedFacility}/available-beds`)
-      .then(res => res.ok ? res.json() : [])
-      .then(data => {
-        setAvailableBeds(data);
-        setSelectedBed('');
-      })
-      .catch(() => setAvailableBeds([]))
-      .finally(() => setLoadingBeds(false));
-  }, [selectedFacility]);
-
-  const assignBed = async () => {
-    if (!selectedBed) return;
-    setAssigningBed(true);
-    try {
-      const res = await fetch(`${API_URL}/api/applications/${id}/assign-bed`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ bed_id: selectedBed, assigned_by: 'Mobile User' })
-      });
-      const data = await res.json();
-      if (data.success) {
-        // Refresh application data
-        const appRes = await fetch(`${API_URL}/api/applications/${id}`);
-        if (appRes.ok) setApp(await appRes.json());
-        setShowBedAssign(false);
-        setSelectedFacility('');
-        setSelectedBed('');
-      } else {
-        alert(data.detail || 'Failed to assign bed');
-      }
-    } catch (err) {
-      console.error('Failed to assign bed:', err);
-      alert('Failed to assign bed');
-    }
-    setAssigningBed(false);
-  };
 
   useEffect(() => {
     fetch(`${API_URL}/api/applications/${id}`)
@@ -620,158 +559,34 @@ function ApplicationDetailContent() {
           </div>
         </div>
 
-        {/* Bed Assignment Card */}
-        <div style={{ background: 'white', borderRadius: '14px', marginBottom: '16px', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}>
-          <div style={{
-            background: 'linear-gradient(135deg, #0d9488, #0f766e)',
-            padding: '14px 16px', color: 'white',
-            display: 'flex', justifyContent: 'space-between', alignItems: 'center'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+        {/* Quick Actions Card */}
+        <a 
+          href="/mobile/beds"
+          style={{ 
+            display: 'block', 
+            background: 'linear-gradient(135deg, #0d9488, #0f766e)', 
+            borderRadius: '14px', 
+            padding: '16px', 
+            marginBottom: '16px', 
+            textDecoration: 'none',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.08)'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', color: 'white' }}>
+              <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path d="M3 13h18v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6zM3 13V8a2 2 0 012-2h3v7M21 13V8a2 2 0 00-2-2h-9v7"/>
               </svg>
-              <span style={{ fontWeight: 600, fontSize: '14px' }}>Bed Assignment</span>
+              <div>
+                <div style={{ fontWeight: 600, fontSize: '15px' }}>Check Bed Availability</div>
+                <div style={{ fontSize: '12px', opacity: 0.85 }}>View openings by location</div>
+              </div>
             </div>
-            <span style={{ 
-              background: app.assigned_bed_id ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.15)', 
-              padding: '4px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 500 
-            }}>
-              {app.assigned_bed_id ? 'Assigned' : 'Not Assigned'}
-            </span>
+            <svg width="20" height="20" fill="none" stroke="white" strokeWidth="2" viewBox="0 0 24 24">
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
           </div>
-          <div style={{ padding: '14px 16px' }}>
-            {app.assigned_bed_id ? (
-              <div>
-                <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>Currently assigned to:</div>
-                <div style={{ fontSize: '16px', fontWeight: 600, color: '#0d9488', marginBottom: '8px' }}>
-                  Room {app.assigned_bed_room || '—'} • Bed {app.assigned_bed_identifier || 'A'}
-                </div>
-                {app.bed_assigned_at && (
-                  <div style={{ fontSize: '11px', color: '#6b7280', marginBottom: '12px' }}>
-                    Assigned {new Date(app.bed_assigned_at).toLocaleDateString()}
-                  </div>
-                )}
-                <button
-                  onClick={async () => {
-                    if (!confirm('Discharge patient from this bed?')) return;
-                    try {
-                      await fetch(`${API_URL}/api/applications/${app.id}/unassign-bed`, { method: 'POST' });
-                      const res = await fetch(`${API_URL}/api/applications/${app.id}`);
-                      if (res.ok) setApp(await res.json());
-                    } catch (err) { console.error(err); }
-                  }}
-                  style={{
-                    width: '100%', padding: '12px', background: '#fee2e2', color: '#dc2626',
-                    border: 'none', borderRadius: '10px', fontWeight: 600, fontSize: '14px', cursor: 'pointer'
-                  }}
-                >
-                  Discharge Patient
-                </button>
-              </div>
-            ) : (
-              <div>
-                {!showBedAssign ? (
-                  <>
-                    <div style={{ fontSize: '13px', color: '#6b7280', marginBottom: '12px' }}>
-                      No bed assigned yet.
-                    </div>
-                    <button
-                      onClick={() => setShowBedAssign(true)}
-                      style={{
-                        width: '100%', padding: '12px', background: '#0d9488', color: 'white',
-                        border: 'none', borderRadius: '10px', fontWeight: 600, fontSize: '14px', cursor: 'pointer'
-                      }}
-                    >
-                      Assign Bed
-                    </button>
-                  </>
-                ) : (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                    {/* Facility Dropdown */}
-                    <div>
-                      <label style={{ display: 'block', fontSize: '12px', color: '#6b7280', marginBottom: '6px', fontWeight: 500 }}>
-                        Select Facility
-                      </label>
-                      <select
-                        value={selectedFacility}
-                        onChange={(e) => setSelectedFacility(e.target.value)}
-                        style={{
-                          width: '100%', padding: '12px', fontSize: '14px',
-                          border: '1px solid #d1d5db', borderRadius: '10px',
-                          background: 'white', cursor: 'pointer'
-                        }}
-                      >
-                        <option value="">Choose facility...</option>
-                        {facilities.map((f: any) => (
-                          <option key={f.id} value={f.id}>{f.name}</option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {/* Available Beds Dropdown */}
-                    {selectedFacility && (
-                      <div>
-                        <label style={{ display: 'block', fontSize: '12px', color: '#6b7280', marginBottom: '6px', fontWeight: 500 }}>
-                          Select Bed {loadingBeds && '(loading...)'}
-                        </label>
-                        <select
-                          value={selectedBed}
-                          onChange={(e) => setSelectedBed(e.target.value)}
-                          disabled={loadingBeds || availableBeds.length === 0}
-                          style={{
-                            width: '100%', padding: '12px', fontSize: '14px',
-                            border: '1px solid #d1d5db', borderRadius: '10px',
-                            background: loadingBeds ? '#f3f4f6' : 'white', cursor: 'pointer'
-                          }}
-                        >
-                          <option value="">
-                            {loadingBeds ? 'Loading...' : availableBeds.length === 0 ? 'No beds available' : 'Choose bed...'}
-                          </option>
-                          {availableBeds.map((bed: any) => (
-                            <option key={bed.id} value={bed.id}>
-                              Room {bed.room_number} - Bed {bed.bed_identifier} ({bed.bed_type})
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    )}
-
-                    {/* Action Buttons */}
-                    <div style={{ display: 'flex', gap: '10px', marginTop: '4px' }}>
-                      <button
-                        onClick={() => {
-                          setShowBedAssign(false);
-                          setSelectedFacility('');
-                          setSelectedBed('');
-                        }}
-                        style={{
-                          flex: 1, padding: '12px', background: '#f3f4f6', color: '#374151',
-                          border: 'none', borderRadius: '10px', fontWeight: 600, fontSize: '14px', cursor: 'pointer'
-                        }}
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        onClick={assignBed}
-                        disabled={!selectedBed || assigningBed}
-                        style={{
-                          flex: 1, padding: '12px', 
-                          background: selectedBed ? '#0d9488' : '#d1d5db', 
-                          color: selectedBed ? 'white' : '#6b7280',
-                          border: 'none', borderRadius: '10px', fontWeight: 600, fontSize: '14px', 
-                          cursor: selectedBed ? 'pointer' : 'not-allowed'
-                        }}
-                      >
-                        {assigningBed ? 'Assigning...' : 'Confirm'}
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
+        </a>
 
         {/* Sections */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>

@@ -1,384 +1,330 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
 import MobileLayout from '@/components/MobileLayout';
+import '../mobile.css';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://optalis-api-production.up.railway.app';
 
-interface Facility {
+interface FacilityBeds {
   id: string;
   name: string;
-}
-
-interface Bed {
-  id: string;
-  facility_id: string;
-  room_number: string;
-  bed_identifier: string;
-  bed_type: string;
-  status: string;
-  current_patient_name: string | null;
-  available_date: string | null;
-  available_time: string | null;
-}
-
-interface BedSummary {
-  available_now: number;
-  next_24_hours: number;
-  next_7_days: number;
   total_beds: number;
+  available: number;
   occupied: number;
+  reserved: number;
+  cleaning: number;
+  maintenance: number;
+  occupancy_rate: number;
+}
+
+interface BedAnalytics {
+  snapshot: {
+    total_beds: number;
+    available: number;
+    occupied: number;
+    occupancy_rate: number;
+  };
+  discharges: {
+    discharging_today: number;
+    discharging_week: number;
+  };
+  facilities: FacilityBeds[];
 }
 
 export default function MobileBedsPage() {
-  const [facilities, setFacilities] = useState<Facility[]>([]);
-  const [selectedFacility, setSelectedFacility] = useState<string>('');
-  const [beds, setBeds] = useState<Bed[]>([]);
-  const [summary, setSummary] = useState<BedSummary | null>(null);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<'all' | 'available' | 'occupied'>('all');
-  const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [data, setData] = useState<BedAnalytics | null>(null);
+  const [selectedFacility, setSelectedFacility] = useState<string>('');
+  const [facilityDetail, setFacilityDetail] = useState<FacilityBeds | null>(null);
 
   useEffect(() => {
-    fetchFacilities();
+    fetch(`${API_URL}/api/analytics/beds`)
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        setData(data);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
   }, []);
 
   useEffect(() => {
-    if (selectedFacility) {
-      fetchBeds();
-      fetchSummary();
-      
-      // Auto-refresh every 30 seconds
-      const interval = setInterval(() => {
-        fetchBeds();
-        fetchSummary();
-      }, 30000);
-      return () => clearInterval(interval);
+    if (selectedFacility && data?.facilities) {
+      const facility = data.facilities.find(f => f.id === selectedFacility);
+      setFacilityDetail(facility || null);
+    } else {
+      setFacilityDetail(null);
     }
-  }, [selectedFacility]);
-
-  const fetchFacilities = async () => {
-    try {
-      const res = await fetch(`${API_URL}/api/facilities`);
-      const data = await res.json();
-      setFacilities(data);
-      if (data.length > 0) setSelectedFacility(data[0].id);
-    } catch (err) {
-      console.error('Failed to fetch facilities:', err);
-    }
-    setLoading(false);
-  };
-
-  const fetchBeds = async () => {
-    try {
-      const res = await fetch(`${API_URL}/api/facilities/${selectedFacility}/beds`);
-      const data = await res.json();
-      setBeds(data);
-    } catch (err) {
-      console.error('Failed to fetch beds:', err);
-    }
-  };
-
-  const fetchSummary = async () => {
-    try {
-      const res = await fetch(`${API_URL}/api/facilities/${selectedFacility}/beds/summary`);
-      const data = await res.json();
-      setSummary(data);
-    } catch (err) {
-      console.error('Failed to fetch summary:', err);
-    }
-  };
-
-  const quickAction = async (bedId: string, action: string) => {
-    setActionLoading(bedId);
-    try {
-      await fetch(`${API_URL}/api/beds/${bedId}/quick-action`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action })
-      });
-      await fetchBeds();
-      await fetchSummary();
-    } catch (err) {
-      console.error('Quick action failed:', err);
-    }
-    setActionLoading(null);
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'available': return { bg: '#dcfce7', text: '#16a34a' };
-      case 'occupied': return { bg: '#fee2e2', text: '#dc2626' };
-      case 'cleaning': return { bg: '#fef3c7', text: '#92400e' };
-      case 'maintenance': return { bg: '#f3f4f6', text: '#6b7280' };
-      case 'reserved': return { bg: '#dbeafe', text: '#1e40af' };
-      default: return { bg: '#f3f4f6', text: '#6b7280' };
-    }
-  };
-
-  const filteredBeds = beds.filter(bed => {
-    if (filter === 'available') return bed.status === 'available';
-    if (filter === 'occupied') return bed.status === 'occupied';
-    return true;
-  });
+  }, [selectedFacility, data]);
 
   if (loading) {
     return (
-      <MobileLayout title="Beds">
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '60px 20px' }}>
-          Loading...
+      <MobileLayout title="Bed Availability" showBack>
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '200px' }}>
+          <div style={{ width: 32, height: 32, border: '3px solid #e5e7eb', borderTopColor: '#0d9488', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
         </div>
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </MobileLayout>
     );
   }
 
   return (
-    <MobileLayout title="Bed Management">
-      {/* Header with facility selector */}
-      <div style={{ padding: '16px', background: 'white', borderBottom: '1px solid #e5e7eb' }}>
-        <select
-          value={selectedFacility}
-          onChange={(e) => setSelectedFacility(e.target.value)}
-          style={{
-            width: '100%',
-            padding: '12px 16px',
-            fontSize: '16px',
-            border: '1px solid #d1d5db',
-            borderRadius: '12px',
-            background: 'white'
-          }}
-        >
-          {facilities.map(f => (
-            <option key={f.id} value={f.id}>{f.name}</option>
-          ))}
-        </select>
-      </div>
-
-      {/* Summary Cards */}
-      {summary && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', padding: '16px' }}>
-          <div style={{
-            background: '#f0fdf4',
-            borderRadius: '12px',
-            padding: '16px',
-            textAlign: 'center'
-          }}>
-            <div style={{ fontSize: '28px', fontWeight: 700, color: '#16a34a' }}>{summary.available_now}</div>
-            <div style={{ fontSize: '12px', color: '#16a34a', textTransform: 'uppercase' }}>Available</div>
-          </div>
-          <div style={{
-            background: '#fef3c7',
-            borderRadius: '12px',
-            padding: '16px',
-            textAlign: 'center'
-          }}>
-            <div style={{ fontSize: '28px', fontWeight: 700, color: '#92400e' }}>{summary.next_24_hours}</div>
-            <div style={{ fontSize: '12px', color: '#92400e', textTransform: 'uppercase' }}>24 Hours</div>
-          </div>
-          <div style={{
-            background: '#fee2e2',
-            borderRadius: '12px',
-            padding: '16px',
-            textAlign: 'center'
-          }}>
-            <div style={{ fontSize: '28px', fontWeight: 700, color: '#dc2626' }}>{summary.occupied}</div>
-            <div style={{ fontSize: '12px', color: '#dc2626', textTransform: 'uppercase' }}>Occupied</div>
+    <MobileLayout title="Bed Availability" showBack>
+      <div style={{ padding: '16px', paddingBottom: '100px' }}>
+        
+        {/* Overall Summary */}
+        <div style={{ 
+          background: 'linear-gradient(135deg, #0d9488, #0f766e)', 
+          borderRadius: '16px', 
+          padding: '20px', 
+          color: 'white',
+          marginBottom: '16px'
+        }}>
+          <div style={{ fontSize: '14px', opacity: 0.9, marginBottom: '8px' }}>System Overview</div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+            <div>
+              <div style={{ fontSize: '28px', fontWeight: 700 }}>{data?.snapshot?.available || 0}</div>
+              <div style={{ fontSize: '12px', opacity: 0.85 }}>Available Now</div>
+            </div>
+            <div>
+              <div style={{ fontSize: '28px', fontWeight: 700 }}>{data?.snapshot?.occupancy_rate || 0}%</div>
+              <div style={{ fontSize: '12px', opacity: 0.85 }}>Occupancy</div>
+            </div>
           </div>
         </div>
-      )}
 
-      {/* Filter Tabs */}
-      <div style={{ display: 'flex', padding: '0 16px', gap: '8px', marginBottom: '16px' }}>
-        {(['all', 'available', 'occupied'] as const).map(f => (
-          <button
-            key={f}
-            onClick={() => setFilter(f)}
+        {/* Upcoming Availability */}
+        <div style={{ 
+          background: 'white', 
+          borderRadius: '14px', 
+          padding: '16px',
+          marginBottom: '16px',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.08)'
+        }}>
+          <div style={{ fontWeight: 600, fontSize: '14px', color: '#374151', marginBottom: '12px' }}>
+            Upcoming Availability
+          </div>
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <div style={{ 
+              flex: 1, 
+              background: '#fef3c7', 
+              borderRadius: '10px', 
+              padding: '14px',
+              textAlign: 'center'
+            }}>
+              <div style={{ fontSize: '24px', fontWeight: 700, color: '#92400e' }}>
+                {data?.discharges?.discharging_today || 0}
+              </div>
+              <div style={{ fontSize: '11px', color: '#92400e' }}>Today</div>
+            </div>
+            <div style={{ 
+              flex: 1, 
+              background: '#dbeafe', 
+              borderRadius: '10px', 
+              padding: '14px',
+              textAlign: 'center'
+            }}>
+              <div style={{ fontSize: '24px', fontWeight: 700, color: '#1e40af' }}>
+                {data?.discharges?.discharging_week || 0}
+              </div>
+              <div style={{ fontSize: '11px', color: '#1e40af' }}>This Week</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Facility Selector */}
+        <div style={{ marginBottom: '16px' }}>
+          <label style={{ display: 'block', fontSize: '12px', color: '#6b7280', marginBottom: '8px', fontWeight: 500 }}>
+            Select Location
+          </label>
+          <select
+            value={selectedFacility}
+            onChange={(e) => setSelectedFacility(e.target.value)}
             style={{
-              flex: 1,
-              padding: '10px',
-              border: 'none',
-              borderRadius: '8px',
-              background: filter === f ? '#275380' : '#f3f4f6',
-              color: filter === f ? 'white' : '#374151',
-              fontWeight: 500,
-              fontSize: '14px',
+              width: '100%',
+              padding: '14px 16px',
+              fontSize: '15px',
+              border: '1px solid #d1d5db',
+              borderRadius: '12px',
+              background: 'white',
               cursor: 'pointer',
-              textTransform: 'capitalize'
+              appearance: 'none',
+              backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
+              backgroundRepeat: 'no-repeat',
+              backgroundPosition: 'right 12px center',
+              backgroundSize: '20px'
             }}
           >
-            {f}
-          </button>
-        ))}
-      </div>
+            <option value="">All Locations</option>
+            {data?.facilities?.map(f => (
+              <option key={f.id} value={f.id}>{f.name}</option>
+            ))}
+          </select>
+        </div>
 
-      {/* Bed List */}
-      <div style={{ padding: '0 16px 100px' }}>
-        {filteredBeds.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>
-            No beds found
+        {/* Facility Detail or All Facilities List */}
+        {facilityDetail ? (
+          <div style={{ 
+            background: 'white', 
+            borderRadius: '14px', 
+            overflow: 'hidden',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.08)'
+          }}>
+            <div style={{ 
+              padding: '16px', 
+              borderBottom: '1px solid #f3f4f6',
+              background: '#f9fafb'
+            }}>
+              <div style={{ fontWeight: 600, fontSize: '16px', color: '#374151' }}>
+                {facilityDetail.name}
+              </div>
+              <div style={{ fontSize: '13px', color: '#6b7280', marginTop: '2px' }}>
+                {facilityDetail.total_beds} total beds
+              </div>
+            </div>
+            
+            {/* Occupancy Bar */}
+            <div style={{ padding: '16px' }}>
+              <div style={{ 
+                height: '12px', 
+                background: '#f3f4f6', 
+                borderRadius: '6px', 
+                overflow: 'hidden',
+                marginBottom: '16px'
+              }}>
+                <div style={{ 
+                  height: '100%', 
+                  width: `${facilityDetail.occupancy_rate}%`,
+                  background: facilityDetail.occupancy_rate >= 90 ? '#ef4444' : 
+                             facilityDetail.occupancy_rate >= 70 ? '#f59e0b' : '#10b981',
+                  borderRadius: '6px',
+                  transition: 'width 0.3s'
+                }} />
+              </div>
+              
+              {/* Stats Grid */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
+                <div style={{ textAlign: 'center', padding: '12px', background: '#f0fdf4', borderRadius: '10px' }}>
+                  <div style={{ fontSize: '22px', fontWeight: 700, color: '#16a34a' }}>{facilityDetail.available}</div>
+                  <div style={{ fontSize: '11px', color: '#16a34a' }}>Available</div>
+                </div>
+                <div style={{ textAlign: 'center', padding: '12px', background: '#fef2f2', borderRadius: '10px' }}>
+                  <div style={{ fontSize: '22px', fontWeight: 700, color: '#dc2626' }}>{facilityDetail.occupied}</div>
+                  <div style={{ fontSize: '11px', color: '#dc2626' }}>Occupied</div>
+                </div>
+                <div style={{ textAlign: 'center', padding: '12px', background: '#f3f4f6', borderRadius: '10px' }}>
+                  <div style={{ fontSize: '22px', fontWeight: 700, color: '#6b7280' }}>{facilityDetail.occupancy_rate}%</div>
+                  <div style={{ fontSize: '11px', color: '#6b7280' }}>Occupancy</div>
+                </div>
+              </div>
+
+              {/* Additional Status */}
+              {(facilityDetail.reserved > 0 || facilityDetail.cleaning > 0 || facilityDetail.maintenance > 0) && (
+                <div style={{ 
+                  display: 'flex', 
+                  gap: '8px', 
+                  marginTop: '12px',
+                  flexWrap: 'wrap'
+                }}>
+                  {facilityDetail.reserved > 0 && (
+                    <span style={{ 
+                      padding: '6px 10px', 
+                      background: '#fef3c7', 
+                      color: '#92400e',
+                      borderRadius: '6px',
+                      fontSize: '12px',
+                      fontWeight: 500
+                    }}>
+                      {facilityDetail.reserved} Reserved
+                    </span>
+                  )}
+                  {facilityDetail.cleaning > 0 && (
+                    <span style={{ 
+                      padding: '6px 10px', 
+                      background: '#e0f2fe', 
+                      color: '#0369a1',
+                      borderRadius: '6px',
+                      fontSize: '12px',
+                      fontWeight: 500
+                    }}>
+                      {facilityDetail.cleaning} Cleaning
+                    </span>
+                  )}
+                  {facilityDetail.maintenance > 0 && (
+                    <span style={{ 
+                      padding: '6px 10px', 
+                      background: '#fee2e2', 
+                      color: '#dc2626',
+                      borderRadius: '6px',
+                      fontSize: '12px',
+                      fontWeight: 500
+                    }}>
+                      {facilityDetail.maintenance} Maintenance
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {filteredBeds.map(bed => {
-              const color = getStatusColor(bed.status);
-              return (
-                <div
-                  key={bed.id}
-                  style={{
-                    background: 'white',
-                    borderRadius: '12px',
-                    border: '1px solid #e5e7eb',
-                    padding: '16px',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center'
-                  }}
-                >
-                  <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
-                      <span style={{ fontSize: '18px', fontWeight: 600 }}>
-                        {bed.room_number}{bed.bed_identifier}
-                      </span>
-                      <span style={{
-                        padding: '4px 10px',
-                        borderRadius: '12px',
-                        background: color.bg,
-                        color: color.text,
-                        fontSize: '12px',
-                        fontWeight: 500,
-                        textTransform: 'capitalize'
-                      }}>
-                        {bed.status}
-                      </span>
-                    </div>
-                    <div style={{ fontSize: '13px', color: '#6b7280' }}>
-                      {bed.bed_type} • {bed.current_patient_name || 'Empty'}
-                    </div>
-                    {bed.available_date && (
-                      <div style={{ fontSize: '12px', color: '#f59e0b', marginTop: '4px' }}>
-                        Available: {new Date(bed.available_date).toLocaleDateString()}
-                        {bed.available_time && ` at ${bed.available_time}`}
-                      </div>
-                    )}
+          /* All Facilities List */
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            {data?.facilities?.map(facility => (
+              <div 
+                key={facility.id}
+                onClick={() => setSelectedFacility(facility.id)}
+                style={{ 
+                  background: 'white', 
+                  borderRadius: '12px', 
+                  padding: '14px 16px',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between'
+                }}
+              >
+                <div>
+                  <div style={{ fontWeight: 600, fontSize: '14px', color: '#374151' }}>
+                    {facility.name}
                   </div>
-
-                  {/* Quick Actions */}
-                  <div style={{ display: 'flex', gap: '8px' }}>
-                    {bed.status === 'cleaning' && (
-                      <button
-                        onClick={() => quickAction(bed.id, 'available')}
-                        disabled={actionLoading === bed.id}
-                        style={{
-                          padding: '10px 16px',
-                          background: '#16a34a',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '8px',
-                          fontSize: '14px',
-                          fontWeight: 500,
-                          cursor: 'pointer',
-                          opacity: actionLoading === bed.id ? 0.7 : 1
-                        }}
-                      >
-                        ✓ Ready
-                      </button>
-                    )}
-                    {bed.status === 'maintenance' && (
-                      <button
-                        onClick={() => quickAction(bed.id, 'available')}
-                        disabled={actionLoading === bed.id}
-                        style={{
-                          padding: '10px 16px',
-                          background: '#16a34a',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '8px',
-                          fontSize: '14px',
-                          fontWeight: 500,
-                          cursor: 'pointer',
-                          opacity: actionLoading === bed.id ? 0.7 : 1
-                        }}
-                      >
-                        ✓ Fixed
-                      </button>
-                    )}
-                    {bed.status === 'occupied' && (
-                      <button
-                        onClick={() => quickAction(bed.id, 'cleaning')}
-                        disabled={actionLoading === bed.id}
-                        style={{
-                          padding: '10px 16px',
-                          background: '#f59e0b',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '8px',
-                          fontSize: '14px',
-                          fontWeight: 500,
-                          cursor: 'pointer',
-                          opacity: actionLoading === bed.id ? 0.7 : 1
-                        }}
-                      >
-                        D/C
-                      </button>
-                    )}
-                    {bed.status === 'available' && (
-                      <button
-                        onClick={() => quickAction(bed.id, 'maintenance')}
-                        disabled={actionLoading === bed.id}
-                        style={{
-                          padding: '10px 16px',
-                          background: '#f3f4f6',
-                          color: '#374151',
-                          border: 'none',
-                          borderRadius: '8px',
-                          fontSize: '14px',
-                          cursor: 'pointer',
-                          opacity: actionLoading === bed.id ? 0.7 : 1
-                        }}
-                      >
-                        🔧
-                      </button>
-                    )}
+                  <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '2px' }}>
+                    <span style={{ color: '#16a34a', fontWeight: 600 }}>{facility.available}</span> available of {facility.total_beds}
                   </div>
                 </div>
-              );
-            })}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{ 
+                    width: '50px',
+                    height: '8px', 
+                    background: '#f3f4f6', 
+                    borderRadius: '4px',
+                    overflow: 'hidden'
+                  }}>
+                    <div style={{ 
+                      height: '100%', 
+                      width: `${facility.occupancy_rate}%`,
+                      background: facility.occupancy_rate >= 90 ? '#ef4444' : 
+                                 facility.occupancy_rate >= 70 ? '#f59e0b' : '#10b981',
+                      borderRadius: '4px'
+                    }} />
+                  </div>
+                  <span style={{ 
+                    fontSize: '13px', 
+                    fontWeight: 600,
+                    color: facility.occupancy_rate >= 90 ? '#ef4444' : 
+                           facility.occupancy_rate >= 70 ? '#f59e0b' : '#10b981'
+                  }}>
+                    {facility.occupancy_rate}%
+                  </span>
+                  <svg width="16" height="16" fill="none" stroke="#9ca3af" strokeWidth="2" viewBox="0 0 24 24">
+                    <path d="M9 18l6-6-6-6"/>
+                  </svg>
+                </div>
+              </div>
+            ))}
           </div>
         )}
-      </div>
 
-      {/* Bottom Navigation */}
-      <div style={{
-        position: 'fixed',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        background: 'white',
-        borderTop: '1px solid #e5e7eb',
-        display: 'flex',
-        justifyContent: 'space-around',
-        padding: '12px 0',
-        paddingBottom: 'max(12px, env(safe-area-inset-bottom))'
-      }}>
-        <Link href="/mobile" style={{ textAlign: 'center', color: '#6b7280', textDecoration: 'none' }}>
-          <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ margin: '0 auto' }}>
-            <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-          </svg>
-          <div style={{ fontSize: '11px', marginTop: '4px' }}>Applications</div>
-        </Link>
-        <Link href="/mobile/beds" style={{ textAlign: 'center', color: '#275380', textDecoration: 'none' }}>
-          <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ margin: '0 auto' }}>
-            <path d="M3 13h18v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6zM3 13V8a2 2 0 012-2h3v7M21 13V8a2 2 0 00-2-2h-9v7"/>
-          </svg>
-          <div style={{ fontSize: '11px', marginTop: '4px', fontWeight: 600 }}>Beds</div>
-        </Link>
-        <Link href="/mobile/scan" style={{ textAlign: 'center', color: '#6b7280', textDecoration: 'none' }}>
-          <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ margin: '0 auto' }}>
-            <path d="M3 9V5a2 2 0 012-2h4M3 15v4a2 2 0 002 2h4M15 3h4a2 2 0 012 2v4M15 21h4a2 2 0 002-2v-4"/>
-          </svg>
-          <div style={{ fontSize: '11px', marginTop: '4px' }}>Scan</div>
-        </Link>
       </div>
     </MobileLayout>
   );
