@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { features } from '@/lib/config';
 
 // Icon components for integrations
@@ -47,6 +48,7 @@ const defaultFieldMappings = [
 ];
 
 export default function IntegrationsPage() {
+  const router = useRouter();
   const [showAddCRM, setShowAddCRM] = useState(false);
   const [showAddSource, setShowAddSource] = useState(false);
   const [showFieldMapping, setShowFieldMapping] = useState(false);
@@ -54,6 +56,18 @@ export default function IntegrationsPage() {
   const [editingMapping, setEditingMapping] = useState<{index: number; source: string; destination: string} | null>(null);
   const [showAddMapping, setShowAddMapping] = useState(false);
   const [newMapping, setNewMapping] = useState({ source: '', destination: '' });
+
+  // Redirect to dashboard in basic mode
+  useEffect(() => {
+    if (!features.crmAutoSync) {
+      router.replace('/dashboard');
+    }
+  }, [router]);
+
+  // Don't render anything in basic mode while redirecting
+  if (!features.crmAutoSync) {
+    return null;
+  }
 
   return (
     <div className="main-content">
